@@ -3,7 +3,7 @@
 [![IronPython](https://img.shields.io/badge/ironpython-2.7-red.svg)](https://github.com/IronLanguages/ironpython2/releases/tag/ipy-2.7.8/)
 
 # honeybee-grasshopper-radiance
-:honeybee: :green_book: :fire: Honeybee Radiance plugin for Grasshopper (aka. honeybee[+]).
+:honeybee: :green_book: :zap: Honeybee Radiance plugin for Grasshopper (aka. honeybee[+]).
 
 This repository contains all radiance modeling Grasshopper components for the honeybee
 plugin. The package includes both the user objects (`.ghuser`) and the Python
