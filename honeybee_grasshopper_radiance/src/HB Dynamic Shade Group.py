@@ -40,7 +40,7 @@ shades continue to change.
 
 ghenv.Component.Name = 'HB Dynamic Shade Group'
 ghenv.Component.NickName = 'ShadeGroup'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -54,9 +54,9 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:  # import the honeybee-radiance dependencies
-    from honeybee_radiance.state import RadianceShadeState
+    from honeybee_radiance.dynamic import RadianceShadeState
 except ImportError as e:
-    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
+    raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
 
 try:  # import the ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
@@ -65,11 +65,11 @@ except ImportError as e:
 
 
 if all_required_inputs(ghenv.Component):
-    # check and duplicate  the input objects
+    # check and duplicate the input objects
     group_shds = []
     for shd in _shades:
         assert isinstance(shd, Shade), 'Expected Shade ' \
-            'for dynamic group. Got {}.'.format(type(shd))
+            'for dynamic shade group. Got {}.'.format(type(shd))
         group_shds.append(shd.duplicate())
 
     # set the name of the dynamic group
