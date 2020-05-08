@@ -27,12 +27,12 @@ Create a Honeybee View for an image-based analysis.
                 * 0 Perspective (v)
                 * 1 Hemispherical fisheye (h)
                 * 2 Parallel (l)
-                * 3 Cylindrical panorma (c)
+                * 3 Cylindrical panorama (c)
                 * 4 Angular fisheye (a)
                 * 5 Planisphere [stereographic] projection (s)
             For more detailed description about view types check rpict manual
             page (http://radsite.lbl.gov/radiance/man_html/rpict.1.html)
-        _h_angle_: A number for the view horizontal size (-vs) in degrees. For a
+        _h_angle_: A number for the view horizontal size (-vh) in degrees. For a
             perspective projection (including fisheye views), val is the horizontal
             field of view. For a parallel projection, val is the view width in
             world coordinates. Default: 60.
@@ -47,7 +47,7 @@ Create a Honeybee View for an image-based analysis.
 
 ghenv.Component.Name = 'HB View'
 ghenv.Component.NickName = 'View'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

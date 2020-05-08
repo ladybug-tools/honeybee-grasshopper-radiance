@@ -12,8 +12,8 @@ Create a Custom sky from direct and diffuse irradiance.
 
     Args:
         north_: A number between 0 and 360 that represents the degrees off from
-            the y-axis to make North. The default North direction is set to the
-            Y-axis (default: 0 degrees).
+            the y-axis to make North. This can also be a vector to set the North.
+            Default is 0. The default North direction is the Y-axis (0 degrees).
         _location: A Ladybug location object.
         _dir_rad: Direct normal irradiance (W/m2).
         _diff_rad: Diffuse horizontal irradiance (W/m2).
@@ -27,15 +27,15 @@ Create a Custom sky from direct and diffuse irradiance.
 
 ghenv.Component.Name = 'HB Custom Sky'
 ghenv.Component.NickName = 'CustomSky'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
 
 try:
-    from ladybug.location import Location
+    from ladybug_geometry.geometry2d.pointvector import Vector2D
 except ImportError as e:
-    raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
+    raise ImportError('\nFailed to import ladybug_geometry:\n\t{}'.format(e))
 
 try:
     from honeybee_radiance.lightsource.sky import ClimateBased
@@ -44,13 +44,22 @@ except ImportError as e:
 
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.togeometry import to_vector2d
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
+import math
+
 
 if all_required_inputs(ghenv.Component):
-    # set default values if they are not set
+    # process the north input
     north_ = north_ or 0
+    try:  # it's a vector
+        north_ = math.degrees(to_vector2d(north_).angle_clockwise(Vector2D(0, 1)))
+    except AttributeError:  # north angle instead of vector
+        north_ = float(north_)
+
+    # set default values if they are not set
     _month_ = _month_ or 6
     _day_ = _day_ or 21
     _hour_ = _hour_ or 12
