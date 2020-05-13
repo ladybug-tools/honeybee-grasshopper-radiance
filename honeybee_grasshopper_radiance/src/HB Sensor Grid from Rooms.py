@@ -28,7 +28,7 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -84,8 +84,10 @@ if all_required_inputs(ghenv.Component):
             base_dirs.extend([(vec.x, vec.y, vec.z) for vec in lb_mesh.face_normals])
 
         # append the objects to the final lists
-        grid.append(SensorGrid.from_position_and_direction(
-            room.identifier, base_poss, base_dirs))
+        s_grid = SensorGrid.from_position_and_direction(
+            room.identifier, base_poss, base_dirs)
+        s_grid.room_identifier = room.identifier
+        grid.append(s_grid)
         points.append(base_points)
         mesh.append(base_mesh)
 
