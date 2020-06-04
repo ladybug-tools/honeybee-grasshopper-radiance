@@ -18,12 +18,13 @@ The honeybee-grasshopper-radiance plugin has the following dependencies on core 
 
 * [ladybug-core](https://github.com/ladybug-tools/ladybug)
 * [ladybug-geometry](https://github.com/ladybug-tools/ladybug-geometry)
-* [ladybug-dotnet](https://github.com/ladybug-tools/ladybug-dotnet)
+* [ladybug-comfort](https://github.com/ladybug-tools/ladybug-comfort)
 * [ladybug-rhino](https://github.com/ladybug-tools/ladybug-rhino)
 * [honeybee-core](https://github.com/ladybug-tools/honeybee-core)
 * [honeybee-radiance](https://github.com/ladybug-tools/honeybee-radiance)
 * [honeybee-radiance-folder](https://github.com/ladybug-tools/honeybee-radiance-folder)
 * [honeybee-radiance-command](https://github.com/ladybug-tools/honeybee-radiance-command)
+* [honeybee-standards](https://github.com/ladybug-tools/honeybee-standards)
 
 ## Other Required Components
 
