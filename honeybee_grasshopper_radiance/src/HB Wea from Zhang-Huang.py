@@ -14,7 +14,7 @@ Construct a WEA from hourly data collections and the Zhang-Huang Solar Model.
     Args:
         _location = A Ladybug Location object.
         _cloud_cover: Hourly DataCollection with the fraction of total sky cover
-            (tenths of coverage). (i.e. 1 is 1/10 covered. 10 is total coverage)
+            (tenths of coverage). (eg. 1 is 1/10 covered. 10 is total coverage)
         _rel_humidity: Hourly DataCollection with relative humidity [%].
         _dry_bulb_temp: Hourly DataCollection with dry bulb temperature [C].
         _wind_speed: Hourly DataCollection with wind speed [m/s].
@@ -29,7 +29,7 @@ Construct a WEA from hourly data collections and the Zhang-Huang Solar Model.
 
 ghenv.Component.Name = 'HB Wea from Zhang-Huang'
 ghenv.Component.NickName = 'Zhang-Huang'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -57,9 +57,6 @@ if all_required_inputs(ghenv.Component):
             _cloud_cover.header.analysis_period, _cloud_cover.header.metadata)
         _atmos_pressure_ = HourlyContinuousCollection(header,
             [101325] * 8760 * _cloud_cover.header.analysis_period.timestep)
-    assert HourlyContinuousCollection.are_collections_aligned(
-        [_cloud_cover, _rel_humidity, _dry_bulb_temp, _wind_speed]), \
-        'Data Collections must be aligned.'
 
     # build the Wea
     wea = Wea.from_zhang_huang_solar(_location, _cloud_cover, _rel_humidity,
