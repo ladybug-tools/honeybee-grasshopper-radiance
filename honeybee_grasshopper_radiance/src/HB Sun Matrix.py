@@ -16,7 +16,9 @@ Create a Sun Matrix from Wea.
             the y-axis to make North. This can also be a vector to set the North.
             Default is 0. The default North direction is the Y-axis (0 degrees).
         _wea: Ladybug Wea object.
-    
+        hoys_: Optional list of numbers for the hours of the year to be included
+            in the sky matrix [0-8759].
+
     Returns:
         readMe!: Reports, errors, warnings, etc.
         sunmtx: Sky vector for multi-phase daylight analysis.
@@ -24,7 +26,7 @@ Create a Sun Matrix from Wea.
 
 ghenv.Component.Name = 'HB Sun Matrix'
 ghenv.Component.NickName = 'SunMatrix'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -56,4 +58,9 @@ if all_required_inputs(ghenv.Component):
     except AttributeError:  # north angle instead of vector
         north_ = float(north_)
 
+    # process the hoys if they are input
+    if len(hoys_) != 0:
+        _wea = _wea.filter_by_hoys(hoys_)
+
+    # create the sun matrix
     sunmtx = SunMatrix(_wea, north_)
