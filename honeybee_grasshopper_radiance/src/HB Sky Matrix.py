@@ -18,7 +18,9 @@ Create a Sky Matrix from Wea.
         _wea: Ladybug Wea object.
         _density_: A positive intger for sky density. [1] Tregenza Sky,
             [2] Reinhart Sky, etc. (Default: 1)
-    
+        hoys_: Optional list of numbers for the hours of the year to be included
+            in the sky matrix [0-8759].
+
     Returns:
         readMe!: Reports, errors, warnings, etc.
         skymtx: Sky matrix for multi-phase daylight analysis.
@@ -26,7 +28,7 @@ Create a Sky Matrix from Wea.
 
 ghenv.Component.Name = 'HB Sky Matrix'
 ghenv.Component.NickName = 'SkyMatrix'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -58,8 +60,10 @@ if all_required_inputs(ghenv.Component):
     except AttributeError:  # north angle instead of vector
         north_ = float(north_)
 
-    # set default values
+    # set default values and process the hoys if they are input
     _density_ = _density_ or 1
+    if len(hoys_) != 0:
+        _wea = _wea.filter_by_hoys(hoys_)
 
     # create the sky object
     skymtx = SkyMatrix(_wea, north_, _density_)
