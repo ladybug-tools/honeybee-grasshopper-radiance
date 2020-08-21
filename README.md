@@ -33,3 +33,9 @@ following repositories to be installed in order to work correctly:
 
 * [ladybug-grasshopper](https://github.com/ladybug-tools/ladybug-grasshopper)
 * [honeybee-grasshopper-core](https://github.com/ladybug-tools/honeybee-grasshopper-core)
+
+## Installation
+
+See the [Wiki of the lbt-grasshopper repository](https://github.com/ladybug-tools/lbt-grasshopper/wiki)
+for the installation instructions for the entire Ladybug Tools Grasshopper plugin
+(including this repository).
