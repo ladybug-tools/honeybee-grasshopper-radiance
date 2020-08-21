@@ -20,6 +20,10 @@ Create a Sensor Grid object that can be used in a grid-based recipe.
             direction of each sensor. The input here MUST therefor align with
             the input _positions. If no value is provided (0, 0, 1) will be
             assigned for all the sensors.
+        mesh_: An optional mesh that aligns with the sensors. This is useful for
+            generating visualizations of the sensor grid beyond the sensor
+            positions. Note that the number of sensors in the grid must match
+            the number of faces or the number vertices within the mesh.
     
     Returns:
         grid: An SensorGrid object that can be used in a grid-based recipe.
@@ -27,7 +31,7 @@ Create a Sensor Grid object that can be used in a grid-based recipe.
 
 ghenv.Component.Name = 'HB Sensor Grid'
 ghenv.Component.NickName = 'SensorGrid'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -44,6 +48,7 @@ except ImportError as e:
 
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.togeometry import to_mesh3d
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -55,7 +60,7 @@ if all_required_inputs(ghenv.Component):
 
     # create the sensor grid object
     if len(_directions_) == 0:
-        grid = SensorGrid.from_planar_grid(
+        grid = SensorGrid.from_planar_positions(
             clean_and_id_rad_string(_name_), pts, (0, 0, 1))
     else:
         vecs = [(vec.X, vec.Y, vec.Z) for vec in _directions_]
@@ -64,3 +69,5 @@ if all_required_inputs(ghenv.Component):
 
     # set the display name
     grid.display_name = _name_
+    if mesh_ is not None:
+        grid.mesh = to_mesh3d(mesh_)
