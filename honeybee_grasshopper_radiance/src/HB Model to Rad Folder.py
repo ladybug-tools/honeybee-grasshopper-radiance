@@ -30,10 +30,10 @@ studies off of a consistent set of geometry and modifiers.
 
 ghenv.Component.Name = 'HB Model to Rad Folder'
 ghenv.Component.NickName = 'ModelToRad'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Radiance'
-ghenv.Component.SubCategory = '4 :: Simulate'
-ghenv.Component.AdditionalHelpFromDocStrings = '1'
+ghenv.Component.SubCategory = '4 :: Results'
+ghenv.Component.AdditionalHelpFromDocStrings = '0'
 
 import os
 
