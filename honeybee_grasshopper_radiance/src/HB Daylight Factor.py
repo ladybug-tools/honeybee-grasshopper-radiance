@@ -33,7 +33,7 @@ Run daylight factor for a single model.
 
 ghenv.Component.Name = 'HB Daylight Factor'
 ghenv.Component.NickName = 'DaylightFactor'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -42,7 +42,7 @@ import json
 import os
 
 try:
-    from ladybug.futil import preparedir
+    from ladybug.futil import preparedir, nukedir
     from ladybug.config import folders as lb_folders
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
@@ -137,7 +137,7 @@ class Workflow(object):
         # write the inputs dictionary into a file
         if not os.path.isdir(sim_fold):
             preparedir(sim_fold)
-        file_path = os.path.join(sim_fold, 'inputs.json')
+        file_path = os.path.join(sim_fold, '{}-inputs.json'.format(self.name))
         with open(file_path, 'w') as fp:
             json.dump(inputs, fp, indent=indent)
         return file_path
@@ -181,6 +181,9 @@ if all_required_inputs(ghenv.Component):
             self._info['inputs']['model'].identifier, 'Radiance')
 
     def process_inputs(inputs, folder):
+        model_fold = os.path.join(folder, 'model')
+        if os.path.isdir(model_fold):
+            nukedir(model_fold, rmdir=True)  # delete the folder if it already exists
         model = inputs['model']
         model.to.rad_folder(model, folder)
         inputs['model'] = 'model'
