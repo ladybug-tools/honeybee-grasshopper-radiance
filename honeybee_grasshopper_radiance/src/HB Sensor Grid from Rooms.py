@@ -28,7 +28,7 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '0.2.0'
+ghenv.Component.Message = '0.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -74,35 +74,36 @@ if all_required_inputs(ghenv.Component):
         # join th floor faes into a Brep
         floor_faces = [from_face3d(face.geometry.flip()) for face in room.faces
                        if isinstance(face.type, Floor)]
-        _geo = rg.Brep.JoinBreps(floor_faces, tolerance)
+        if len(floor_faces) != 0:
+            _geo = rg.Brep.JoinBreps(floor_faces, tolerance)
 
-        base_mesh = rg.Mesh()
-        base_lb_mesh = []
-        base_points = []
-        base_poss = []
-        base_dirs = []
-        for brep in _geo:
-            # create the gridded mesh
-            lb_mesh = to_gridded_mesh3d(brep, _grid_size, _dist_floor_)
-            # collect the objects for the output
-            base_mesh.Append(from_mesh3d(lb_mesh))
-            base_lb_mesh.append(lb_mesh)
-            base_points.extend([from_point3d(pt) for pt in lb_mesh.face_centroids])
-            base_poss.extend([(pt.x, pt.y, pt.z) for pt in lb_mesh.face_centroids])
-            base_dirs.extend([(vec.x, vec.y, vec.z) for vec in lb_mesh.face_normals])
+            base_mesh = rg.Mesh()
+            base_lb_mesh = []
+            base_points = []
+            base_poss = []
+            base_dirs = []
+            for brep in _geo:
+                # create the gridded mesh
+                lb_mesh = to_gridded_mesh3d(brep, _grid_size, _dist_floor_)
+                # collect the objects for the output
+                base_mesh.Append(from_mesh3d(lb_mesh))
+                base_lb_mesh.append(lb_mesh)
+                base_points.extend([from_point3d(pt) for pt in lb_mesh.face_centroids])
+                base_poss.extend([(pt.x, pt.y, pt.z) for pt in lb_mesh.face_centroids])
+                base_dirs.extend([(vec.x, vec.y, vec.z) for vec in lb_mesh.face_normals])
 
-        # append the objects to the final lists
-        s_grid = SensorGrid.from_position_and_direction(room.identifier, base_poss, base_dirs)
-        s_grid.display_name = clean_rad_string(room.display_name)
-        s_grid.room_identifier = room.identifier
-        if len(base_lb_mesh) == 1:
-            s_grid.mesh = base_lb_mesh[0]
-        else:
-            s_grid.mesh = Mesh3D.join_meshes(base_lb_mesh)
-        
-        grid.append(s_grid)
-        points.append(base_points)
-        mesh.append(base_mesh)
+            # append the objects to the final lists
+            s_grid = SensorGrid.from_position_and_direction(room.identifier, base_poss, base_dirs)
+            s_grid.display_name = clean_rad_string(room.display_name)
+            s_grid.room_identifier = room.identifier
+            if len(base_lb_mesh) == 1:
+                s_grid.mesh = base_lb_mesh[0]
+            else:
+                s_grid.mesh = Mesh3D.join_meshes(base_lb_mesh)
+            
+            grid.append(s_grid)
+            points.append(base_points)
+            mesh.append(base_mesh)
 
     # convert the lists of points to data trees
     points = list_to_data_tree(points)
