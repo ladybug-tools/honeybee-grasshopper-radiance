@@ -8,7 +8,7 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Run an annual daylight study for a single model.
+Run a direct sun study for a single model.
 
     Args:
         _model: A Honeybee Model for which Annual Daylight will be simulated.
@@ -40,9 +40,9 @@ Run an annual daylight study for a single model.
             get results.
 """
 
-ghenv.Component.Name = 'HB Annual Daylight'
-ghenv.Component.NickName = 'AnnualDaylight'
-ghenv.Component.Message = '0.1.2'
+ghenv.Component.Name = 'HB Direct Sunlight'
+ghenv.Component.NickName = 'DirectSunlight'
+ghenv.Component.Message = '0.1.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -220,15 +220,15 @@ if all_required_inputs(ghenv.Component):
     #  this part will be different for each recipe but standardized
     local_path = os.path.join(
         lb_folders.ladybug_tools_folder, 'resources', 'recipes',
-        'honeybee_radiance_recipe', 'annual_daylight.yaml')
+        'honeybee_radiance_recipe', 'direct_sunlight.yaml')
     recipe = {
         'owner': 'ladybug-tools',
-        'name': 'annual-daylight',
-        'tag': '9d5d49c529514f1cb3873657142233ff4cf947d52c0722875dc8cbda50c9239b',
+        'name': 'direct-sunlight',
+        'tag': '9bb7c9c38c057d76a000e1cb2f7b537663c53dff8a55c65d50cb5d044fd07f56',
         'path': local_path,
         'default-simulation-path': None,
-        'simulation-id': 'annual_daylight',
-        'result-file-extension': 'ill'
+        'simulation-id': 'direct_sunlight',
+        'result-file-extension': 'res'
       }
     _inputs = {
         'model': _model,

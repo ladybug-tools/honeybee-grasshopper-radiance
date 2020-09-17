@@ -19,7 +19,12 @@ The names of the grids will be the same as the rooms that they came from.
         _grid_size: Number for the size of the grid cells.
         _dist_floor_: Number for the distance to move points from the floors of
             the input rooms. The default is 0.8 meters.
-    
+        remove_out_: Boolean to note whether an extra check should be run to remove
+            sensor points that lie outside the Room volume. Note that this can
+            add significantly to the component's run time and this check is
+            usually not necessary in the case that all walls are vertical
+            and all floors are horizontal (Default: False).
+
     Returns:
         grid: A SensorGrid object that can be used in a grid-based recipe.
         points: The points that are at the center of each grid cell.
@@ -28,7 +33,7 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '0.2.1'
+ghenv.Component.Message = '0.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -51,13 +56,11 @@ except ImportError as e:
 
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.config import conversion_to_meters, tolerance
-    from ladybug_rhino.togeometry import to_gridded_mesh3d
+    from ladybug_rhino.togeometry import to_joined_gridded_mesh3d
     from ladybug_rhino.fromgeometry import from_mesh3d, from_point3d, from_face3d
     from ladybug_rhino.grasshopper import all_required_inputs, list_to_data_tree
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
-
-import Rhino.Geometry as rg
 
 
 if all_required_inputs(ghenv.Component):
@@ -71,39 +74,35 @@ if all_required_inputs(ghenv.Component):
     mesh = []
 
     for room in _rooms:
-        # join th floor faes into a Brep
+        # get all of the floor faces of the room as Breps
         floor_faces = [from_face3d(face.geometry.flip()) for face in room.faces
                        if isinstance(face.type, Floor)]
+
         if len(floor_faces) != 0:
-            _geo = rg.Brep.JoinBreps(floor_faces, tolerance)
+            # create the gridded ladybug Mesh3D
+            lb_mesh = to_joined_gridded_mesh3d(floor_faces, _grid_size, _dist_floor_)
 
-            base_mesh = rg.Mesh()
-            base_lb_mesh = []
-            base_points = []
-            base_poss = []
-            base_dirs = []
-            for brep in _geo:
-                # create the gridded mesh
-                lb_mesh = to_gridded_mesh3d(brep, _grid_size, _dist_floor_)
-                # collect the objects for the output
-                base_mesh.Append(from_mesh3d(lb_mesh))
-                base_lb_mesh.append(lb_mesh)
-                base_points.extend([from_point3d(pt) for pt in lb_mesh.face_centroids])
-                base_poss.extend([(pt.x, pt.y, pt.z) for pt in lb_mesh.face_centroids])
-                base_dirs.extend([(vec.x, vec.y, vec.z) for vec in lb_mesh.face_normals])
+            # remove points outside of the room volume if requested
+            if remove_out_:
+                pattern = [room.geometry.is_point_inside(pt)
+                           for pt in lb_mesh.face_centroids]
+                lb_mesh, vertex_pattern = lb_mesh.remove_faces(pattern)
 
-            # append the objects to the final lists
+            # extract positions and directions from the mesh
+            base_points = [from_point3d(pt) for pt in lb_mesh.face_centroids]
+            base_poss = [(pt.x, pt.y, pt.z) for pt in lb_mesh.face_centroids]
+            base_dirs = [(vec.x, vec.y, vec.z) for vec in lb_mesh.face_normals]
+
+            # create the sensor grid
             s_grid = SensorGrid.from_position_and_direction(room.identifier, base_poss, base_dirs)
             s_grid.display_name = clean_rad_string(room.display_name)
             s_grid.room_identifier = room.identifier
-            if len(base_lb_mesh) == 1:
-                s_grid.mesh = base_lb_mesh[0]
-            else:
-                s_grid.mesh = Mesh3D.join_meshes(base_lb_mesh)
-            
+            s_grid.mesh = lb_mesh
+
+            # append everything to the lists
             grid.append(s_grid)
             points.append(base_points)
-            mesh.append(base_mesh)
+            mesh.append(from_mesh3d(lb_mesh))
 
     # convert the lists of points to data trees
     points = list_to_data_tree(points)
