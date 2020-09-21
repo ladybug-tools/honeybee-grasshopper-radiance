@@ -26,14 +26,14 @@ Run daylight factor for a single model.
             Default [-ab 2]
 
     Returns:
-        workflow: A simulation workflow that contains a recipe and input arguments.
-            Use the "HB Run Workflow" component to execute the workflow and
-            get results.
+        recipe: A simulation recipe that contains a simulation instructions and
+            input arguments. Use the "HB Run Recipe" component to execute the
+            recipe and get results.
 """
 
 ghenv.Component.Name = 'HB Daylight Factor'
 ghenv.Component.NickName = 'DaylightFactor'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -220,4 +220,4 @@ if all_required_inputs(ghenv.Component):
       "recipe": recipe,
       "inputs": inputs
     }
-    workflow = Workflow(workflow_json)
+    recipe = Workflow(workflow_json)
