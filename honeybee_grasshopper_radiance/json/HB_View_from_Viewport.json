@@ -1,0 +1,50 @@
+{
+  "version": "0.1.0", 
+  "nickname": "Viewport", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "view", 
+        "description": "A Honeybee View object that can be used in an image-based recipe.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name_", 
+      "description": "Text to set the name for the modifier and to be incorporated into\na unique modifier identifier.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_viewport_", 
+      "description": "The Rhino viewport name which will be used to generate a radiance\nView object. Typical inputs include \"Perspective\", \"Top\", \"Bottom\",\n\"Left\", \"Right\", \"Front\", \"Back\" or any viewport name that you have\nsaved within the Rhino file.  If no text is input here, the default\nwill be the currently active viewport (the last viewport in which\nyou navigated).", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_view_type_", 
+      "description": "An integer to set the view type (-vt). Choose from the choices\nbelow. Default: 0 if the viewport is in perspective; 2 if it is parallel.\n* 0 Perspective (v)\n* 1 Hemispherical fisheye (h)\n* 2 Parallel (l)\n* 3 Cylindrical panorama (c)\n* 4 Angular fisheye (a)\n* 5 Planisphere [stereographic] projection (s)\nFor more detailed description about view types check rpict manual\npage (http://radsite.lbl.gov/radiance/man_html/rpict.1.html)", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "refresh_", 
+      "description": "Connect a Grasshopper \"button\" component to refresh the orientation\nupon hitting the button.", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance.view import View\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\n    from ladybug_{{cad}}.viewport import viewport_by_name, viewport_properties\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\nVIEW_TYPES = ('v', 'h', 'l', 'c', 'a')\n\n\n# set the default values\n_name_ = 'RadianceView' if _name_ is None else _name_\nviewp = viewport_by_name(_viewport_)\nv_props = viewport_properties(viewp, _view_type_)\n\nview = View(\n    clean_and_id_rad_string(_name_), v_props['position'], v_props['direction'],\n    v_props['up_vector'], VIEW_TYPES[v_props['view_type']],\n    v_props['h_angle'], v_props['v_angle'])\nview.display_name = _name_\n", 
+  "category": "HB-Radiance", 
+  "name": "HB View from Viewport", 
+  "description": "Create a Honeybee View for an image-based analysis using a Rhino viewport.\n-"
+}

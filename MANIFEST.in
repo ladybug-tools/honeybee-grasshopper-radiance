@@ -1,1 +1,2 @@
 recursive-include honeybee_grasshopper_radiance/user_objects *.ghuser
+recursive-exclude honeybee_grasshopper_radiance/json *.json

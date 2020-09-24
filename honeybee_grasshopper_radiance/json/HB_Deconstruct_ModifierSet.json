@@ -1,0 +1,92 @@
+{
+  "version": "0.1.0", 
+  "nickname": "DecnstrModSet", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "exterior_wall", 
+        "description": "A modifier object for the set's exterior walls.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "exterior_roof", 
+        "description": "A modifier object for the set's exterior roofs.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "exposed_floor", 
+        "description": "A modifier object for the set's exposed floors.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "window", 
+        "description": "A modifier object for apertures with an Outdoors boundary\ncondition and a Wall face type for their parent face.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "skylight", 
+        "description": "A modifier object for apertures with an Outdoors boundary\ncondition and a RoofCeiling or Floor face type for their parent face.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "operable", 
+        "description": "A modifier object for apertures with an Outdoors boundary\ncondition and True is_operable property.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "exterior_door", 
+        "description": "A modifier object for opaque doors with an Outdoors\nboundary condition and a Wall face type for their parent face.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "overhead_door", 
+        "description": "A modifier object for opaque doors with an Outdoors\nboundary condition and a RoofCeiling or Floor face type for their\nparent face.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "glass_door", 
+        "description": "A modifier object for all glass doors with an Outdoors\nboundary condition.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "exterior_shade", 
+        "description": "A modifier object for all exterior shades.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_mod_set", 
+      "description": "A modifier set to be deconstructed. This can also be\ntext for a modifier set to be looked up in the modifier\nset library.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Modifiers", 
+  "code": "\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.modifierset import ModifierSet\n    from honeybee_radiance.lib.modifiersets import modifier_set_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    if isinstance(_mod_set, str):\n        _mod_set = modifier_set_by_identifier(_mod_set)\n    else:\n        assert isinstance(_mod_set, ModifierSet), \\\n            'Expected ModifierSet. Got {}.'.format(type(_mod_set))\n\n    exterior_wall = _mod_set.wall_set.exterior_modifier\n    exterior_roof = _mod_set.roof_ceiling_set.exterior_modifier\n    exposed_floor = _mod_set.floor_set.exterior_modifier\n    window = _mod_set.aperture_set.window_modifier\n    skylight = _mod_set.aperture_set.skylight_modifier\n    operable = _mod_set.aperture_set.operable_modifier\n    exterior_door = _mod_set.door_set.exterior_modifier\n    overhead_door = _mod_set.door_set.overhead_modifier\n    glass_door = _mod_set.door_set.exterior_glass_modifier\n    exterior_shade = _mod_set.shade_set.exterior_modifier\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Deconstruct ModifierSet", 
+  "description": "Deconstruct a modifier set into its constituient exterior modifiers.\n-"
+}

@@ -1,0 +1,71 @@
+{
+  "version": "0.1.2", 
+  "nickname": "DecnstrConstrSetInt", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "interior_wall", 
+        "description": "A modifier object for the set's interior walls.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "ceiling", 
+        "description": "A modifier object for the set's interior roofs.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "interior_floor", 
+        "description": "A modifier object for the set's interior floors.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "interior_window", 
+        "description": "A modifier object for all apertures with a Surface\nboundary condition.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "interior_door", 
+        "description": "A modifier object for all opaque doors with a Surface\nboundary condition.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "int_glass_door", 
+        "description": "A modifier object for all glass doors with a Surface\nboundary condition.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "interior_shade", 
+        "description": "A modifier object for all interior shades.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_mod_set", 
+      "description": "A modifier set to be deconstructed. This can also be\ntext for a modifier set to be looked up in the modifier\nset library.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Modifiers", 
+  "code": "\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.modifierset import ModifierSet\n    from honeybee_radiance.lib.modifiersets import modifier_set_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    if isinstance(_mod_set, str):\n        _mod_set = modifier_set_by_identifier(_mod_set)\n    else:\n        assert isinstance(_mod_set, ModifierSet), \\\n            'Expected ModifierSet. Got {}.'.format(type(_mod_set))\n\n    interior_wall = _mod_set.wall_set.interior_modifier\n    ceiling = _mod_set.roof_ceiling_set.interior_modifier\n    interior_floor = _mod_set.floor_set.interior_modifier\n    interior_window = _mod_set.aperture_set.interior_modifier\n    interior_door = _mod_set.door_set.interior_modifier\n    int_glass_door = _mod_set.door_set.interior_glass_modifier\n    interior_shade = _mod_set.shade_set.interior_modifier\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Deconstruct ModifierSet Interior", 
+  "description": "Deconstruct a modifier set into its constituient interior modifiers.\n-"
+}

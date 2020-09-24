@@ -1,0 +1,36 @@
+{
+  "version": "0.1.0", 
+  "nickname": "TauClearSky", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "wea", 
+        "description": "A wea object from stat file. This wea object represents an ASHRAE Revised \nClear Sky (\"Tau Model\"), which is intended to determine peak solar load\nand sizing parmeters for HVAC systems. The \"Tau Model\" uses monthly\noptical depths found within a .stat file.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_stat_file", 
+      "description": "Script variable Python", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "timestep_", 
+      "description": "_stat_file = Full path to .stat file (typically next to the epw file).\nAn integer representing the timestep with which to make the \nWEA object.  Default is set to 1 for 1 step per hour of the year.", 
+      "type": "int", 
+      "default": "1"
+    }
+  ], 
+  "subcategory": "2 :: Light Sources", 
+  "code": "\ntry:\n    from ladybug.wea import Wea\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    timestep_ = 1 if timestep_ is None else timestep_\n    wea = Wea.from_stat_file(_stat_file, timestep_)", 
+  "category": "HB-Radiance", 
+  "name": "HB Tau Clear Sky from STAT", 
+  "description": "Create a WEA object for an ASHRAE Revised Clear Sky (Tau Model) using a STAT file.\n-"
+}

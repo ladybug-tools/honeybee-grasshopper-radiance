@@ -1,0 +1,43 @@
+{
+  "version": "0.1.1", 
+  "nickname": "ModelToRad", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "folder", 
+        "description": "Path to the folder in which all of the files have been written.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "A honeybee model object possessing all geometry, radiance modifiers\nand simulation assets like Sensor Grids and Views.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_folder_", 
+      "description": "An optional folder to into which the Model Radiance Folder\nwill be written. NOTE THAT DIRECTORIES INPUT HERE SHOULD NOT HAVE\nANY SPACES OR UNDERSCORES IN THE FILE PATH.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_write", 
+      "description": "Set to True to write the Model to a Radiance folder.", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "4 :: Results", 
+  "code": "\nimport os\n\ntry:\n    from ladybug.futil import write_to_file_by_name, nukedir, preparedir\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance_folder.folder import ModelFolder\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance_folder:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, give_warning\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _write:\n    # process the simulation folder name and the directory\n    _folder_ = folders.default_simulation_folder if _folder_ is None else _folder_\n    folder = os.path.join(_folder_, _model.identifier, 'Radiance')\n    if os.path.isdir(folder):\n        nukedir(folder, rmdir=True)  # delete the folder if it already exists\n    else:\n        preparedir(folder)  # create the directory if it's not there\n\n    # write the model folder\n    _model.to.rad_folder(_model, folder)\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Model to Rad Folder", 
+  "description": "Write a Honeybee Model to a Radiance Model Folder.\n_\nThis Radiance Model Folder is what is used to run various types of Radiance\nstudies off of a consistent set of geometry and modifiers.\n-"
+}

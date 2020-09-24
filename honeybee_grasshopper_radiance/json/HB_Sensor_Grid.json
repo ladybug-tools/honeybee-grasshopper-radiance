@@ -1,0 +1,50 @@
+{
+  "version": "0.2.0", 
+  "nickname": "SensorGrid", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "grid", 
+        "description": "An SensorGrid object that can be used in a grid-based recipe.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name_", 
+      "description": "A name for this sensor grid.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_positions", 
+      "description": "A list or a datatree of points with one point for the position\nof eah sensor. Each branch of the datatree will be considered as a\nseparate sensor grid.", 
+      "type": "Point3d", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_directions_", 
+      "description": "A list or a datatree of vectors with one vector for the\ndirection of each sensor. The input here MUST therefor align with\nthe input _positions. If no value is provided (0, 0, 1) will be\nassigned for all the sensors.", 
+      "type": "Vector3d", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "mesh_", 
+      "description": "An optional mesh that aligns with the sensors. This is useful for\ngenerating visualizations of the sensor grid beyond the sensor\npositions. Note that the number of sensors in the grid must match\nthe number of faces or the number vertices within the mesh.", 
+      "type": "Mesh", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.sensorgrid import SensorGrid\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\n    from ladybug_{{cad}}.togeometry import to_mesh3d\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default name and process the points to tuples\n    _name_ = 'SensorGrid' if _name_ is None else _name_\n    pts = [(pt.X, pt.Y, pt.Z) for pt in _positions]\n\n    # create the sensor grid object\n    if len(_directions_) == 0:\n        grid = SensorGrid.from_planar_positions(\n            clean_and_id_rad_string(_name_), pts, (0, 0, 1))\n    else:\n        vecs = [(vec.X, vec.Y, vec.Z) for vec in _directions_]\n        grid = SensorGrid.from_position_and_direction(\n            clean_and_id_rad_string(_name_), pts, vecs)\n\n    # set the display name\n    grid.display_name = _name_\n    if mesh_ is not None:\n        grid.mesh = to_mesh3d(mesh_)\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Sensor Grid", 
+  "description": "Create a Sensor Grid object that can be used in a grid-based recipe.\n-"
+}

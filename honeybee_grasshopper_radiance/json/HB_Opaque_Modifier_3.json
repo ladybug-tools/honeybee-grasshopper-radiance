@@ -1,0 +1,64 @@
+{
+  "version": "0.1.0", 
+  "nickname": "OpaqueMod3", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "modifier", 
+        "description": "An opaque modifier that can be assigned to a Honeybee geometry\nor Modifier Sets.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name", 
+      "description": "Text to set the name for the modifier and to be incorporated into\na unique modifier identifier.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_r_ref", 
+      "description": "A number between 0 and 1 for the red reflectance.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_g_ref", 
+      "description": "A number between 0 and 1 for the green reflectance.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_b_ref", 
+      "description": "A number between 0 and 1 for the blue reflectance.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_spec_", 
+      "description": "A number between 0 and 1 for the fraction of specularity. Specularity\nfractions greater than 0.1 are not common in non-metallic materials (Default: 0).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_rough_", 
+      "description": "Roughness is specified as the rms slope of surface facets. A value\nof 0 corresponds to a perfectly smooth surface, and a value of 1 would be\na very rough surface. Roughness values greater than 0.2 are not very\nrealistic. (Default: 0).", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Modifiers", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.modifier.material import Plastic\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default modifier properties\n    _spec_ = 0.0 if _spec_ is None else _spec_\n    _rough_ = 0.0 if _rough_ is None else _rough_\n\n    # create the modifier\n    modifier = Plastic(\n        clean_and_id_rad_string(_name), _r_ref, _g_ref, _b_ref, _spec_, _rough_)\n    modifier.display_name = _name\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Opaque Modifier 3", 
+  "description": "Create an opaque radiance modifier from red, green, and blue reflectances.\n-"
+}

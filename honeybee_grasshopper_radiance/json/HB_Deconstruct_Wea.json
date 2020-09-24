@@ -1,0 +1,43 @@
+{
+  "version": "0.1.0", 
+  "nickname": "DecnstrWea", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "dir", 
+        "description": "A list of direct normal irradiance values at each timestep of the WEA.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "diff", 
+        "description": "A list of diffuse sky solar irradiance values at each timestep of the WEA.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "glob", 
+        "description": "A list of global horizontal irradiance values at each timestep of the WEA.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_wea", 
+      "description": "A Honeybee WEA object.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "2 :: Light Sources", 
+  "code": "\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    dir = _wea.direct_normal_irradiance\n    diff = _wea.diffuse_horizontal_irradiance\n    glob = _wea.global_horizontal_irradiance", 
+  "category": "HB-Radiance", 
+  "name": "HB Deconstruct Wea", 
+  "description": "Deconstruct a Wea object into lists of direct, diffuse, and golbal radiation\nat each timestep of the file.\n-"
+}

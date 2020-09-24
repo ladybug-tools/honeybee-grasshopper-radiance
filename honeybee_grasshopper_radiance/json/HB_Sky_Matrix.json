@@ -1,0 +1,50 @@
+{
+  "version": "0.2.0", 
+  "nickname": "SkyMatrix", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "skymtx", 
+        "description": "Sky matrix for multi-phase daylight analysis.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "north_", 
+      "description": "A number between 0 and 360 that represents the degrees off from\nthe y-axis to make North. This can also be a vector to set the North.\nDefault is 0. The default North direction is the Y-axis (0 degrees).", 
+      "type": "double", 
+      "default": 0
+    }, 
+    {
+      "access": "item", 
+      "name": "_wea", 
+      "description": "Ladybug Wea object.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_density_", 
+      "description": "A positive intger for sky density. [1] Tregenza Sky,\n[2] Reinhart Sky, etc. (Default: 1)", 
+      "type": "int", 
+      "default": 1
+    }, 
+    {
+      "access": "list", 
+      "name": "hoys_", 
+      "description": "Optional list of numbers for the hours of the year to be included\nin the sky matrix [0-8759].", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "2 :: Light Sources", 
+  "code": "\ntry:\n    from ladybug_geometry.geometry2d.pointvector import Vector2D\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_geometry:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance.lightsource.sky import SkyMatrix\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\n    from ladybug_{{cad}}.togeometry import to_vector2d\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\nimport math\n\n\nif all_required_inputs(ghenv.Component):\n    # process the north input\n    north_ = north_ or 0\n    try:  # it's a vector\n        north_ = math.degrees(to_vector2d(north_).angle_clockwise(Vector2D(0, 1)))\n    except AttributeError:  # north angle instead of vector\n        north_ = float(north_)\n\n    # set default values and process the hoys if they are input\n    _density_ = _density_ or 1\n    if len(hoys_) != 0:\n        _wea = _wea.filter_by_hoys(hoys_)\n\n    # create the sky object\n    skymtx = SkyMatrix(_wea, north_, _density_)", 
+  "category": "HB-Radiance", 
+  "name": "HB Sky Matrix", 
+  "description": "Create a Sky Matrix from Wea.\n-"
+}

@@ -1,0 +1,36 @@
+{
+  "version": "0.1.0", 
+  "nickname": "SearchMods", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "modifiers", 
+        "description": "A list of modifiers within the honeybee radiance\nstandards library (filtered by keywords_ if they are input).", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "keywords_", 
+      "description": "Optional keywords to be used to narrow down the output list of\nmodifiers. If nothing is input here, all available modifiers\nwill be output.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "join_words_", 
+      "description": "If False or None, this component will automatically split\nany strings of multiple keywords (spearated by spaces) into separate\nkeywords for searching. This results in a greater liklihood of\nfinding an item in the search but it may not be appropropriate for\nall cases. You may want to set it to True when you are searching for\na specific phrase that includes spaces. Default: False.", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Modifiers", 
+  "code": "\ntry:  # import the honeybee-core dependencies\n    from honeybee.search import filter_array_by_keywords\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.lib.modifiers import MODIFIERS\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\n\nif len(keywords_) == 0:\n    modifiers = sorted(MODIFIERS)\nelse:\n    split_words = True if join_words_ is None else not join_words_\n    modifiers = sorted(filter_array_by_keywords(MODIFIERS, keywords_, split_words))\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Search Mofidiers", 
+  "description": "Search for available Mofidiers within the honeybee standards library.\n-"
+}

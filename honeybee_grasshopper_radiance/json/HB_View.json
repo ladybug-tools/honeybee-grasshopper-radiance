@@ -1,0 +1,71 @@
+{
+  "version": "0.1.2", 
+  "nickname": "View", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "view", 
+        "description": "A Honeybee View object that can be used in an image-based recipe.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name_", 
+      "description": "Text to set the name for the modifier and to be incorporated into\na unique modifier identifier.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_position", 
+      "description": "An point to set the position of the view in 3D space (-vp).\nThis is the focal point of a perspective view or the center of a\nparallel projection.", 
+      "type": "Point3d", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_direction", 
+      "description": "A vector for the direction that the veiw is facing (-vd).\nThe length of this vector indicates the focal distance as needed by\nthe pixel depth of field (-pd) in rpict.", 
+      "type": "Vector3d", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_up_vector_", 
+      "description": "An optional vector to set the vertical direction of the\nview (-vu). Default: (0, 0, 1)", 
+      "type": "Vector3d", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_view_type_", 
+      "description": "An integer to set the view type (-vt). Choose from the choices\nbelow. Default: 0.\n* 0 Perspective (v)\n* 1 Hemispherical fisheye (h)\n* 2 Parallel (l)\n* 3 Cylindrical panorama (c)\n* 4 Angular fisheye (a)\n* 5 Planisphere [stereographic] projection (s)\nFor more detailed description about view types check rpict manual\npage (http://radsite.lbl.gov/radiance/man_html/rpict.1.html)", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_h_angle_", 
+      "description": "A number for the view horizontal size (-vh) in degrees. For a\nperspective projection (including fisheye views), val is the horizontal\nfield of view. For a parallel projection, val is the view width in\nworld coordinates. Default: 60.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_v_angle_", 
+      "description": "A number for the view vertical size (-vv) in degrees. For\na perspective projection (including fisheye views), val is the horizontal\nfield of view. For a parallel projection, val is the view width in\nworld coordinates. Default: 60.", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance.view import View\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\nVIEW_TYPES = ('v', 'h', 'l', 'c', 'a')\n\n\nif all_required_inputs(ghenv.Component):\n    # process the points/vectors into tuples\n    _pos = (_position.X, _position.Y, _position.Z)\n    _dir = (_direction.X, _direction.Y, _direction.Z)\n\n    # set the default values\n    _name_ = 'RadianceView' if _name_ is None else _name_\n    _up_vec = (_up_vector_.X, _up_vector_.Y, _up_vector_.Z) if _up_vector_ \\\n        is not None else (0, 0, 1)\n    _type_= 'v' if _view_type_ is None else VIEW_TYPES[_view_type_]\n    _h_angle_ = 60 if _h_angle_ is None else _h_angle_\n    _v_angle_ = 60 if _v_angle_ is None else _v_angle_\n\n    view = View(\n        clean_and_id_rad_string(_name_), _pos, _dir, _up_vec, _type_,\n        _h_angle_, _v_angle_)\n    view.display_name = _name_\n", 
+  "category": "HB-Radiance", 
+  "name": "HB View", 
+  "description": "Create a Honeybee View for an image-based analysis.\n-"
+}
