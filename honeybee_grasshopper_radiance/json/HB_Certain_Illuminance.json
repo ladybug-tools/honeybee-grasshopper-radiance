@@ -1,0 +1,29 @@
+{
+  "version": "0.1.0", 
+  "nickname": "CertainIllum", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "sky", 
+        "description": "A honeybee sky that can be used to create a point-in-time recipe.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_value_", 
+      "description": "Desired value for sky horizontal illuminance in lux", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "2 :: Light Sources", 
+  "code": "\ntry:\n    from honeybee_radiance.lightsource.sky import CertainIrradiance\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\n\n_value_ = 10000 if _value_ is None else _value_\nsky = CertainIrradiance.from_illuminance(_value_)\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Certain Illuminance", 
+  "description": "Create a uniform sky that yields a certain illuminance.\n-"
+}

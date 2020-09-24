@@ -1,0 +1,29 @@
+{
+  "version": "0.1.1", 
+  "nickname": "DecnstrMod", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "rad_str", 
+        "description": "A Radiance string that includes all of the attributes that\ndefine the modifier.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_mod", 
+      "description": "A modifier to be deconstructed or text for a modifier to be looked\nup in the modifier library.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Modifiers", 
+  "code": "\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.lib.modifiers import modifier_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    if isinstance(_mod, str):\n        _mod = modifier_by_identifier(_mod)\n    rad_str = _mod.to_radiance()\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Deconstruct Modifier", 
+  "description": "Deconstruct a modifier into a radiance string.\n-"
+}

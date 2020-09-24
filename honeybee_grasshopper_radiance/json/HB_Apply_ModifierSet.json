@@ -1,0 +1,36 @@
+{
+  "version": "0.1.0", 
+  "nickname": "ApplyModSet", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "rooms", 
+        "description": "The input Rooms with their modifier sets edited.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_rooms", 
+      "description": "Honeybee Rooms to which the input _mod_set should be assigned.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_mod_set", 
+      "description": "A Honeybee ModifierSet to be applied to the input _room.\nThis can also be text for a modifier set to be looked up in the\nmodifier set library.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Modifiers", 
+  "code": "\n\ntry:  # import the honeybee-radiance extension\n    from honeybee_radiance.lib.modifiersets import modifier_set_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import the ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects\n    rooms = [obj.duplicate() for obj in _rooms]\n\n    # process the input modifier set if it's a string\n    if isinstance(_mod_set, str):\n        _mod_set = modifier_set_by_identifier(_mod_set)\n\n    # assign the modifier set\n    for rm in rooms:\n        rm.properties.radiance.modifier_set = _mod_set\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Apply ModifierSet", 
+  "description": "Apply ModifierSet to Honeybee Rooms.\n-"
+}

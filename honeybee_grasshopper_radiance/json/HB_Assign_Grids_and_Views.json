@@ -1,0 +1,43 @@
+{
+  "version": "0.1.0", 
+  "nickname": "AssignGridsViews", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "model", 
+        "description": "The input Honeybee Model with the grids_ and views_ assigned to it.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "A Honeybee Model to which the inpit grids_ and views_ will be assigned.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "grids_", 
+      "description": "A list of Honeybee-Radiance SensorGrids, which will be assigned to\nthe input _model.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "views_", 
+      "description": "A list of Honeybee-Radiance Views, which will be assigned to the\ninput _model.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import core honeybee dependencies\n    from honeybee.model import Model\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    assert isinstance(_model, Model), \\\n        'Expected Honeybee Model. Got {}.'.format(type(_model))\n    model = _model.duplicate()  # duplicate to avoid editing the input\n    if len(grids_) != 0:\n        model.properties.radiance.sensor_grids = grids_\n    if len(views_) != 0:\n        model.properties.radiance.views = views_\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Assign Grids and Views", 
+  "description": "Add radiance Sensor Grids and/or Views to a Honeybee Model.\n_\nThis assignment is necessary for any Radiance study, though whether a grid or a\nview is required for a particular type of study is depenednet upon the recipe\nused.\n-"
+}

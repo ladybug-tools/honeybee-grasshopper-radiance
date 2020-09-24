@@ -1,0 +1,43 @@
+{
+  "version": "0.1.0", 
+  "nickname": "ApertureGroup", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "group_aps", 
+        "description": "Honeybee apertures that are a part of the same dynamic group.\nThese can be used directly in radiance simulations or can be added\nto Honeybee faces and rooms.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_apertures", 
+      "description": "A list of Honeybee Apertures to be grouped together into a\nsingle dynamic group. Door objects can also be connected here to be\nincluded in the group.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_name_", 
+      "description": "Text to be incorporated into a unique identifier for the dynamic\nAperture group. If the name is not provided, a random name will be assigned.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "states_", 
+      "description": "An optional list of Honeybee State objects ordered based on\nhow they will be switched on. The first state is the default state\nand, typically, higher states are more shaded. If the objects in the\ngroup have no states, the modifiers already assigned the apertures\nwill be used for all states.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\nimport uuid\n\ntry:  # import the core honeybee dependencies\n    from honeybee.aperture import Aperture\n    from honeybee.door import Door\n    from honeybee.typing import clean_and_id_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check and duplicate  the input objects\n    group_aps = []\n    for ap in _apertures:\n        assert isinstance(ap, (Aperture, Door)), 'Expected Aperture or Door ' \\\n            'for dynamic group. Got {}.'.format(type(ap))\n        group_aps.append(ap.duplicate())\n\n    # set the name of the dynamic group\n    name = clean_and_id_rad_string(_name_) if _name_ is not None else str(uuid.uuid4())\n    for ap in group_aps:\n        ap.properties.radiance.dynamic_group_identifier = name\n\n    # assign any states if they are connected\n    if len(states_) != 0:\n        # assign states (including shades) to the first aperture\n        group_aps[0].properties.radiance.states = [state.duplicate() for state in states_]\n\n        # remove shades from following apertures to ensure they aren't double-counted\n        states_wo_shades = []\n        for state in states_:\n            new_state = state.duplicate()\n            new_state.remove_shades()\n            states_wo_shades.append(new_state)\n        for ap in group_aps[1:]:\n            ap.properties.radiance.states = \\\n                [state.duplicate() for state in states_wo_shades]\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Dynamic Aperture Group", 
+  "description": "Combine Honeybee Apertures into a single dynamic group. Apertures that are a part\nof the same dynamic group will have their states change in unison. If an aperture\nhas no dynamic group, it is assumed to be static.\n-\nThis component can also be used to combine apertures that already have states\nassigned to them into one group since existing states are not overwritten if\nnothing is connected to states_. In this case, the total number of states in\nthe dynamic group is equal to that of the object with the highest number of\nstates. After a dynamic aperture with fewer states than that of it's dynamic\ngroup has hit its highest state, it remains in that state as the other dynamic\napertures continue to change.\n-"
+}

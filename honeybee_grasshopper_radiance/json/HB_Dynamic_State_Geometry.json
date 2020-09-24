@@ -1,0 +1,43 @@
+{
+  "version": "0.1.0", 
+  "nickname": "StateGeo", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "geo", 
+        "description": "A Honeybee StateGeometry object representing planar geometry that\ncan be assigned to Radiance states. This can be assigned using the\n\"HB Dynamic State\" component.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_geo", 
+      "description": "Rhino Brep or Mesh geometry to be converted to StateGeometry.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_name_", 
+      "description": "Text to set the name for the StateGeometry and to be incorporated into\nunique StateGeometry identifier. If the name is not provided, a random name\nwill be assigned.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_modifier_", 
+      "description": "A Honeybee Radiance Modifier object for the geometry. If None,\nit will be the Generic Exterior Shade modifier in the lib. (Default: None).", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\nimport uuid\n\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance.dynamic import StateGeometry\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import the ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.togeometry import to_face3d\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    geo = []  # list of geometries that will be returned\n\n    # set default name\n    name = clean_and_id_rad_string(_name_) if _name_ is not None else str(uuid.uuid4())\n\n    # create the StateGeometry\n    i = 0  # iterator to ensure each geometry gets a unique name\n    for rh_geo in _geo:\n        for lb_face in to_face3d(rh_geo):\n            hb_geo = StateGeometry('{}_{}'.format(name, i), lb_face, _modifier_)\n            if _name_ is not None:\n                hb_geo.display_name = '{}_{}'.format(_name_, i)\n            geo.append(hb_geo)", 
+  "category": "HB-Radiance", 
+  "name": "HB Dynamic State Geometry", 
+  "description": "Create a StateGeometry object that can be assigned to the shades_ of a dynamic\nstate using the \"HB Dynamic State\" component.\n-"
+}

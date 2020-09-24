@@ -1,0 +1,64 @@
+{
+  "version": "0.1.1", 
+  "nickname": "Zhang-Huang", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "wea", 
+        "description": "A wea object from the input data collections and the Zhang-Huang\nsolar model.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_location", 
+      "description": "Script variable Python", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_cloud_cover", 
+      "description": "_location = A Ladybug Location object.\nHourly DataCollection with the fraction of total sky cover\n(tenths of coverage). (eg. 1 is 1/10 covered. 10 is total coverage)", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_rel_humidity", 
+      "description": "Hourly DataCollection with relative humidity [%].", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_dry_bulb_temp", 
+      "description": "Hourly DataCollection with dry bulb temperature [C].", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_wind_speed", 
+      "description": "Hourly DataCollection with wind speed [m/s].", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_atmos_pressure_", 
+      "description": "Hourly DataCollection with amtospheric pressure [Pa].\nIf no value is connected here, pressure at sea level will be\nassumed (101,325 Pa).", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "2 :: Light Sources", 
+  "code": "\ntry:\n    from ladybug.wea import Wea\n    from ladybug.datacollection import HourlyContinuousCollection\n    from ladybug.header import Header\n    from ladybug.datatype.pressure import AtmosphericStationPressure\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # perform checks.\n    assert isinstance(_cloud_cover, HourlyContinuousCollection), \\\n        'Data Collections must be Continuous Hourly.'\n    if _atmos_pressure_ is None:\n        header = Header(AtmosphericStationPressure(), 'Pa',\n            _cloud_cover.header.analysis_period, _cloud_cover.header.metadata)\n        _atmos_pressure_ = HourlyContinuousCollection(header,\n            [101325] * 8760 * _cloud_cover.header.analysis_period.timestep)\n\n    # build the Wea\n    wea = Wea.from_zhang_huang_solar(_location, _cloud_cover, _rel_humidity,\n        _dry_bulb_temp, _wind_speed, _atmos_pressure_)", 
+  "category": "HB-Radiance", 
+  "name": "HB Wea from Zhang-Huang", 
+  "description": "Construct a WEA from hourly data collections and the Zhang-Huang Solar Model.\n-"
+}
