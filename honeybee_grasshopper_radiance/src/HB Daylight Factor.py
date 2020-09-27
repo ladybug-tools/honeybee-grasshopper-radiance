@@ -33,7 +33,7 @@ Run daylight factor for a single model.
 
 ghenv.Component.Name = 'HB Daylight Factor'
 ghenv.Component.NickName = 'DaylightFactor'
-ghenv.Component.Message = '0.2.0'
+ghenv.Component.Message = '0.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -54,9 +54,25 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
+    from honeybee_radiance.config import folders as rad_folders
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
+
+try:
     from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+
+# check the installed Radiance and ensure it's from the right date
+compatible_rad_date = (2020, 9, 3)
+hb_url = 'https://github.com/ladybug-tools/lbt-grasshopper/wiki/1.4-Compatibility-Matrix'
+rad_msg = 'Download and install the version of Radiance listed in the Ladybug ' \
+    'Tools compatibility matrix\n{}'.format(hb_url)
+assert rad_folders.radiance_path is not None, \
+    'No Radiance installation was found on this machine.\n{}'.format(rad_msg)
+assert rad_folders.radiance_version_date >= compatible_rad_date, \
+    'The installed Radiance is not from {} or later.' \
+    '\n{}'.format('/'.join(str(v) for v in compatible_rad_date), rad_msg)
 
 
 class Workflow(object):
