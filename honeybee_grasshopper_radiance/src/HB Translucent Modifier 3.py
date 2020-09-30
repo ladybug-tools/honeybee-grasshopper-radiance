@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2019, Ladybug Tools.
+# Copyright (c) 2020, Ladybug Tools.
 # You should have received a copy of the GNU General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -36,7 +36,7 @@ Create a translucent radiance modifier from a reflectances and transmittances.
 
 ghenv.Component.Name = 'HB Translucent Modifier 3'
 ghenv.Component.NickName = 'TransMod3'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '1.0.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

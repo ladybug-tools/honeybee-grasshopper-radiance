@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2019, Ladybug Tools.
+# Copyright (c) 2020, Ladybug Tools.
 # You should have received a copy of the GNU General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -31,7 +31,7 @@ Create a Sensor Grid object that can be used in a grid-based recipe.
 
 ghenv.Component.Name = 'HB Sensor Grid'
 ghenv.Component.NickName = 'SensorGrid'
-ghenv.Component.Message = '0.2.0'
+ghenv.Component.Message = '1.0.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
