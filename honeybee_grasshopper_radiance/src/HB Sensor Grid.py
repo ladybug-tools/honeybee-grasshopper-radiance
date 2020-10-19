@@ -31,7 +31,7 @@ Create a Sensor Grid object that can be used in a grid-based recipe.
 
 ghenv.Component.Name = 'HB Sensor Grid'
 ghenv.Component.NickName = 'SensorGrid'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -55,19 +55,20 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component):
     # set the default name and process the points to tuples
-    _name_ = 'SensorGrid' if _name_ is None else _name_
+    name = 'SensorGrid' if _name_ is None else _name_
     pts = [(pt.X, pt.Y, pt.Z) for pt in _positions]
 
     # create the sensor grid object
     if len(_directions_) == 0:
         grid = SensorGrid.from_planar_positions(
-            clean_and_id_rad_string(_name_), pts, (0, 0, 1))
+            clean_and_id_rad_string(name), pts, (0, 0, 1))
     else:
         vecs = [(vec.X, vec.Y, vec.Z) for vec in _directions_]
         grid = SensorGrid.from_position_and_direction(
-            clean_and_id_rad_string(_name_), pts, vecs)
+            clean_and_id_rad_string(name), pts, vecs)
 
     # set the display name
-    grid.display_name = _name_
+    if _name_ is not None:
+        grid.display_name = _name_
     if mesh_ is not None:
         grid.mesh = to_mesh3d(mesh_)

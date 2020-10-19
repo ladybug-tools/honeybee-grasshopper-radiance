@@ -47,7 +47,7 @@ Create a Honeybee View for an image-based analysis.
 
 ghenv.Component.Name = 'HB View'
 ghenv.Component.NickName = 'View'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -76,7 +76,7 @@ if all_required_inputs(ghenv.Component):
     _dir = (_direction.X, _direction.Y, _direction.Z)
 
     # set the default values
-    _name_ = 'RadianceView' if _name_ is None else _name_
+    name = 'RadianceView' if _name_ is None else _name_
     _up_vec = (_up_vector_.X, _up_vector_.Y, _up_vector_.Z) if _up_vector_ \
         is not None else (0, 0, 1)
     _type_= 'v' if _view_type_ is None else VIEW_TYPES[_view_type_]
@@ -84,6 +84,7 @@ if all_required_inputs(ghenv.Component):
     _v_angle_ = 60 if _v_angle_ is None else _v_angle_
 
     view = View(
-        clean_and_id_rad_string(_name_), _pos, _dir, _up_vec, _type_,
+        clean_and_id_rad_string(name), _pos, _dir, _up_vec, _type_,
         _h_angle_, _v_angle_)
-    view.display_name = _name_
+    if _name_ is not None:
+        view.display_name = _name_
