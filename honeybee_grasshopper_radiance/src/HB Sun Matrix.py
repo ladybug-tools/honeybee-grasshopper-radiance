@@ -26,7 +26,7 @@ Create a Sun Matrix from Wea.
 
 ghenv.Component.Name = 'HB Sun Matrix'
 ghenv.Component.NickName = 'SunMatrix'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

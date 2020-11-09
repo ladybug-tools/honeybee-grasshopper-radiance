@@ -42,7 +42,7 @@ all default modifiers on the Room.
 
 ghenv.Component.Name = 'HB ModifierSet'
 ghenv.Component.NickName = 'ModifierSet'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

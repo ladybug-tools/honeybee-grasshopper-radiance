@@ -20,7 +20,7 @@ Create a uniform sky that yields a certain illuminance.
 
 ghenv.Component.Name = 'HB Certain Illuminance'
 ghenv.Component.NickName = 'CertainIllum'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

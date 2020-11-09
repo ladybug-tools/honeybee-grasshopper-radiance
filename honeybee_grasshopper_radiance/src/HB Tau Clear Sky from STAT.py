@@ -25,7 +25,7 @@ Create a WEA object for an ASHRAE Revised Clear Sky (Tau Model) using a STAT fil
 
 ghenv.Component.Name = 'HB Tau Clear Sky from STAT'
 ghenv.Component.NickName = 'TauClearSky'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

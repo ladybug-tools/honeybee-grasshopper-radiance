@@ -25,7 +25,7 @@ at each timestep of the file.
 
 ghenv.Component.Name = 'HB Deconstruct Wea'
 ghenv.Component.NickName = 'DecnstrWea'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

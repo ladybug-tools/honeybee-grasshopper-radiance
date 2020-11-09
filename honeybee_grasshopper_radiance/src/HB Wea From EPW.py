@@ -22,7 +22,7 @@ Create a Wea object from an EPW file.
 
 ghenv.Component.Name = 'HB Wea From EPW'
 ghenv.Component.NickName = 'Wea'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

@@ -32,7 +32,7 @@ Deconstruct a modifier set into its constituient interior modifiers.
 
 ghenv.Component.Name = 'HB Deconstruct ModifierSet Interior'
 ghenv.Component.NickName = 'DecnstrConstrSetInt'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'
