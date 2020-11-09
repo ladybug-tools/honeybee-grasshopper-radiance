@@ -31,7 +31,7 @@ Create a Sensor Grid object that can be used in a grid-based recipe.
 
 ghenv.Component.Name = 'HB Sensor Grid'
 ghenv.Component.NickName = 'SensorGrid'
-ghenv.Component.Message = '1.0.1'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

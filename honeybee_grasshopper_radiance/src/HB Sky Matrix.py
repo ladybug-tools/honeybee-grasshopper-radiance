@@ -28,7 +28,7 @@ Create a Sky Matrix from Wea.
 
 ghenv.Component.Name = 'HB Sky Matrix'
 ghenv.Component.NickName = 'SkyMatrix'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

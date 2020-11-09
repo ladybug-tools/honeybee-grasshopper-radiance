@@ -23,7 +23,7 @@ Deconstruct a modifier into a radiance string.
 
 ghenv.Component.Name = 'HB Deconstruct Modifier'
 ghenv.Component.NickName = 'DecnstrMod'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

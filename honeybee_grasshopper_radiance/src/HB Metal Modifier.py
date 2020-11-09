@@ -30,7 +30,7 @@ Create a metal radiance modifier from a single reflectance.
 
 ghenv.Component.Name = 'HB Metal Modifier'
 ghenv.Component.NickName = 'MetalMod'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

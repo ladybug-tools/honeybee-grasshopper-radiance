@@ -25,7 +25,7 @@ Create a State object representing a single dynamic group state.
 
 ghenv.Component.Name = 'HB Dynamic State'
 ghenv.Component.NickName = 'State'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
