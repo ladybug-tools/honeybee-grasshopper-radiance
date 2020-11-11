@@ -115,7 +115,7 @@ if all_required_inputs(ghenv.Component):
         max_t = 2000
 
     # process the schedule and sun-up hours
-    schedule = _occ_sch_.values if _occ_sch_ else generate_default_schedule()
+    schedule = _occ_sch_.values() if _occ_sch_ is not None else generate_default_schedule()
     total_occupied_hours = sum(schedule)
     occ_pattern = parse_sun_up_hours(_results, schedule)
 
