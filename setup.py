@@ -17,7 +17,7 @@ setuptools.setup(
     include_package_data=True,
     install_requires=[],
     classifiers=[
-        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: Implementation :: IronPython",
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Operating System :: OS Independent"
