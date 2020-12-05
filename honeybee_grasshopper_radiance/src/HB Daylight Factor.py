@@ -14,10 +14,6 @@ Run daylight factor for a single model.
         _model: A Honeybee Model for which Daylight Factor will be simulated.
             Note that this model should have grids assigned to it in order
             to produce meaningfule results.
-        _sensor_grids_: Data type [string]
-            A list of input grid display names to simulate. If None, all grids
-            within the input _model will be simulated.
-            Default [None]
         sensor_count_: Data type [string]
             The maximum number of grid points per parallel execution.
             Default [200]
@@ -33,7 +29,7 @@ Run daylight factor for a single model.
 
 ghenv.Component.Name = 'HB Daylight Factor'
 ghenv.Component.NickName = 'DaylightFactor'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.2.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -148,8 +144,6 @@ class Workflow(object):
         sim_fold = simulation_folder if simulation_folder else self.default_simulation_path
         inputs = self._info['inputs'].copy()  # avoid editing the base dictionary
         process_inputs(inputs, sim_fold)
-        if self.simulation_id:
-            inputs['simulation-id'] = self.simulation_id
         # write the inputs dictionary into a file
         if not os.path.isdir(sim_fold):
             preparedir(sim_fold)
@@ -180,49 +174,35 @@ if all_required_inputs(ghenv.Component):
         msg = 'Input _model contains no sensor grids, which will result in a ' \
             'meaningless simulation.\nMake sure that you have assigned grids to ' \
             'the Model with the "HB Assign Grids and Views" component.'
-        give_warning(ghenv.Component, msg)
+        raise ValueError(msg)
         print(msg)
-    all_grids = [g.display_name for g in _model.properties.radiance.sensor_grids]
-    if len(_sensor_grids_) == 0 or _sensor_grids_[0] is None:
-        _sensor_grids_ = all_grids  # use all the Model's sensor grids
-    else:
-        for grid in _sensor_grids_:
-            assert grid in all_grids, \
-                'Sensor grid "{}" was not found in the Model.'.format(grid)
 
-    # this part is an optional step for each recipe to process the model for luigi input
+
+    # this part is an optional step for each recipe to process the model
     def default_simulation_path(self):
-        return os.path.join(
-            hb_folders.default_simulation_folder,
-            self._info['inputs']['model'].identifier, 'Radiance')
+        return os.path.join(hb_folders.default_simulation_folder, 'Radiance')
 
     def process_inputs(inputs, folder):
         model_fold = os.path.join(folder, 'model')
         if os.path.isdir(model_fold):
             nukedir(model_fold, rmdir=True)  # delete the folder if it already exists
         model = inputs['model']
-        model.to.rad_folder(model, folder)
-        inputs['model'] = 'model'
+        model.to_hbjson('model.hbjson', folder)
+        inputs['model'] = 'model.hbjson'
 
     Workflow.default_simulation_path = property(default_simulation_path)
     Workflow.process_inputs = staticmethod(process_inputs)
 
-    #  this part will be different for each recipe but standardized
-    local_path = os.path.join(
-        lb_folders.ladybug_tools_folder, 'resources', 'recipes',
-        'honeybee_radiance_recipe', 'daylight_factor.yaml')
     recipe = {
         'owner': 'ladybug-tools',
         'name': 'daylight-factor',
         'tag': '9d5d49c529514f1cb3873657142233ff4cf947d52c0722875dc8cbda50c9239b',
-        'path': local_path,
         'default-simulation-path': None,
         'simulation-id': 'daylight_factor',
         'result-file-extension': 'res'
       }
     _inputs = {
         'model': _model,
-        'sensor-grids': _sensor_grids_,
         'sensor-count': sensor_count_,
         'radiance-parameters': radiance_parameters_
     }
