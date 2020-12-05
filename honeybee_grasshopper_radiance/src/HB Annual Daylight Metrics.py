@@ -15,9 +15,10 @@ Annual Daylight Metrics.
         _results: An list of annual Radiance result files from the "HB Run Workflow"
             component.  This should include both the .ill files and the
             sun-up-hours.txt
-        _occ_sch_: An annual occupancy schedule as a Data Collection. Such a Data
-            collection can be obtained from any honeybee energy schedule using
-            the "HB Schedule To Data" component. By default, a schedule from
+        _occ_sch_: An annual occupancy schedule as a Ladybug Data Collection or a HB-Energy
+            schedule object. This can also be the identifier of a schedule in
+            your HB-Energy schedule library. Any value in this schedule that is
+            0.5 or above will be considered occupied. If None, a schedule from
             9AM to 5PM on weekdays will be used.
         _threshold_: Threshhold for daylight autonomy in lux (default: 300).
         _min_max_: A list for min, max value for useful daylight illuminance
@@ -33,10 +34,20 @@ Annual Daylight Metrics.
 
 ghenv.Component.Name = "HB Annual Daylight Metrics"
 ghenv.Component.NickName = 'AnnualMetrics'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
+
+try:
+    from ladybug.datacollection import BaseCollection
+except ImportError as e:
+    raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
+
+try:
+    from honeybee_energy.lib.schedules import schedule_by_identifier
+except ImportError as e:  # honeybee schedule library is not available
+    schedule_by_identifier = None
 
 try:
     from ladybug_rhino.grasshopper import all_required_inputs, list_to_data_tree
@@ -90,7 +101,7 @@ def annual_metrics(ill_file, occ_pattern, total_occupied_hours,
             pda = 0
             pudi = 0
             for is_occ, hourly_res in zip(occ_pattern, pt_res.split()):
-                if is_occ == 0:
+                if is_occ < 0.5:
                     continue
                 value = float(hourly_res)
                 if value > threshold:
@@ -115,7 +126,18 @@ if all_required_inputs(ghenv.Component):
         max_t = 2000
 
     # process the schedule and sun-up hours
-    schedule = _occ_sch_.values if _occ_sch_ else generate_default_schedule()
+    if _occ_sch_ is None:
+        schedule = generate_default_schedule()
+    elif isinstance(_occ_sch_, BaseCollection):
+        schedule = _occ_sch_.values
+    elif isinstance(_occ_sch_, str):
+        if schedule_by_identifier is not None:
+            schedule = schedule_by_identifier(_occ_sch_).values()
+        else:
+            raise ValueError('honeybee-energy must be installed to reference '
+                             'occupancy schedules by identifier.')
+    else:  # assume that it is a honeybee schedule object
+        schedule = _occ_sch_.values()
     total_occupied_hours = sum(schedule)
     occ_pattern = parse_sun_up_hours(_results, schedule)
 
