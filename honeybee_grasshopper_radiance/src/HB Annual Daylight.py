@@ -38,7 +38,7 @@ Run an annual daylight study for a single model.
 
 ghenv.Component.Name = 'HB Annual Daylight'
 ghenv.Component.NickName = 'AnnualDaylight'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -71,7 +71,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
+    from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -200,7 +200,9 @@ if all_required_inputs(ghenv.Component):
 
     # this part is an optional step for each recipe to process the model
     def default_simulation_path(self):
-        return os.path.join(hb_folders.default_simulation_folder, 'Radiance')
+        return os.path.join(
+            hb_folders.default_simulation_folder,
+            self._info['inputs']['model'].identifier, 'Radiance')
 
     def process_inputs(inputs, folder):
         model_fold = os.path.join(folder, 'model')
