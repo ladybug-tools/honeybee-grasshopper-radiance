@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0", 
+  "version": "1.1.1", 
   "nickname": "GridRooms", 
   "outputs": [
     [
@@ -20,7 +20,7 @@
       {
         "access": "None", 
         "name": "mesh", 
-        "description": "Analysis mesh that can be passed to the 'Color Mesh' component.", 
+        "description": "Analysis mesh that can be passed to the \"LB Spatial Heatmap\" component.", 
         "type": null, 
         "default": null
       }

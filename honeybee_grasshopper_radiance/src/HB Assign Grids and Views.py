@@ -17,7 +17,7 @@ used.
 -
 
     Args:
-        _model: A Honeybee Model to which the inpit grids_ and views_ will be assigned.
+        _model: A Honeybee Model to which the input grids_ and views_ will be assigned.
         grids_: A list of Honeybee-Radiance SensorGrids, which will be assigned to
             the input _model.
         views_: A list of Honeybee-Radiance Views, which will be assigned to the
@@ -29,7 +29,7 @@ used.
 
 ghenv.Component.Name = 'HB Assign Grids and Views'
 ghenv.Component.NickName = 'AssignGridsViews'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'
