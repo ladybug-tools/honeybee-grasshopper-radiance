@@ -14,8 +14,9 @@ all default modifiers on the Room.
 -
 
     Args:
-        _name: Text to set the name for the ModifierSet and to be incorporated
-            into a unique ModifierSet identifier.
+        _name_: Text to set the name for the ModifierSet and to be incorporated
+            into a unique ModifierSet identifier. If None, a random one will
+            be genrated.
         base_mod_set_: An optional ModifierSet object that will be used
             as the starting point for the new ModifierSet output from this
             component. This can also be text for the name of a ModifierSet
@@ -34,7 +35,7 @@ all default modifiers on the Room.
         _shade_subset_: A modifier subset list from the "HB Shade Modifier
             Subset" component. Note that None values in this list correspond to
             no change to the given modifier in the base_mod_set_.
-    
+
     Returns:
         mod_set: A ModifierSet object that can be assigned to Honeybee
             Rooms in order to specify all default modifiers on the Room.
@@ -42,13 +43,13 @@ all default modifiers on the Room.
 
 ghenv.Component.Name = 'HB ModifierSet'
 ghenv.Component.NickName = 'ModifierSet'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_rad_string
+    from honeybee.typing import clean_and_id_rad_string, clean_rad_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -66,14 +67,17 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component):
     # get the base modifier set
+    name = clean_and_id_rad_string('ModifierSet') if _name_ is None else \
+        clean_rad_string(_name_)
     if base_mod_set_ is None:
-        mod_set = ModifierSet(clean_and_id_rad_string(_name))
+        mod_set = ModifierSet(name)
     else:
         if isinstance(base_mod_set_, str):
             base_mod_set_ = modifier_set_by_identifier(base_mod_set_)
         mod_set = base_mod_set_.duplicate()
-        mod_set.identifier = clean_and_id_rad_string(_name)
-        mod_set.display_name = _name
+        mod_set.identifier = name
+        if _name_ is not None:
+            mod_set.display_name = _name_
 
     # go through each input modifier subset and assign it to the set
     if len(_exterior_subset_) != 0:

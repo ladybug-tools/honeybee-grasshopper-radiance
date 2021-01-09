@@ -24,7 +24,7 @@ from an XML file.
             The default is set to (0.01, 0.01, 1.00), which should hopefully
             not be normal to any typical face.
         thickness_: Optional number to set the thickness of the BSDF. (Default: 0).
-    
+
     Returns:
         modifier: A BSDF modifier that can be assigned to a Honeybee geometry
             or Modifier Sets.
@@ -32,15 +32,10 @@ from an XML file.
 
 ghenv.Component.Name = 'HB BSDF Modifier'
 ghenv.Component.NickName = 'BSDFMod'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
-
-try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_rad_string
-except ImportError as e:
-    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:  # import the honeybee-radiance dependencies
     from honeybee_radiance.modifier.material import BSDF

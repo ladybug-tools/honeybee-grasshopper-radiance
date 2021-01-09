@@ -32,7 +32,7 @@ apertures continue to change.
             and, typically, higher states are more shaded. If the objects in the
             group have no states, the modifiers already assigned the apertures
             will be used for all states.
-    
+
     Returns:
         group_aps: Honeybee apertures that are a part of the same dynamic group.
             These can be used directly in radiance simulations or can be added
@@ -41,7 +41,7 @@ apertures continue to change.
 
 ghenv.Component.Name = 'HB Dynamic Aperture Group'
 ghenv.Component.NickName = 'ApertureGroup'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -51,7 +51,7 @@ import uuid
 try:  # import the core honeybee dependencies
     from honeybee.aperture import Aperture
     from honeybee.door import Door
-    from honeybee.typing import clean_and_id_rad_string
+    from honeybee.typing import clean_and_id_rad_string, clean_rad_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -70,7 +70,7 @@ if all_required_inputs(ghenv.Component):
         group_aps.append(ap.duplicate())
 
     # set the name of the dynamic group
-    name = clean_and_id_rad_string(_name_) if _name_ is not None else str(uuid.uuid4())
+    name = clean_and_id_rad_string('ApertureGroup') if _name_ is None else clean_rad_string(_name_)
     for ap in group_aps:
         ap.properties.radiance.dynamic_group_identifier = name
 

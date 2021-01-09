@@ -12,11 +12,11 @@ Create a mirror radiance modifier from a single reflectance.
 -
 
     Args:
-        _name: Text to set the name for the modifier and to be incorporated into
+        _name_: Text to set the name for the modifier and to be incorporated into
             a unique modifier identifier.
         _reflect: A number between 0 and 1 for the mirror reflectance.
             This reflectance will be the same for the red, green and blue channels.
-    
+
     Returns:
         modifier: A mirror modifier that can be assigned to a Honeybee geometry
             or Modifier Sets.
@@ -24,13 +24,13 @@ Create a mirror radiance modifier from a single reflectance.
 
 ghenv.Component.Name = 'HB Mirror Modifier'
 ghenv.Component.NickName = 'MirrorMod'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_rad_string
+    from honeybee.typing import clean_rad_string, clean_and_id_rad_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -46,7 +46,10 @@ except ImportError as e:
 
 
 if all_required_inputs(ghenv.Component):
+    name = clean_and_id_rad_string('MirrorMaterial') if _name_ is None else \
+        clean_rad_string(_name_)
+
     # create the modifier
-    modifier = Mirror.from_single_reflectance(
-        clean_and_id_rad_string(_name), _reflect)
-    modifier.display_name = _name
+    modifier = Mirror.from_single_reflectance(name, _reflect)
+    if _name_ is not None:
+        modifier.display_name = _name_

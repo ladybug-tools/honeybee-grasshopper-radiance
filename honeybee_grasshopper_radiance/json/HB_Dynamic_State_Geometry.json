@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0", 
+  "version": "1.1.1", 
   "nickname": "StateGeo", 
   "outputs": [
     [
@@ -36,7 +36,7 @@
     }
   ], 
   "subcategory": "0 :: Basic Properties", 
-  "code": "\nimport uuid\n\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance.dynamic import StateGeometry\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import the ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.togeometry import to_face3d\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    geo = []  # list of geometries that will be returned\n\n    # set default name\n    name = clean_and_id_rad_string(_name_) if _name_ is not None else str(uuid.uuid4())\n\n    # create the StateGeometry\n    i = 0  # iterator to ensure each geometry gets a unique name\n    for rh_geo in _geo:\n        for lb_face in to_face3d(rh_geo):\n            hb_geo = StateGeometry('{}_{}'.format(name, i), lb_face, _modifier_)\n            if _name_ is not None:\n                hb_geo.display_name = '{}_{}'.format(_name_, i)\n            geo.append(hb_geo)", 
+  "code": "\nimport uuid\n\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_rad_string, clean_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance.dynamic import StateGeometry\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import the ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.togeometry import to_face3d\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    geo = []  # list of geometries that will be returned\n\n    # set default name\n    name = clean_and_id_rad_string('StateGeo') if _name_ is None \\\n        else clean_and_id_rad_string(_name_)\n\n    # create the StateGeometry\n    i = 0  # iterator to ensure each geometry gets a unique name\n    for rh_geo in _geo:\n        for lb_face in to_face3d(rh_geo):\n            hb_geo = StateGeometry('{}_{}'.format(name, i), lb_face, _modifier_)\n            if _name_ is not None:\n                hb_geo.display_name = _name_\n            geo.append(hb_geo)", 
   "category": "HB-Radiance", 
   "name": "HB Dynamic State Geometry", 
   "description": "Create a StateGeometry object that can be assigned to the shades_ of a dynamic\nstate using the \"HB Dynamic State\" component.\n-"
