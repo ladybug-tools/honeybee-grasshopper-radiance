@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0", 
+  "version": "1.1.1", 
   "nickname": "BSDFMod", 
   "outputs": [
     [
@@ -36,7 +36,7 @@
     }
   ], 
   "subcategory": "1 :: Modifiers", 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.modifier.material import BSDF\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # process the vector input\n    if _up_vec_ is not None:\n        _up_vec_ = (_up_vec_.X, _up_vec_.Y, _up_vec_.Z)\n\n    # create the modifier\n    modifier = BSDF(\n        _xml_file, up_orientation=_up_vec_, thickness=thickness_)\n", 
+  "code": "\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.modifier.material import BSDF\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # process the vector input\n    if _up_vec_ is not None:\n        _up_vec_ = (_up_vec_.X, _up_vec_.Y, _up_vec_.Z)\n\n    # create the modifier\n    modifier = BSDF(\n        _xml_file, up_orientation=_up_vec_, thickness=thickness_)\n", 
   "category": "HB-Radiance", 
   "name": "HB BSDF Modifier", 
   "description": "Create a Bidirectional Scattering Distribution Function (BSDF) radiance modifier\nfrom an XML file.\n-"

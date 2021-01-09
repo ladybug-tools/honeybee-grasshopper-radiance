@@ -27,7 +27,7 @@ state using the "HB Dynamic State" component.
 
 ghenv.Component.Name = 'HB Dynamic State Geometry'
 ghenv.Component.NickName = 'StateGeo'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -35,7 +35,7 @@ ghenv.Component.AdditionalHelpFromDocStrings = '3'
 import uuid
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_rad_string
+    from honeybee.typing import clean_and_id_rad_string, clean_rad_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -55,7 +55,8 @@ if all_required_inputs(ghenv.Component):
     geo = []  # list of geometries that will be returned
 
     # set default name
-    name = clean_and_id_rad_string(_name_) if _name_ is not None else str(uuid.uuid4())
+    name = clean_and_id_rad_string('StateGeo') if _name_ is None \
+        else clean_and_id_rad_string(_name_)
 
     # create the StateGeometry
     i = 0  # iterator to ensure each geometry gets a unique name
@@ -63,5 +64,5 @@ if all_required_inputs(ghenv.Component):
         for lb_face in to_face3d(rh_geo):
             hb_geo = StateGeometry('{}_{}'.format(name, i), lb_face, _modifier_)
             if _name_ is not None:
-                hb_geo.display_name = '{}_{}'.format(_name_, i)
+                hb_geo.display_name = _name_
             geo.append(hb_geo)

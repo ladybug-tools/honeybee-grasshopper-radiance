@@ -12,7 +12,7 @@ Create a metal radiance modifier from red, green, and blue reflectances.
 -
 
     Args:
-        _name: Text to set the name for the modifier and to be incorporated into
+        _name_: Text to set the name for the modifier and to be incorporated into
             a unique modifier identifier.
         _r_ref: A number between 0 and 1 for the red reflectance.
         _g_ref: A number between 0 and 1 for the green reflectance.
@@ -23,7 +23,7 @@ Create a metal radiance modifier from red, green, and blue reflectances.
             of 0 corresponds to a perfectly smooth surface, and a value of 1 would be
             a very rough surface. Roughness values greater than 0.2 are not very
             realistic. (Default: 0).
-    
+
     Returns:
         modifier: A metal modifier that can be assigned to a Honeybee geometry
             or Modifier Sets.
@@ -31,13 +31,13 @@ Create a metal radiance modifier from red, green, and blue reflectances.
 
 ghenv.Component.Name = 'HB Metal Modifier 3'
 ghenv.Component.NickName = 'MetalMod3'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_rad_string
+    from honeybee.typing import clean_and_id_rad_string, clean_rad_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -56,8 +56,10 @@ if all_required_inputs(ghenv.Component):
     # set the default modifier properties
     _spec_ = 0.9 if _spec_ is None else _spec_
     _rough_ = 0.0 if _rough_ is None else _rough_
+    name = clean_and_id_rad_string('MetalMaterial') if _name_ is None else \
+        clean_rad_string(_name_)
 
     # create the modifier
-    modifier = Metal(
-        clean_and_id_rad_string(_name), _r_ref, _g_ref, _b_ref, _spec_, _rough_)
-    modifier.display_name = _name
+    modifier = Metal(name, _r_ref, _g_ref, _b_ref, _spec_, _rough_)
+    if _name_ is not None:
+        modifier.display_name = _name_

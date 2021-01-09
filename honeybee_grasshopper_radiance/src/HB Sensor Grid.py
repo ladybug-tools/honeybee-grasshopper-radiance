@@ -24,20 +24,24 @@ Create a Sensor Grid object that can be used in a grid-based recipe.
             generating visualizations of the sensor grid beyond the sensor
             positions. Note that the number of sensors in the grid must match
             the number of faces or the number vertices within the mesh.
-    
+        base_geo_: An optional Brep for the geometry used to make the grid. There are
+            no restrictions on how this brep relates to the sensors and it is
+            provided only to assist with the display of the grid when the number
+            of sensors or the mesh is too large to be practically visualized.
+
     Returns:
         grid: An SensorGrid object that can be used in a grid-based recipe.
 """
 
 ghenv.Component.Name = 'HB Sensor Grid'
 ghenv.Component.NickName = 'SensorGrid'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_rad_string
+    from honeybee.typing import clean_and_id_rad_string, clean_rad_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -48,27 +52,29 @@ except ImportError as e:
 
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
-    from ladybug_rhino.togeometry import to_mesh3d
+    from ladybug_rhino.togeometry import to_mesh3d, to_face3d
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
 
 if all_required_inputs(ghenv.Component):
     # set the default name and process the points to tuples
-    name = 'SensorGrid' if _name_ is None else _name_
+    name = clean_and_id_rad_string('SensorGrid') if _name_ is None else _name_
     pts = [(pt.X, pt.Y, pt.Z) for pt in _positions]
 
     # create the sensor grid object
     if len(_directions_) == 0:
         grid = SensorGrid.from_planar_positions(
-            clean_and_id_rad_string(name), pts, (0, 0, 1))
+            clean_rad_string(name), pts, (0, 0, 1))
     else:
         vecs = [(vec.X, vec.Y, vec.Z) for vec in _directions_]
         grid = SensorGrid.from_position_and_direction(
-            clean_and_id_rad_string(name), pts, vecs)
+            clean_rad_string(name), pts, vecs)
 
     # set the display name
     if _name_ is not None:
         grid.display_name = _name_
     if mesh_ is not None:
         grid.mesh = to_mesh3d(mesh_)
+    if base_geo_ is not None:
+        grid.base_geometry = to_face3d(base_geo_)

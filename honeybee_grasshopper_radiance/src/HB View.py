@@ -47,13 +47,13 @@ Create a Honeybee View for an image-based analysis.
 
 ghenv.Component.Name = 'HB View'
 ghenv.Component.NickName = 'View'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_rad_string
+    from honeybee.typing import clean_and_id_rad_string, clean_rad_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -76,15 +76,14 @@ if all_required_inputs(ghenv.Component):
     _dir = (_direction.X, _direction.Y, _direction.Z)
 
     # set the default values
-    name = 'RadianceView' if _name_ is None else _name_
+    name = clean_and_id_rad_string('View') if _name_ is None else _name_
     _up_vec = (_up_vector_.X, _up_vector_.Y, _up_vector_.Z) if _up_vector_ \
         is not None else (0, 0, 1)
     _type_= 'v' if _view_type_ is None else VIEW_TYPES[_view_type_]
     _h_angle_ = 60 if _h_angle_ is None else _h_angle_
     _v_angle_ = 60 if _v_angle_ is None else _v_angle_
 
-    view = View(
-        clean_and_id_rad_string(name), _pos, _dir, _up_vec, _type_,
-        _h_angle_, _v_angle_)
+    view = View(clean_rad_string(name), _pos, _dir, _up_vec, _type_,
+                _h_angle_, _v_angle_)
     if _name_ is not None:
         view.display_name = _name_

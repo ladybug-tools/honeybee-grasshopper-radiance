@@ -28,12 +28,12 @@ The names of the grids will be the same as the rooms that they came from.
     Returns:
         grid: A SensorGrid object that can be used in a grid-based recipe.
         points: The points that are at the center of each grid cell.
-        mesh: Analysis mesh that can be passed to the "LB Spatial Heatmap" component.
+        mesh: Analysis mesh that can be passed to the 'Color Mesh' component.
 """
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '1.1.1'
+ghenv.Component.Message = '1.1.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -75,8 +75,8 @@ if all_required_inputs(ghenv.Component):
 
     for room in _rooms:
         # get all of the floor faces of the room as Breps
-        floor_faces = [from_face3d(face.geometry.flip()) for face in room.faces
-                       if isinstance(face.type, Floor)]
+        lb_floors = [face.geometry.flip() for face in room.faces if isinstance(face.type, Floor)]
+        floor_faces = [from_face3d(face) for face in lb_floors]
 
         if len(floor_faces) != 0:
             # create the gridded ladybug Mesh3D
@@ -94,10 +94,12 @@ if all_required_inputs(ghenv.Component):
             base_dirs = [(vec.x, vec.y, vec.z) for vec in lb_mesh.face_normals]
 
             # create the sensor grid
-            s_grid = SensorGrid.from_position_and_direction(room.identifier, base_poss, base_dirs)
-            s_grid.display_name = clean_rad_string(room.display_name)
+            s_grid = SensorGrid.from_position_and_direction(
+                clean_rad_string(room.display_name), base_poss, base_dirs)
+            s_grid.display_name = room.display_name
             s_grid.room_identifier = room.identifier
             s_grid.mesh = lb_mesh
+            s_grid.base_geometry = tuple(f.move(f.normal * _dist_floor_) for f in lb_floors)
 
             # append everything to the lists
             grid.append(s_grid)

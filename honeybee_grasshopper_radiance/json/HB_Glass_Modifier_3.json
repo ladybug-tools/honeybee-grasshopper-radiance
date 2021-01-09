@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0", 
+  "version": "1.1.1", 
   "nickname": "GlassMod3", 
   "outputs": [
     [
@@ -15,7 +15,7 @@
   "inputs": [
     {
       "access": "item", 
-      "name": "_name", 
+      "name": "_name_", 
       "description": "Text to set the name for the modifier and to be incorporated into\na unique modifier identifier.", 
       "type": "string", 
       "default": null
@@ -50,7 +50,7 @@
     }
   ], 
   "subcategory": "1 :: Modifiers", 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.modifier.material import Glass\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # create the modifier\n    modifier = Glass.from_transmittance(\n        clean_and_id_rad_string(_name), _r_trans, _g_trans, _b_trans, _refract_)\n    modifier.display_name = _name\n", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_rad_string, clean_and_id_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.modifier.material import Glass\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    name = clean_and_id_rad_string('GlassMaterial') if _name_ is None else \\\n        clean_rad_string(_name_)\n\n    # create the modifier\n    modifier = Glass.from_transmittance(name, _r_trans, _g_trans, _b_trans, _refract_)\n    if _name_ is not None:\n        modifier.display_name = _name_\n", 
   "category": "HB-Radiance", 
   "name": "HB Glass Modifier 3", 
   "description": "Create an glass radiance modifier from a red, green, and blue transmittances\n-"

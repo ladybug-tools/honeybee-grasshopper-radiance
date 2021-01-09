@@ -12,7 +12,7 @@ Create an glass radiance modifier from a red, green, and blue transmittances
 -
 
     Args:
-        _name: Text to set the name for the modifier and to be incorporated into
+        _name_: Text to set the name for the modifier and to be incorporated into
             a unique modifier identifier.
         _r_trans: A number between 0 and 1 for the transmittance of the red
             channel. (Default: 0).
@@ -23,7 +23,7 @@ Create an glass radiance modifier from a red, green, and blue transmittances
         _refract_: Index of refraction. Typical values are 1.52 for float
             glass and 1.4 for ETFE. If None, Radiance will default to using 1.52
             for glass (Default: None).
-    
+
     Returns:
         modifier: A glass modifier that can be assigned to a Honeybee geometry or
             Modifier Sets.
@@ -31,13 +31,13 @@ Create an glass radiance modifier from a red, green, and blue transmittances
 
 ghenv.Component.Name = 'HB Glass Modifier 3'
 ghenv.Component.NickName = 'GlassMod3'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_rad_string
+    from honeybee.typing import clean_rad_string, clean_and_id_rad_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -53,7 +53,10 @@ except ImportError as e:
 
 
 if all_required_inputs(ghenv.Component):
+    name = clean_and_id_rad_string('GlassMaterial') if _name_ is None else \
+        clean_rad_string(_name_)
+
     # create the modifier
-    modifier = Glass.from_transmittance(
-        clean_and_id_rad_string(_name), _r_trans, _g_trans, _b_trans, _refract_)
-    modifier.display_name = _name
+    modifier = Glass.from_transmittance(name, _r_trans, _g_trans, _b_trans, _refract_)
+    if _name_ is not None:
+        modifier.display_name = _name_
