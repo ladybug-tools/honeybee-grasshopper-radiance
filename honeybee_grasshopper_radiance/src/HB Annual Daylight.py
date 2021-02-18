@@ -32,7 +32,7 @@ Run an annual daylight study for a single model.
 
 ghenv.Component.Name = 'HB Annual Daylight'
 ghenv.Component.NickName = 'AnnualDaylight'
-ghenv.Component.Message = '1.1.2'
+ghenv.Component.Message = '1.1.3'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -67,5 +67,5 @@ if all_required_inputs(ghenv.Component):
 
     # set the default project folder based on the model name if available
     if isinstance(_model, Model):
-        recipe.default_project_folder = \
-            os.path.join(hb_folders.default_simulation_folder, _model.identifier)
+        recipe.default_project_folder = os.path.join(
+            hb_folders.default_simulation_folder, _model.identifier, 'Radiance')

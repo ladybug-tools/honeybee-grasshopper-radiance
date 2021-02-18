@@ -1,5 +1,5 @@
 {
-  "version": "1.1.2", 
+  "version": "1.1.3", 
   "nickname": "DaylightFactor", 
   "outputs": [
     [
@@ -36,7 +36,7 @@
     }
   ], 
   "subcategory": "3 :: Recipes", 
-  "code": "\nimport os\n\ntry:\n    from honeybee.config import folders as hb_folders\n    from honeybee.model import Model\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # create the recipe and set the input arguments\n    recipe = Recipe('daylight_factor')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # set the default project folder based on the model name if available\n    if isinstance(_model, Model):\n        recipe.default_project_folder = \\\n            os.path.join(hb_folders.default_simulation_folder, _model.identifier)\n", 
+  "code": "\nimport os\n\ntry:\n    from honeybee.config import folders as hb_folders\n    from honeybee.model import Model\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # create the recipe and set the input arguments\n    recipe = Recipe('daylight_factor')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # set the default project folder based on the model name if available\n    if isinstance(_model, Model):\n        recipe.default_project_folder = os.path.join(\n            hb_folders.default_simulation_folder, _model.identifier, 'Radiance')\n", 
   "category": "HB-Radiance", 
   "name": "HB Daylight Factor", 
   "description": "Run daylight factor for a single model."
