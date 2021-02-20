@@ -12,10 +12,16 @@ Create a WEA object for an ASHRAE Revised Clear Sky (Tau Model) using a STAT fil
 -
 
     Args:
-        _stat_file = Full path to .stat file (typically next to the epw file).
+        _stat_file: Full path to .stat file that will be used to make the clear
+            sky Wea.
+        hoys_: An optional list of hours of the year (numbers from 0 to 8759) for
+            which the Wea will be filtered. HOYs can be generated from the
+            "LB Analysis Period" component or they can be obtained through
+            other means like analysis of the values in an occupancy schedule.
+            By default, the Wea will be generated for the whole year.
         timestep_: An integer representing the timestep with which to make the 
             WEA object.  Default is set to 1 for 1 step per hour of the year.
-    
+
     Returns:
         wea: A wea object from stat file. This wea object represents an ASHRAE Revised 
             Clear Sky ("Tau Model"), which is intended to determine peak solar load 
@@ -25,7 +31,7 @@ Create a WEA object for an ASHRAE Revised Clear Sky (Tau Model) using a STAT fil
 
 ghenv.Component.Name = 'HB Tau Clear Sky from STAT'
 ghenv.Component.NickName = 'TauClearSky'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -44,3 +50,5 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     timestep_ = 1 if timestep_ is None else timestep_
     wea = Wea.from_stat_file(_stat_file, timestep_)
+    if len(hoys_) != 0:
+        wea = wea.filter_by_hoys(hoys_)

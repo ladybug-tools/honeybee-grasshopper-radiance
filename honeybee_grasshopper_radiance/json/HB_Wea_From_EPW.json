@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0", 
+  "version": "1.1.1", 
   "nickname": "Wea", 
   "outputs": [
     [
@@ -16,20 +16,27 @@
     {
       "access": "item", 
       "name": "_epw_file", 
-      "description": "Script variable Python", 
-      "type": "System.Object", 
+      "description": "Full path to an .epw weather file.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "hoys_", 
+      "description": "An optional list of hours of the year (numbers from 0 to 8759) for\nwhich the Wea will be filtered. HOYs can be generated from the\n\"LB Analysis Period\" component or they can be obtained through\nother means like analysis of the values in an occupancy schedule.\nBy default, the Wea will be generated for the whole year.", 
+      "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "timestep_", 
-      "description": "_epw_file = Full path to epw weather file.\nAn integer representing the timestep with which to make the \nWEA object.  Default is set to 1 for 1 step per hour of the year.", 
+      "description": "An integer representing the timestep with which to make the \nWEA object.  Default is set to 1 for 1 step per hour of the year.", 
       "type": "int", 
       "default": null
     }
   ], 
   "subcategory": "2 :: Light Sources", 
-  "code": "\ntry:\n    from ladybug.wea import Wea\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    timestep_ = 1 if timestep_ is None else timestep_\n    wea = Wea.from_epw_file(_epw_file, timestep_)\n", 
+  "code": "\ntry:\n    from ladybug.wea import Wea\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    timestep_ = 1 if timestep_ is None else timestep_\n    wea = Wea.from_epw_file(_epw_file, timestep_)\n    if len(hoys_) != 0:\n        wea = wea.filter_by_hoys(hoys_)\n", 
   "category": "HB-Radiance", 
   "name": "HB Wea From EPW", 
   "description": "Create a Wea object from an EPW file.\n-"
