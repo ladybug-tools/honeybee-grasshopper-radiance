@@ -12,7 +12,7 @@ Construct a WEA from hourly data collections and the Zhang-Huang Solar Model.
 -
 
     Args:
-        _location = A Ladybug Location object.
+        _location: A Ladybug Location object.
         _cloud_cover: Hourly DataCollection with the fraction of total sky cover
             (tenths of coverage). (eg. 1 is 1/10 covered. 10 is total coverage)
         _rel_humidity: Hourly DataCollection with relative humidity [%].
@@ -21,7 +21,7 @@ Construct a WEA from hourly data collections and the Zhang-Huang Solar Model.
         _atmos_pressure_: Hourly DataCollection with amtospheric pressure [Pa].
             If no value is connected here, pressure at sea level will be
             assumed (101,325 Pa).
-        
+
     Returns:
         wea: A wea object from the input data collections and the Zhang-Huang
             solar model.
@@ -29,7 +29,7 @@ Construct a WEA from hourly data collections and the Zhang-Huang Solar Model.
 
 ghenv.Component.Name = 'HB Wea from Zhang-Huang'
 ghenv.Component.NickName = 'Zhang-Huang'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0", 
+  "version": "1.1.1", 
   "nickname": "ClearSky", 
   "outputs": [
     [
@@ -16,27 +16,34 @@
     {
       "access": "item", 
       "name": "_location", 
-      "description": "Script variable Python", 
+      "description": "A Ladybug Location object which will set the sun poisition for\nthe clear sky Wea. Locations can be obtained from the \"LB Import\nEPW\" or the \"LB Construct Location\" component.", 
       "type": "System.Object", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "clearness_", 
-      "description": "_location = The output from the importEPW or constructLocation component.\nThis is essentially a list of text summarizing a location on the\nearth.\nA factor that will be multiplied by the output of the model.\nThis is to help account for locations where clear, dry skies predominate\n(e.g., at high elevations) or, conversely, where hazy and humid conditions\nare frequent. See Threlkeld and Jordan (1958) for recommended values.\nTypical values range from 0.95 to 1.05 and are usually never more than 1.2.\nDefault is set to 1.0.", 
+      "description": "A factor to be multiplied by the output of the clear sky model.\nThis is to help account for locations where clear, dry skies predominate\n(e.g., at high elevations) or, conversely, where hazy and humid conditions\nare frequent. See Threlkeld and Jordan (1958) for recommended values.\nTypical values range from 0.95 to 1.05 and are usually never more\nthan 1.2. (Default: 1.0).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "x", 
+      "description": "An optional list of hours of the year (numbers from 0 to 8759) for\nwhich the Wea will be filtered. HOYs can be generated from the\n\"LB Analysis Period\" component or they can be obtained through\nother means like analysis of the values in an occupancy schedule.\nBy default, the Wea will be generated for the whole year.", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "timestep_", 
-      "description": "An integer representing the timestep with which to make the\nWEA object.  Default is set to 1 for 1 step per hour of the year.", 
+      "description": "An integer representing the timestep with which to make the\nWEA object. (Default: 1, for 1 step per hour of the year).", 
       "type": "int", 
       "default": null
     }
   ], 
   "subcategory": "2 :: Light Sources", 
-  "code": "\ntry:\n    from ladybug.wea import Wea\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    timestep_ = 1 if timestep_ is None else timestep_\n    clearness_ = 1 if clearness_ is None else clearness_\n    wea = Wea.from_ashrae_clear_sky(_location, clearness_, timestep_)", 
+  "code": "\ntry:\n    from ladybug.wea import Wea\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    timestep_ = 1 if timestep_ is None else timestep_\n    clearness_ = 1 if clearness_ is None else clearness_\n    wea = Wea.from_ashrae_clear_sky(_location, clearness_, timestep_)\n    if len(hoys_) != 0:\n        wea = wea.filter_by_hoys(hoys_)", 
   "category": "HB-Radiance", 
   "name": "HB ClearSky", 
   "description": "Create a WEA object using the original ASHRAE Clear Sky formula.\n-"

@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0", 
+  "version": "1.1.1", 
   "nickname": "Zhang-Huang", 
   "outputs": [
     [
@@ -16,14 +16,14 @@
     {
       "access": "item", 
       "name": "_location", 
-      "description": "Script variable Python", 
+      "description": "A Ladybug Location object.", 
       "type": "System.Object", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_cloud_cover", 
-      "description": "_location = A Ladybug Location object.\nHourly DataCollection with the fraction of total sky cover\n(tenths of coverage). (eg. 1 is 1/10 covered. 10 is total coverage)", 
+      "description": "Hourly DataCollection with the fraction of total sky cover\n(tenths of coverage). (eg. 1 is 1/10 covered. 10 is total coverage)", 
       "type": "System.Object", 
       "default": null
     }, 
