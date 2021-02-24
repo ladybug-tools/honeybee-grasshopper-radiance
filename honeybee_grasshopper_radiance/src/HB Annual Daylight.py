@@ -18,7 +18,11 @@ Run an annual daylight study for a single model.
             that are under the the Light Sources tab.
         north_: A number between -360 and 360 for the counterclockwise difference
             between the North and the positive Y-axis in degrees. This can
-            also be Vector for the direction to North. (Default: 0)
+            also be Vector for the direction to North. (Default: 0).
+        grid_filter_: Text for a grid identifer or a pattern to filter the sensor grids of
+            the model that are simulated. For instance, first_floor_* will simulate
+            only the sensor grids that have an identifier that starts with
+            first_floor_. By default, all grids in the model will be simulated.
         sensor_count_: Integer for the maximum number of sensor grid points per
             parallel execution. (Default: 200).
         radiance_par_: Text for the radiance parameters to be used for ray
@@ -32,7 +36,7 @@ Run an annual daylight study for a single model.
 
 ghenv.Component.Name = 'HB Annual Daylight'
 ghenv.Component.NickName = 'AnnualDaylight'
-ghenv.Component.Message = '1.1.3'
+ghenv.Component.Message = '1.1.4'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -62,6 +66,7 @@ if all_required_inputs(ghenv.Component):
     recipe.input_value_by_name('model', _model)
     recipe.input_value_by_name('wea', _wea)
     recipe.input_value_by_name('north', north_)
+    recipe.input_value_by_name('sensor-grid', grid_filter_)
     recipe.input_value_by_name('sensor-count', sensor_count_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
 

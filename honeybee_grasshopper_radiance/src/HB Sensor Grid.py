@@ -35,7 +35,7 @@ Create a Sensor Grid object that can be used in a grid-based recipe.
 
 ghenv.Component.Name = 'HB Sensor Grid'
 ghenv.Component.NickName = 'SensorGrid'
-ghenv.Component.Message = '1.1.1'
+ghenv.Component.Message = '1.1.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -63,17 +63,19 @@ if all_required_inputs(ghenv.Component):
     pts = [(pt.X, pt.Y, pt.Z) for pt in _positions]
 
     # create the sensor grid object
+    id  = clean_rad_string(name) if '/' not in name else clean_rad_string(name.split('/')[0])
     if len(_directions_) == 0:
-        grid = SensorGrid.from_planar_positions(
-            clean_rad_string(name), pts, (0, 0, 1))
+        grid = SensorGrid.from_planar_positions(id, pts, (0, 0, 1))
     else:
         vecs = [(vec.X, vec.Y, vec.Z) for vec in _directions_]
-        grid = SensorGrid.from_position_and_direction(
-            clean_rad_string(name), pts, vecs)
+        grid = SensorGrid.from_position_and_direction(id, pts, vecs)
 
     # set the display name
     if _name_ is not None:
         grid.display_name = _name_
+    if '/' in name:
+        grid.group_identifier = \
+            '/'.join(clean_rad_string(key) for key in name.split('/')[1:])
     if mesh_ is not None:
         grid.mesh = to_mesh3d(mesh_)
     if base_geo_ is not None:
