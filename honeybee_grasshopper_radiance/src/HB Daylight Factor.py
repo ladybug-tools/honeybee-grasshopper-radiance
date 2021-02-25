@@ -13,7 +13,7 @@ Run daylight factor for a single model.
     Args:
         _model: A Honeybee Model for which Daylight Factor will be simulated.
             Note that this model should have grids assigned to it in order
-            to produce meaningfule results.
+            to produce meaningful results.
         grid_filter_: Text for a grid identifer or a pattern to filter the sensor grids of
             the model that are simulated. For instance, first_floor_* will simulate
             only the sensor grids that have an identifier that starts with
@@ -31,7 +31,7 @@ Run daylight factor for a single model.
 
 ghenv.Component.Name = 'HB Daylight Factor'
 ghenv.Component.NickName = 'DaylightFactor'
-ghenv.Component.Message = '1.1.4'
+ghenv.Component.Message = '1.1.5'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

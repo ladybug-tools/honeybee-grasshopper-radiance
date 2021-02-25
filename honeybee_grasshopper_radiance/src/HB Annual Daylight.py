@@ -13,7 +13,7 @@ Run an annual daylight study for a single model.
     Args:
         _model: A Honeybee Model for which Annual Daylight will be simulated.
             Note that this model should have grids assigned to it in order
-            to produce meaningfule results.
+            to produce meaningful results.
         _wea: A Honeybee-Radiance Wea object produced from the Wea components
             that are under the the Light Sources tab.
         north_: A number between -360 and 360 for the counterclockwise difference
@@ -36,7 +36,7 @@ Run an annual daylight study for a single model.
 
 ghenv.Component.Name = 'HB Annual Daylight'
 ghenv.Component.NickName = 'AnnualDaylight'
-ghenv.Component.Message = '1.1.4'
+ghenv.Component.Message = '1.1.5'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
