@@ -8,12 +8,13 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Run daylight factor for a single model.
+Run a daylight factor study for a Honeybee model.
 
+-
     Args:
         _model: A Honeybee Model for which Daylight Factor will be simulated.
             Note that this model should have grids assigned to it in order
-            to produce meaningful results.
+            to produce meaningfule results.
         grid_filter_: Text for a grid identifer or a pattern to filter the sensor grids of
             the model that are simulated. For instance, first_floor_* will simulate
             only the sensor grids that have an identifier that starts with
@@ -22,16 +23,19 @@ Run daylight factor for a single model.
             parallel execution. (Default: 200).
         radiance_par_: Text for the radiance parameters to be used for ray
             tracing. (Default: -ab 2 -aa 0.1 -ad 2048 -ar 64).
+        run_settings_: Settings from the "HB Recipe Settings" component that specify
+            how the recipe should be run. This can also be a text string of
+            recipe settings.
+        _run: Set to True to run the recipe and get results.
 
     Returns:
-        recipe: A simulation recipe that contains a simulation instructions and
-            input arguments. Use the "HB Run Recipe" component to execute the
-            recipe and get results.
+        report: Reports, errors, warnings, etc.
+        results: The daylight factor values from the simulation.
 """
 
 ghenv.Component.Name = 'HB Daylight Factor'
 ghenv.Component.NickName = 'DaylightFactor'
-ghenv.Component.Message = '1.1.5'
+ghenv.Component.Message = '1.1.6'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -50,12 +54,12 @@ except ImportError as e:
     raise ImportError('\nFailed to import lbt_recipes:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, recipe_result
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
 
-if all_required_inputs(ghenv.Component):
+if all_required_inputs(ghenv.Component) and _run:
     # create the recipe and set the input arguments
     recipe = Recipe('daylight_factor')
     recipe.input_value_by_name('model', _model)
@@ -67,3 +71,9 @@ if all_required_inputs(ghenv.Component):
     if isinstance(_model, Model):
         recipe.default_project_folder = os.path.join(
             hb_folders.default_simulation_folder, _model.identifier, 'Radiance')
+
+    # run the recipe
+    project_folder = recipe.run(run_settings_, radiance_check=True)
+
+    # load the results
+    results = recipe_result(recipe.output_value_by_name('results', project_folder))
