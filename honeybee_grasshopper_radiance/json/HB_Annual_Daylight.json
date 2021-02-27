@@ -1,12 +1,12 @@
 {
-  "version": "1.1.5", 
+  "version": "1.1.6", 
   "nickname": "AnnualDaylight", 
   "outputs": [
     [
       {
         "access": "None", 
-        "name": "recipe", 
-        "description": "A simulation recipe that contains a simulation instructions and\ninput arguments. Use the \"HB Run Recipe\" component to execute the\nrecipe and get results.", 
+        "name": "results", 
+        "description": "The raw result files from the simulation.", 
         "type": null, 
         "default": null
       }
@@ -16,7 +16,7 @@
     {
       "access": "item", 
       "name": "_model", 
-      "description": "A Honeybee Model for which Annual Daylight will be simulated.\nNote that this model should have grids assigned to it in order\nto produce meaningful results.", 
+      "description": "A Honeybee Model for which Annual Daylight will be simulated.\nNote that this model should have grids assigned to it in order\nto produce meaningfule results.", 
       "type": "System.Object", 
       "default": null
     }, 
@@ -32,7 +32,7 @@
       "name": "north_", 
       "description": "A number between -360 and 360 for the counterclockwise difference\nbetween the North and the positive Y-axis in degrees. This can\nalso be Vector for the direction to North. (Default: 0).", 
       "type": "System.Object", 
-      "default": 0
+      "default": null
     }, 
     {
       "access": "item", 
@@ -46,19 +46,33 @@
       "name": "sensor_count_", 
       "description": "Integer for the maximum number of sensor grid points per\nparallel execution. (Default: 200).", 
       "type": "int", 
-      "default": 200
+      "default": null
     }, 
     {
       "access": "item", 
       "name": "radiance_par_", 
       "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 2 -ad 5000 -lw 2e-05).", 
       "type": "string", 
-      "default": " "
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "run_settings_", 
+      "description": "Settings from the \"HB Recipe Settings\" component that specify\nhow the recipe should be run. This can also be a text string of\nrecipe settings.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_run", 
+      "description": "Set to True to run the recipe and get results.", 
+      "type": "bool", 
+      "default": null
     }
   ], 
   "subcategory": "3 :: Recipes", 
-  "code": "\nimport os\n\ntry:\n    from honeybee.config import folders as hb_folders\n    from honeybee.model import Model\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # create the recipe and set the input arguments\n    recipe = Recipe('annual_daylight')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('sensor-grid', grid_filter_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # set the default project folder based on the model name if available\n    if isinstance(_model, Model):\n        recipe.default_project_folder = os.path.join(\n            hb_folders.default_simulation_folder, _model.identifier, 'Radiance')\n", 
+  "code": "\nimport os\n\ntry:\n    from honeybee.config import folders as hb_folders\n    from honeybee.model import Model\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('annual_daylight')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('sensor-grid', grid_filter_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # set the default project folder based on the model name if available\n    if isinstance(_model, Model):\n        recipe.default_project_folder = os.path.join(\n            hb_folders.default_simulation_folder, _model.identifier, 'Radiance')\n\n    # run the recipe\n    project_folder = recipe.run(run_settings_, radiance_check=True)\n\n    # load the results\n    results = recipe_result(recipe.output_value_by_name('results', project_folder))\n", 
   "category": "HB-Radiance", 
   "name": "HB Annual Daylight", 
-  "description": "Run an annual daylight study for a single model."
+  "description": "Run an annual daylight study for a Honeybee model.\n-"
 }
