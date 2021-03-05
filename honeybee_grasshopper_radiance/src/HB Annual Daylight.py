@@ -20,6 +20,18 @@ Run an annual daylight study for a Honeybee model.
         north_: A number between -360 and 360 for the counterclockwise difference
             between the North and the positive Y-axis in degrees. This can
             also be Vector for the direction to North. (Default: 0).
+        _thresholds_: A string to change the threshold for daylight autonomy and useful
+            daylight illuminance. Valid keys are -t for daylight autonomy threshold,
+            -lt for the lower threshold for useful daylight illuminance and
+            -ut for the upper threshold. The order of the keys is not important
+            and you can include one or all of them. For instance if you only want
+            to change the upper threshold to 2000 lux you should use -ut 2000
+            as the input. (Default: -t 300 -lt 100 -ut 3000).
+        _schedule_: An annual occupancy schedule, either as a Ladybug Hourly Continuous
+            Data Collection or a HB-Energy schedule object. This can also be the
+            path to a CSV file with 8760 rows or the identifier of a schedule in
+            the honeybee-energy schedule library. Any value in this schedule
+            that is 0.1 or above will be considered occupied.
         grid_filter_: Text for a grid identifer or a pattern to filter the sensor grids of
             the model that are simulated. For instance, first_floor_* will simulate
             only the sensor grids that have an identifier that starts with
@@ -35,12 +47,19 @@ Run an annual daylight study for a Honeybee model.
 
     Returns:
         report: Reports, errors, warnings, etc.
-        results: The raw result files from the simulation.
+        results: Folder with raw result files (.ill) that contain illuminance matrices.
+        DA: Daylight autonomy results.
+        cDA: Continuous daylight autonomy results.
+        UDI: Useful daylight illuminance results.
+        UDI_low: Results for the percent of time that is below the lower threshold
+            of useful daylight illuminance.
+        UDI_up: Results for the percent of time that is above the upper threshold
+            of useful daylight illuminance.
 """
 
 ghenv.Component.Name = 'HB Annual Daylight'
 ghenv.Component.NickName = 'AnnualDaylight'
-ghenv.Component.Message = '1.1.6'
+ghenv.Component.Message = '1.1.7'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -70,6 +89,8 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('model', _model)
     recipe.input_value_by_name('wea', _wea)
     recipe.input_value_by_name('north', north_)
+    recipe.input_value_by_name('thresholds', _thresholds_)
+    recipe.input_value_by_name('schedule', _schedule_)
     recipe.input_value_by_name('sensor-grid', grid_filter_)
     recipe.input_value_by_name('sensor-count', sensor_count_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
@@ -84,3 +105,8 @@ if all_required_inputs(ghenv.Component) and _run:
 
     # load the results
     results = recipe_result(recipe.output_value_by_name('results', project_folder))
+    DA = recipe_result(recipe.output_value_by_name('da', project_folder))
+    cDA = recipe_result(recipe.output_value_by_name('cda', project_folder))
+    UDI = recipe_result(recipe.output_value_by_name('udi', project_folder))
+    UDI_low = recipe_result(recipe.output_value_by_name('udi-lower', project_folder))
+    UDI_up = recipe_result(recipe.output_value_by_name('udi-upper', project_folder))
