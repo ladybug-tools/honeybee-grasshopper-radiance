@@ -19,6 +19,9 @@ The names of the grids will be the same as the rooms that they came from.
         _grid_size: Number for the size of the grid cells.
         _dist_floor_: Number for the distance to move points from the floors of
             the input rooms. The default is 0.8 meters.
+        quad_only_: Boolean to note whether meshing should be done using Rhino's
+            defaults, which fill the entire floor geometry or a mesh with only
+            quad faces should be generated. (Default: False).
         remove_out_: Boolean to note whether an extra check should be run to remove
             sensor points that lie outside the Room volume. Note that this can
             add significantly to the component's run time and this check is
@@ -33,7 +36,7 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '1.1.2'
+ghenv.Component.Message = '1.1.3'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -76,11 +79,15 @@ if all_required_inputs(ghenv.Component):
     for room in _rooms:
         # get all of the floor faces of the room as Breps
         lb_floors = [face.geometry.flip() for face in room.faces if isinstance(face.type, Floor)]
-        floor_faces = [from_face3d(face) for face in lb_floors]
 
-        if len(floor_faces) != 0:
+        if len(lb_floors) != 0:
             # create the gridded ladybug Mesh3D
-            lb_mesh = to_joined_gridded_mesh3d(floor_faces, _grid_size, _dist_floor_)
+            if quad_only_:  # use Ladybug's built-in meshing methods
+                lb_meshes = [geo.mesh_grid(_grid_size, offset=_dist_floor_) for geo in lb_floors]
+                lb_mesh = lb_meshes[0] if len(lb_meshes) == 1 else Mesh3D.join_meshes(lb_meshes)
+            else:  # use Rhino's default meshing
+                floor_faces = [from_face3d(face) for face in lb_floors]
+                lb_mesh = to_joined_gridded_mesh3d(floor_faces, _grid_size, _dist_floor_)
 
             # remove points outside of the room volume if requested
             if remove_out_:
