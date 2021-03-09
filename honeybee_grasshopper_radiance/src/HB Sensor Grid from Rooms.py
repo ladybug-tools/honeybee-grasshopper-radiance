@@ -20,8 +20,14 @@ The names of the grids will be the same as the rooms that they came from.
         _dist_floor_: Number for the distance to move points from the floors of
             the input rooms. The default is 0.8 meters.
         quad_only_: Boolean to note whether meshing should be done using Rhino's
-            defaults, which fill the entire floor geometry or a mesh with only
-            quad faces should be generated. (Default: False).
+            defaults (False), which fills the entire _geometry to the edges
+            with both quad and tringulated faces, or a mesh with only quad
+            faces should be generated.
+            _
+            FOR ADVANCED USERS: This input can also be a vector object that will
+            be used to set the orientation of the quad-only grid. Note that,
+            if a vector is input here that is not aligned with the plane of
+            the room's floors, an error will be raised.
         remove_out_: Boolean to note whether an extra check should be run to remove
             sensor points that lie outside the Room volume. Note that this can
             add significantly to the component's run time and this check is
@@ -36,12 +42,14 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '1.1.3'
+ghenv.Component.Message = '1.1.4'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 try:  # import the ladybug_geometry dependencies
+    from ladybug_geometry.geometry3d.plane import Plane
+    from ladybug_geometry.geometry3d.face import Face3D
     from ladybug_geometry.geometry3d.mesh import Mesh3D
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_geometry:\n\t{}'.format(e))
@@ -59,7 +67,7 @@ except ImportError as e:
 
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.config import conversion_to_meters, tolerance
-    from ladybug_rhino.togeometry import to_joined_gridded_mesh3d
+    from ladybug_rhino.togeometry import to_joined_gridded_mesh3d, to_vector3d
     from ladybug_rhino.fromgeometry import from_mesh3d, from_point3d, from_face3d
     from ladybug_rhino.grasshopper import all_required_inputs, list_to_data_tree
 except ImportError as e:
@@ -67,9 +75,13 @@ except ImportError as e:
 
 
 if all_required_inputs(ghenv.Component):
-    # set defaults for any blank inputs
+    # set defaults for any blank inputs and process the quad_only_
     if _dist_floor_ is None:
         _dist_floor_ = 0.8 / conversion_to_meters()
+    try:
+        x_axis = to_vector3d(quad_only_)
+    except AttributeError:
+        x_axis = None
 
     # create lists to be filled with content
     grid = []
@@ -83,6 +95,9 @@ if all_required_inputs(ghenv.Component):
         if len(lb_floors) != 0:
             # create the gridded ladybug Mesh3D
             if quad_only_:  # use Ladybug's built-in meshing methods
+                if x_axis:
+                    lb_floors = [Face3D(f.boundary, Plane(f.normal, f[0], x_axis), f.holes)
+                                 for f in lb_floors]
                 lb_meshes = [geo.mesh_grid(_grid_size, offset=_dist_floor_) for geo in lb_floors]
                 lb_mesh = lb_meshes[0] if len(lb_meshes) == 1 else Mesh3D.join_meshes(lb_meshes)
             else:  # use Rhino's default meshing
