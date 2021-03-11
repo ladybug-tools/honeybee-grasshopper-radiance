@@ -1,5 +1,5 @@
 {
-  "version": "1.1.1", 
+  "version": "1.1.2", 
   "nickname": "AnnualMetrics", 
   "outputs": [
     [
@@ -23,7 +23,7 @@
     {
       "access": "list", 
       "name": "_results", 
-      "description": "An list of annual Radiance result files from the \"HB Run Workflow\"\ncomponent.  This should include both the .ill files and the\nsun-up-hours.txt", 
+      "description": "An list of annual Radiance result files from the \"HB Annual Daylight\"\ncomponent.  This should include both the .ill files and the\nsun-up-hours.txt", 
       "type": "string", 
       "default": null
     }, 

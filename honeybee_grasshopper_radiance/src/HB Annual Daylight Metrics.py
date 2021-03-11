@@ -12,7 +12,7 @@ Annual Daylight Metrics.
 -
 
     Args:
-        _results: An list of annual Radiance result files from the "HB Run Workflow"
+        _results: An list of annual Radiance result files from the "HB Annual Daylight"
             component.  This should include both the .ill files and the
             sun-up-hours.txt
         _occ_sch_: An annual occupancy schedule as a Ladybug Data Collection or a HB-Energy
@@ -34,7 +34,7 @@ Annual Daylight Metrics.
 
 ghenv.Component.Name = "HB Annual Daylight Metrics"
 ghenv.Component.NickName = 'AnnualMetrics'
-ghenv.Component.Message = '1.1.1'
+ghenv.Component.Message = '1.1.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

@@ -1,0 +1,85 @@
+{
+  "version": "1.1.0", 
+  "nickname": "AnnualRadiation", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "total", 
+        "description": "Folder with raw result files (.ill) that contain irradiance matrices\nfor the total radiation at each sensor and timestep.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "direct", 
+        "description": "Folder with raw result files (.ill) that contain irradiance matrices\nfor the direct radiation at each sensor and timestep.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "A Honeybee Model for which Annual Radiation will be simulated.\nNote that this model should have grids assigned to it in order\nto produce meaningfule results.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_wea", 
+      "description": "A Wea object produced from the Wea components that are under the Light\nSources tab. This can also be the path to a .wea or a .epw file.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "north_", 
+      "description": "A number between -360 and 360 for the counterclockwise difference\nbetween the North and the positive Y-axis in degrees. This can\nalso be Vector for the direction to North. (Default: 0).", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "grid_filter_", 
+      "description": "Text for a grid identifer or a pattern to filter the sensor grids of\nthe model that are simulated. For instance, first_floor_* will simulate\nonly the sensor grids that have an identifier that starts with\nfirst_floor_. By default, all grids in the model will be simulated.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "sensor_count_", 
+      "description": "Integer for the maximum number of sensor grid points per\nparallel execution. (Default: 200).", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "radiance_par_", 
+      "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 2 -ad 5000 -lw 2e-05).", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "run_settings_", 
+      "description": "Settings from the \"HB Recipe Settings\" component that specify\nhow the recipe should be run. This can also be a text string of\nrecipe settings.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_run", 
+      "description": "Set to True to run the recipe and get results.", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Recipes", 
+  "code": "\nimport os\n\ntry:\n    from honeybee.config import folders as hb_folders\n    from honeybee.model import Model\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('annual_radiation')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('sensor-grid', grid_filter_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # set the default project folder based on the model name if available\n    if isinstance(_model, Model):\n        recipe.default_project_folder = os.path.join(\n            hb_folders.default_simulation_folder, _model.identifier, 'Radiance')\n\n    # run the recipe\n    project_folder = recipe.run(run_settings_, radiance_check=True)\n\n    # load the results\n    total = recipe_result(recipe.output_value_by_name('total-radiation', project_folder))\n    direct = recipe_result(recipe.output_value_by_name('direct-radiation', project_folder))\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Annual Radiation", 
+  "description": "Run an annual radiation study for a Honeybee model.\n_\nThe annual radiation values will be for each timestep of the input wea file.\n_\nTotal radiation is calculated by summing together the direct irradiance from\nsun disks and the contribution from indirect sky radiation.\n-"
+}
