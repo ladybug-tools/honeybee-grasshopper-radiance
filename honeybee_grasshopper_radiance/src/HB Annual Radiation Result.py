@@ -32,7 +32,7 @@ Annual Daylight Metrics.
 
 ghenv.Component.Name = "HB Annual Radiation Result"
 ghenv.Component.NickName = 'RadiationResult'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.2.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
