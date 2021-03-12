@@ -1,5 +1,5 @@
 {
-  "version": "1.1.1", 
+  "version": "1.2.0", 
   "nickname": "TauClearSky", 
   "outputs": [
     [
@@ -22,7 +22,7 @@
     }, 
     {
       "access": "list", 
-      "name": "x", 
+      "name": "hoys_", 
       "description": "An optional list of hours of the year (numbers from 0 to 8759) for\nwhich the Wea will be filtered. HOYs can be generated from the\n\"LB Analysis Period\" component or they can be obtained through\nother means like analysis of the values in an occupancy schedule.\nBy default, the Wea will be generated for the whole year.", 
       "type": "double", 
       "default": null
