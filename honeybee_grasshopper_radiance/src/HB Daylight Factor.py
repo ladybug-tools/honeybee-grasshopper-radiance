@@ -35,18 +35,10 @@ Run a daylight factor study for a Honeybee model.
 
 ghenv.Component.Name = 'HB Daylight Factor'
 ghenv.Component.NickName = 'DaylightFactor'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
-
-import os
-
-try:
-    from honeybee.config import folders as hb_folders
-    from honeybee.model import Model
-except ImportError as e:
-    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
     from lbt_recipes.recipe import Recipe
@@ -61,16 +53,11 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component) and _run:
     # create the recipe and set the input arguments
-    recipe = Recipe('daylight_factor')
+    recipe = Recipe('daylight-factor')
     recipe.input_value_by_name('model', _model)
     recipe.input_value_by_name('sensor-grid', grid_filter_)
     recipe.input_value_by_name('sensor-count', sensor_count_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
-
-    # set the default project folder based on the model name if available
-    if isinstance(_model, Model):
-        recipe.default_project_folder = os.path.join(
-            hb_folders.default_simulation_folder, _model.identifier, 'Radiance')
 
     # run the recipe
     project_folder = recipe.run(run_settings_, radiance_check=True)

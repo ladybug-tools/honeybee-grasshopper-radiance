@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0", 
+  "version": "1.2.1", 
   "nickname": "DirectSunHours", 
   "outputs": [
     [
@@ -71,7 +71,7 @@
     }
   ], 
   "subcategory": "3 :: Recipes", 
-  "code": "\nimport os\n\ntry:\n    from honeybee.config import folders as hb_folders\n    from honeybee.model import Model\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('direct_sun_hours')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('sensor-grid', grid_filter_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n\n    # set the default project folder based on the model name if available\n    if isinstance(_model, Model):\n        recipe.default_project_folder = os.path.join(\n            hb_folders.default_simulation_folder, _model.identifier, 'Radiance')\n\n    # run the recipe\n    project_folder = recipe.run(run_settings_, radiance_check=True)\n\n    # load the results\n    results = recipe_result(recipe.output_value_by_name('direct-sun-hours', project_folder))\n    hours = recipe_result(recipe.output_value_by_name('cumulative-sun-hours', project_folder))\n", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('direct-sun-hours')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('sensor-grid', grid_filter_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n\n    # run the recipe\n    project_folder = recipe.run(run_settings_, radiance_check=True)\n\n    # load the results\n    results = recipe_result(recipe.output_value_by_name('direct-sun-hours', project_folder))\n    hours = recipe_result(recipe.output_value_by_name('cumulative-sun-hours', project_folder))\n", 
   "category": "HB-Radiance", 
   "name": "HB Direct Sun Hours", 
   "description": "Calculate the number of hours of direct sun received by grids of sensors in a\nHoneybee model.\n-"
