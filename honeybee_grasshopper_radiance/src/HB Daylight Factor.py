@@ -35,7 +35,7 @@ Run a daylight factor study for a Honeybee model.
 
 ghenv.Component.Name = 'HB Daylight Factor'
 ghenv.Component.NickName = 'DaylightFactor'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -55,7 +55,7 @@ if all_required_inputs(ghenv.Component) and _run:
     # create the recipe and set the input arguments
     recipe = Recipe('daylight-factor')
     recipe.input_value_by_name('model', _model)
-    recipe.input_value_by_name('sensor-grid', grid_filter_)
+    recipe.input_value_by_name('grid-filter', grid_filter_)
     recipe.input_value_by_name('sensor-count', sensor_count_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
 

@@ -59,7 +59,7 @@ Run an annual daylight study for a Honeybee model.
 
 ghenv.Component.Name = 'HB Annual Daylight'
 ghenv.Component.NickName = 'AnnualDaylight'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -83,7 +83,7 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('north', north_)
     recipe.input_value_by_name('thresholds', _thresholds_)
     recipe.input_value_by_name('schedule', _schedule_)
-    recipe.input_value_by_name('sensor-grid', grid_filter_)
+    recipe.input_value_by_name('grid-filter', grid_filter_)
     recipe.input_value_by_name('sensor-count', sensor_count_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
 
