@@ -30,11 +30,15 @@ Annual Daylight Metrics.
             recieves equal or more than the threshold.
         UDI: Useful daylight illuminance. The percentage of time that illuminace
             falls between minimum and maximum thresholds.
+        UDI_low: Numbers for the percent of time that is below the lower threshold
+            of useful daylight illuminance.
+        UDI_up: Numbers for the percent of time that is above the upper threshold
+            of useful daylight illuminance.
 """
 
 ghenv.Component.Name = "HB Annual Daylight Metrics"
 ghenv.Component.NickName = 'AnnualMetrics'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -94,23 +98,27 @@ def parse_sun_up_hours(result_files, schedule):
 def annual_metrics(ill_file, occ_pattern, total_occupied_hours,
                    threshold=300, min_t=100, max_t=2000):
     """Compute annual metrics for a given result file."""
-    da = []
-    udi = []
+    da, udi, udi_low, udi_up  = [], [], [], []
     with open(ill_file) as results:
         for pt_res in results:
-            pda = 0
-            pudi = 0
+            pda, pudi, pudi_low, pudi_up = 0, 0, 0, 0
             for is_occ, hourly_res in zip(occ_pattern, pt_res.split()):
                 if is_occ < 0.5:
                     continue
                 value = float(hourly_res)
                 if value > threshold:
                     pda += 1
-                if min_t <= value <= max_t:
+                if value < min_t:
+                    pudi_low += 1
+                elif value <= max_t:
                     pudi += 1
+                else:
+                    pudi_up += 1
             da.append(round(100.0 * pda / total_occupied_hours, 2))
             udi.append(round(100.0 * pudi / total_occupied_hours, 2))
-    return da, udi
+            udi_low.append(round(100.0 * pudi_low / total_occupied_hours, 2))
+            udi_up.append(round(100.0 * pudi_up / total_occupied_hours, 2))
+    return da, udi, udi_low, udi_up
 
 
 
@@ -142,11 +150,16 @@ if all_required_inputs(ghenv.Component):
     occ_pattern = parse_sun_up_hours(_results, schedule)
 
     # compute the annual metrics
-    DA, UDI = [], []
+    DA, UDI, UDI_low, UDI_up = [], [], [], []
     for ill_file in _results:
-        da, udi = annual_metrics(ill_file, occ_pattern, total_occupied_hours,
-                                 _threshold_, min_t, max_t)
+        da, udi, udi_low, udi_up = \
+            annual_metrics(ill_file, occ_pattern, total_occupied_hours,
+                           _threshold_, min_t, max_t)
         DA.append(da)
         UDI.append(udi)
+        UDI_low.append(udi_low)
+        UDI_up.append(udi_up)
     DA = list_to_data_tree(DA)
     UDI = list_to_data_tree(UDI)
+    UDI_low = list_to_data_tree(UDI_low)
+    UDI_up = list_to_data_tree(UDI_up)
