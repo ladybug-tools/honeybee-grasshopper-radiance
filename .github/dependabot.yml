@@ -1,0 +1,28 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "11:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: importlib-metadata
+    versions:
+    - 3.10.0
+    - 3.6.0
+    - 3.7.0
+    - 3.9.0
+    - 4.0.0
+  - dependency-name: twine
+    versions:
+    - 3.4.0
+  - dependency-name: coveralls
+    versions:
+    - 3.0.1
+  - dependency-name: coverage
+    versions:
+    - "5.5"
+  - dependency-name: setuptools
+    versions:
+    - 53.1.0
