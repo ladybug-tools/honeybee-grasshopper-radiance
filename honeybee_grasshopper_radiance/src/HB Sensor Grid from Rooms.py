@@ -16,6 +16,8 @@ The names of the grids will be the same as the rooms that they came from.
 
     Args:
         _rooms: A list of honeybee Rooms for which sensor grids will be generated.
+            This can also be an entire Honeybee Model from which Rooms will
+            be extracted.
         _grid_size: Number for the size of the grid cells.
         _dist_floor_: Number for the distance to move points from the floors of
             the input rooms. The default is 0.8 meters.
@@ -42,7 +44,7 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -55,6 +57,8 @@ except ImportError as e:
     raise ImportError('\nFailed to import ladybug_geometry:\n\t{}'.format(e))
 
 try:  # import the core honeybee dependencies
+    from honeybee.model import Model
+    from honeybee.room import Room
     from honeybee.facetype import Floor
     from honeybee.typing import clean_rad_string
 except ImportError as e:
@@ -76,8 +80,7 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component):
     # set defaults for any blank inputs and process the quad_only_
-    if _dist_floor_ is None:
-        _dist_floor_ = 0.8 / conversion_to_meters()
+    _dist_floor_ = 0.8 / conversion_to_meters() if _dist_floor_ is None else _dist_floor_
     try:
         x_axis = to_vector3d(quad_only_)
     except AttributeError:
@@ -87,8 +90,16 @@ if all_required_inputs(ghenv.Component):
     grid = []
     points = []
     mesh = []
+    rooms = []
+    for obj in _rooms:
+        if isinstance(obj, Model):
+            rooms.extend(obj.rooms)
+        elif isinstance(obj, Room):
+            rooms.append(obj)
+        else:
+            raise TypeError('Expected Honeybee Room or Model. Got {}.'.format(type(obj)))
 
-    for room in _rooms:
+    for room in rooms:
         # get all of the floor faces of the room as Breps
         lb_floors = [face.geometry.flip() for face in room.faces if isinstance(face.type, Floor)]
 
