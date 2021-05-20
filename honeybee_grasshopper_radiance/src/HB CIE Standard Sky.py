@@ -9,6 +9,7 @@
 
 """
 Create a point-in-time standard Radiance CIE sky.
+-
 
     Args:
         north_: A number between 0 and 360 that represents the degrees off from
@@ -17,22 +18,22 @@ Create a point-in-time standard Radiance CIE sky.
         _location: A Ladybug location object.
         _month_: An integer between 1 and 12 for the month of the year (default: 6).
         _day_: An integer between 1 and 31 for the day of the month (default: 21).
-        _hour_: A number between 0 and 23.999.. for the hour of the day (default: 12).
+        _hour_: A number between 0 and 23.999 for the hour of the day (default: 12).
         _type_: An integer between 0..5 to indicate CIE Sky Type (default: 0).
-            [0] Sunny with sun
-            [1] sunny without sun
-            [2] intermediate with sun
-            [3] intermediate without sun
-            [4] cloudy sky
-            [5] uniform sky
-    
+            * 0 = Sunny with sun
+            * 1 = sunny without sun
+            * 2 = intermediate with sun
+            * 3 = intermediate without sun
+            * 4 = cloudy sky
+            * 5 = uniform sky
+
     Returns:
         sky: A honeybee sky that can be used to create a point-in-time recipe.
 """
 
 ghenv.Component.Name = 'HB CIE Standard Sky'
 ghenv.Component.NickName = 'CIESky'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
