@@ -13,7 +13,9 @@ Create a WEA object for an ASHRAE Revised Clear Sky (Tau Model) using a STAT fil
 
     Args:
         _stat_file: Full path to .stat file that will be used to make the clear
-            sky Wea.
+            sky Wea. Note that an error will be raised if no atmospheric
+            optical data is found in the file. In this case, the "HB Wea from
+            Clear Sky" component can be used.
         hoys_: An optional list of hours of the year (numbers from 0 to 8759) for
             which the Wea will be filtered. HOYs can be generated from the
             "LB Analysis Period" component or they can be obtained through
@@ -29,12 +31,12 @@ Create a WEA object for an ASHRAE Revised Clear Sky (Tau Model) using a STAT fil
             optical depths found within a .stat file.
 """
 
-ghenv.Component.Name = 'HB Tau Clear Sky from STAT'
+ghenv.Component.Name = 'HB Wea From Tau Clear Sky'
 ghenv.Component.NickName = 'TauClearSky'
 ghenv.Component.Message = '1.2.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
-ghenv.Component.AdditionalHelpFromDocStrings = '3'
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 try:
     from ladybug.wea import Wea

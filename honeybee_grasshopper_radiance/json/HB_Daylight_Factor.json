@@ -1,12 +1,12 @@
 {
-  "version": "1.2.2", 
+  "version": "1.2.3", 
   "nickname": "DaylightFactor", 
   "outputs": [
     [
       {
         "access": "None", 
         "name": "results", 
-        "description": "The daylight factor values from the simulation.", 
+        "description": "The daylight factor values from the simulation in percent. Each\nvalue is for a fidderent sensor of the grid. These can be plugged\ninto the \"LB Spatial Heatmap\" component along with meshes of the\nsensor grids to visualize results.", 
         "type": null, 
         "default": null
       }
@@ -23,7 +23,7 @@
     {
       "access": "item", 
       "name": "grid_filter_", 
-      "description": "Text for a grid identifer or a pattern to filter the sensor grids of\nthe model that are simulated. For instance, first_floor_* will simulate\nonly the sensor grids that have an identifier that starts with\nfirst_floor_. By default, all grids in the model will be simulated.", 
+      "description": "Text for a grid identifer or a pattern to filter the sensor grids of\nthe model that are simulated. For instance, `first_floor_*` will simulate\nonly the sensor grids that have an identifier that starts with\n`first_floor_`. By default, all grids in the model will be simulated.", 
       "type": "string", 
       "default": null
     }, 

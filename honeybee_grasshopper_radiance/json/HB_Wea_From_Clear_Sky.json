@@ -45,6 +45,6 @@
   "subcategory": "2 :: Light Sources", 
   "code": "\ntry:\n    from ladybug.wea import Wea\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    timestep_ = 1 if timestep_ is None else timestep_\n    clearness_ = 1 if clearness_ is None else clearness_\n    wea = Wea.from_ashrae_clear_sky(_location, clearness_, timestep_)\n    if len(hoys_) != 0:\n        wea = wea.filter_by_hoys(hoys_)", 
   "category": "HB-Radiance", 
-  "name": "HB ClearSky", 
+  "name": "HB Wea From Clear Sky", 
   "description": "Create a WEA object using the original ASHRAE Clear Sky formula.\n-"
 }

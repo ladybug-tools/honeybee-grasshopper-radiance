@@ -29,10 +29,10 @@ Construct a WEA from hourly data collections and the Zhang-Huang Solar Model.
 
 ghenv.Component.Name = 'HB Wea from Zhang-Huang'
 ghenv.Component.NickName = 'Zhang-Huang'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
-ghenv.Component.AdditionalHelpFromDocStrings = '0'
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 try:
     from ladybug.wea import Wea
