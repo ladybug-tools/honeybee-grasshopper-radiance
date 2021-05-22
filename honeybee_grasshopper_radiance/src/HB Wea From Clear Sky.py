@@ -35,12 +35,12 @@ Create a WEA object using the original ASHRAE Clear Sky formula.
             sizing parmeters for HVAC systems.
 """
 
-ghenv.Component.Name = 'HB ClearSky'
+ghenv.Component.Name = 'HB Wea From Clear Sky'
 ghenv.Component.NickName = 'ClearSky'
 ghenv.Component.Message = '1.2.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
-ghenv.Component.AdditionalHelpFromDocStrings = '0'
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 try:
     from ladybug.wea import Wea

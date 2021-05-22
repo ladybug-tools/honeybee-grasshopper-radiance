@@ -8,13 +8,29 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Run a daylight factor study for a Honeybee model.
+Run a point-in-time grid-based study for a Honeybee model.
+_
+Point-in-time recipes require a sky and can output illuminance, irradiance,
+luminance or radiance.
 
 -
     Args:
-        _model: A Honeybee Model for which Daylight Factor will be simulated.
+        _model: A Honeybee Model for which a point-in-time grid-based study will be run.
             Note that this model should have grids assigned to it in order
             to produce meaningfule results.
+        _sky: A Radiance sky from any of the sky components under the "Light Sources" tab.
+            Skies can be either CIE, ClimateBased/Custom, or for a specific
+            Illuminance/Irradiance. This input can also just be a text definition
+            of a sky's paramters. Examples include:
+                * cie 21 Mar 9:00 -lat 41.78 -lon -87.75 -tz 5 -type 0
+                * climate-based 21 Jun 12:00 -lat 41.78 -lon -87.75 -tz 5 -dni 800 -dhi 120
+                * irradiance 0
+        _metric_: Either an integer or the full name of a point-in-time metric to be
+            computed by the recipe. Choose from the following:
+                * 0 = illuminance
+                * 1 = irradiance
+                * 2 = luminance
+                * 3 = radiance
         grid_filter_: Text for a grid identifer or a pattern to filter the sensor grids of
             the model that are simulated. For instance, `first_floor_*` will simulate
             only the sensor grids that have an identifier that starts with
@@ -30,18 +46,22 @@ Run a daylight factor study for a Honeybee model.
 
     Returns:
         report: Reports, errors, warnings, etc.
-        results: The daylight factor values from the simulation in percent. Each
-            value is for a fidderent sensor of the grid. These can be plugged
+        results: Numbers for the point-in-time value at each sensor. Values are in the
+            standard SI units of the requested input metric. These can be plugged
             into the "LB Spatial Heatmap" component along with meshes of the
             sensor grids to visualize results.
+                * illuminance = lux
+                * irradiance = W/m2
+                * luminance = cd/m2
+                * radiance = W/m2-sr\n
 """
 
-ghenv.Component.Name = 'HB Daylight Factor'
-ghenv.Component.NickName = 'DaylightFactor'
-ghenv.Component.Message = '1.2.3'
+ghenv.Component.Name = 'HB Point-In-Time Grid-Based'
+ghenv.Component.NickName = 'PITGrid'
+ghenv.Component.Message = '1.2.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
-ghenv.Component.AdditionalHelpFromDocStrings = '1'
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 try:
     from lbt_recipes.recipe import Recipe
@@ -56,8 +76,10 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component) and _run:
     # create the recipe and set the input arguments
-    recipe = Recipe('daylight-factor')
+    recipe = Recipe('point-in-time-grid')
     recipe.input_value_by_name('model', _model)
+    recipe.input_value_by_name('sky', _sky)
+    recipe.input_value_by_name('metric', _metric_)
     recipe.input_value_by_name('grid-filter', grid_filter_)
     recipe.input_value_by_name('sensor-count', sensor_count_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)

@@ -16,7 +16,7 @@
     {
       "access": "item", 
       "name": "_stat_file", 
-      "description": "Full path to .stat file that will be used to make the clear\nsky Wea.", 
+      "description": "Full path to .stat file that will be used to make the clear\nsky Wea. Note that an error will be raised if no atmospheric\noptical data is found in the file. In this case, the \"HB Wea from\nClear Sky\" component can be used.", 
       "type": "System.Object", 
       "default": null
     }, 
@@ -38,6 +38,6 @@
   "subcategory": "2 :: Light Sources", 
   "code": "\ntry:\n    from ladybug.wea import Wea\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    timestep_ = 1 if timestep_ is None else timestep_\n    wea = Wea.from_stat_file(_stat_file, timestep_)\n    if len(hoys_) != 0:\n        wea = wea.filter_by_hoys(hoys_)", 
   "category": "HB-Radiance", 
-  "name": "HB Tau Clear Sky from STAT", 
+  "name": "HB Wea From Tau Clear Sky", 
   "description": "Create a WEA object for an ASHRAE Revised Clear Sky (Tau Model) using a STAT file.\n-"
 }

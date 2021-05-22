@@ -8,27 +8,29 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Deconstruct a Wea object into lists of direct, diffuse, and golbal radiation
-at each timestep of the file.
+Deconstruct a Wea object into data collections of direct, diffuse, and golbal
+irradiance at each timestep of the file.
 
 -
-
     Args:
         _wea: A Honeybee WEA object.
-    
+
     Returns:
         readMe!: Reports, errors, warnings, etc.
-        dir: A list of direct normal irradiance values at each timestep of the WEA.
-        diff: A list of diffuse sky solar irradiance values at each timestep of the WEA.
-        glob: A list of global horizontal irradiance values at each timestep of the WEA.
+        dir: A data collection of direct normal irradiance values at each timestep
+            of the Wea.
+        diff: A data collection of diffuse sky solar irradiance values at each
+            timestep of the Wea.
+        glob: A data collection of global horizontal irradiance values at each
+            timestep of the Wea.
 """
 
 ghenv.Component.Name = 'HB Deconstruct Wea'
 ghenv.Component.NickName = 'DecnstrWea'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
-ghenv.Component.AdditionalHelpFromDocStrings = '0'
+ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 try:
     from ladybug_rhino.grasshopper import all_required_inputs

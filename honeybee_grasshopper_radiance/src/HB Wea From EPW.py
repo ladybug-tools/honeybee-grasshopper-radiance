@@ -27,10 +27,10 @@ Create a Wea object from an EPW file.
 
 ghenv.Component.Name = 'HB Wea From EPW'
 ghenv.Component.NickName = 'Wea'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
-ghenv.Component.AdditionalHelpFromDocStrings = '3'
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 try:
     from ladybug.wea import Wea
