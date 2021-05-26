@@ -50,15 +50,15 @@ luminance or radiance.
             standard SI units of the requested input metric. These can be plugged
             into the "LB Spatial Heatmap" component along with meshes of the
             sensor grids to visualize results.
-                * illuminance = lux
+                * illuminance = lux (aka. lm/m2)
                 * irradiance = W/m2
-                * luminance = cd/m2
-                * radiance = W/m2-sr\n
+                * luminance = cd/m2 (aka. lm/m2-sr)
+                * radiance = W/m2-sr
 """
 
 ghenv.Component.Name = 'HB Point-In-Time Grid-Based'
 ghenv.Component.NickName = 'PITGrid'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
