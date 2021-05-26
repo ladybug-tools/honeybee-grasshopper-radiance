@@ -1,12 +1,12 @@
 {
-  "version": "1.2.0", 
+  "version": "1.2.1", 
   "nickname": "PITGrid", 
   "outputs": [
     [
       {
         "access": "None", 
         "name": "results", 
-        "description": "Numbers for the point-in-time value at each sensor. Values are in the\nstandard SI units of the requested input metric. These can be plugged\ninto the \"LB Spatial Heatmap\" component along with meshes of the\nsensor grids to visualize results.\n* illuminance = lux\n* irradiance = W/m2\n* luminance = cd/m2\n* radiance = W/m2-sr\\n", 
+        "description": "Numbers for the point-in-time value at each sensor. Values are in the\nstandard SI units of the requested input metric. These can be plugged\ninto the \"LB Spatial Heatmap\" component along with meshes of the\nsensor grids to visualize results.\n* illuminance = lux (aka. lm/m2)\n* irradiance = W/m2\n* luminance = cd/m2 (aka. lm/m2-sr)\n* radiance = W/m2-sr", 
         "type": null, 
         "default": null
       }
