@@ -1,0 +1,150 @@
+# This file is part of Honeybee.
+#
+# Copyright (c) 2021, Ladybug Tools.
+# You should have received a copy of the GNU General Public License
+# along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
+# 
+# @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
+
+"""
+Convert a High Dynamic Range (HDR) image file into a falsecolor version of itself.
+-
+
+    Args:
+        _hdr: Path to a High Dynamic Range (HDR) image file.
+        legend_unit_: Text for the unit of the legend. If unspecified, an attempt will
+            be made to sense the metric from the input image file. Typical examples
+            include lux, W/m2, cd/m2, w/sr-m2.
+        conversion_: Number for the conversion factor (aka. multiplier) for the results.
+            The default is either 1 or 179 depending on whether the image is for
+            radiance or irradiance to luminance or illuminance, respectively.
+        max_: A number to set the upper boundary of the legend. The default is
+            dictated based on the legend_unit_.
+        seg_count_: An interger representing the number of steps between the
+            high and low boundary of the legend. The default is set to 10
+            and any custom values input in here should always be greater
+            than or equal to 2.
+        contour_lines_: Set to True ro render the image with colored contour lines.
+        extrema_: Set to True to cause extrema points to be printed on the brightest
+            and darkest pixels of the input picture.
+        color_palette_: Optional interger or text to change the color palette.
+            Choose from the following.
+                * 0 = def - default colors
+                * 1 = pm3d -  a variation of the default colors
+                * 2 = spec - the old spectral mapping
+                * 3 = hot - a thermal scale
+
+    Returns:
+        hdr: Path to the resulting falsecolor HDR file. This can be plugged into the
+            Ladybug "Image Viewer" component to preview the image. It can also
+            be plugged into the "HB HDR to GIF" component to get a GIF image
+            that is more portable and easily previewed by different software.
+"""
+
+ghenv.Component.Name = 'HB False Color'
+ghenv.Component.NickName = 'FalseColor'
+ghenv.Component.Message = '1.2.0'
+ghenv.Component.Category = 'HB-Radiance'
+ghenv.Component.SubCategory = '4 :: Results'
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
+
+import os
+
+try:  # import honeybee_radiance_command dependencies
+    from honeybee_radiance_command.falsecolor import Falsecolor
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee_radiance_command:\n\t{}'.format(e))
+
+try:  # import honeybee_radiance dependencies
+    from honeybee_radiance.config import folders as rad_folders
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
+
+try:  # import ladybug_rhino dependencies
+    from ladybug_rhino.grasshopper import all_required_inputs
+except ImportError as e:
+    raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+
+# check the Radiance date of the installed radiance
+try:  # import lbt_recipes dependencies
+    from lbt_recipes.version import check_radiance_date
+except ImportError as e:
+    raise ImportError('\nFailed to import lbt_recipes:\n\t{}'.format(e))
+check_radiance_date()
+
+
+def sense_metric_from_hdr(hdr_path):
+    """Sense the metric/units of a given HDR file from its properties.
+
+    Args:
+        hdr_path: The path to an HDR image file
+
+    Returns:
+        Text for the units of the file (either 'lux', 'W/m2', 'cd/m2', 'W/sr-m2')
+    """
+    with open(hdr_path, 'r') as hdr_file:
+        for lineCount, line in enumerate(hdr_file):
+            if lineCount < 10:
+                low_line = line.strip().lower()
+                if low_line.startswith('oconv') and low_line.endswith('.sky'):
+                        return 'W/sr-m2'  # this is an image of a sky
+                if low_line.startswith('rpict'):
+                    if line.find('-i') > -1:
+                        return 'lux'
+            else:  # we have passed the header of the file
+                return 'cd/m2'  # luminance
+
+
+
+if all_required_inputs(ghenv.Component):
+    # set up the paths for the various files used in translation
+    img_dir = os.path.dirname(_hdr)
+    input_image = os.path.basename(_hdr)
+    new_image = input_image.lower().replace('.hdr', '_falsecolor.HDR')
+    hdr = os.path.join(img_dir, new_image)
+
+    # set default properties
+    seg_count_ = seg_count_ if seg_count_ is not None else 10
+    if legend_unit_ is None:
+        legend_unit_ = sense_metric_from_hdr(_hdr)
+    if max_ is None:
+        if legend_unit_ in ('W/sr-m2', 'W/m2'):
+            max_ = '200'
+        else:
+            max_ = '20000'
+    if conversion_ is None:
+        if legend_unit_ == 'W/m2':
+            conversion_ = 1
+        else:
+            conversion_ = 179
+
+    # create the command to run falsecolor
+    falsecolor = Falsecolor(input=input_image, output=new_image)
+    falsecolor.options.s = max_
+    falsecolor.options.n = seg_count_
+    falsecolor.options.l = legend_unit_
+    falsecolor.options.m = conversion_
+    if contour_lines_:
+        falsecolor.options.cl = True
+        falsecolor.options.p = input_image
+    if extrema_:
+        falsecolor.options.e = True
+    if color_palette_:
+        PALETTE_DICT = {
+            '0': 'def',
+            '1': 'pm3d',
+            '2': 'spec',
+            '3': 'hot',
+            'def': 'def',
+            'pm3d': 'pm3d',
+            'spec': 'spec',
+            'hot': 'hot'
+        }
+        falsecolor.options.pal = PALETTE_DICT[color_palette_]
+
+    # run the falsecolor command
+    env = None
+    if rad_folders.env != {}:
+        env = rad_folders.env
+    env = dict(os.environ, **env) if env else None
+    falsecolor.run(env, cwd=img_dir)
