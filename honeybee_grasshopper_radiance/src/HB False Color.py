@@ -12,18 +12,22 @@ Convert a High Dynamic Range (HDR) image file into a falsecolor version of itsel
 
     Args:
         _hdr: Path to a High Dynamic Range (HDR) image file.
-        legend_unit_: Text for the unit of the legend. If unspecified, an attempt will
-            be made to sense the metric from the input image file. Typical examples
-            include lux, W/m2, cd/m2, w/sr-m2.
-        conversion_: Number for the conversion factor (aka. multiplier) for the results.
-            The default is either 1 or 179 depending on whether the image is for
-            radiance or irradiance to luminance or illuminance, respectively.
         max_: A number to set the upper boundary of the legend. The default is
             dictated based on the legend_unit_.
         seg_count_: An interger representing the number of steps between the
             high and low boundary of the legend. The default is set to 10
             and any custom values input in here should always be greater
             than or equal to 2.
+        legend_height_: An integer for the height of the legend in pixels. Set to 0
+            to completely remove the legend from the output. (Default: 200).
+        legend_width_: An integer for the width of the legend in pixels. Set to 0
+            to completely remove the legend from the output. (Default: 100).
+        legend_unit_: Text for the unit of the legend. If unspecified, an attempt will
+            be made to sense the metric from the input image file. Typical examples
+            include lux, W/m2, cd/m2, w/sr-m2.
+        conversion_: Number for the conversion factor (aka. multiplier) for the results.
+            The default is either 1 or 179 depending on whether the image is for
+            radiance or irradiance to luminance or illuminance, respectively.
         contour_lines_: Set to True ro render the image with colored contour lines.
         extrema_: Set to True to cause extrema points to be printed on the brightest
             and darkest pixels of the input picture.
@@ -33,6 +37,7 @@ Convert a High Dynamic Range (HDR) image file into a falsecolor version of itsel
                 * 1 = pm3d -  a variation of the default colors
                 * 2 = spec - the old spectral mapping
                 * 3 = hot - a thermal scale
+        
 
     Returns:
         hdr: Path to the resulting falsecolor HDR file. This can be plugged into the
@@ -43,7 +48,7 @@ Convert a High Dynamic Range (HDR) image file into a falsecolor version of itsel
 
 ghenv.Component.Name = 'HB False Color'
 ghenv.Component.NickName = 'FalseColor'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -136,6 +141,10 @@ if all_required_inputs(ghenv.Component):
         falsecolor.options.p = input_image
     if extrema_:
         falsecolor.options.e = True
+    if legend_height_ is not None:
+        falsecolor.options.lh = legend_height_
+    if legend_width_ is not None:
+        falsecolor.options.lw = legend_width_
     if color_palette_:
         PALETTE_DICT = {
             '0': 'def',
