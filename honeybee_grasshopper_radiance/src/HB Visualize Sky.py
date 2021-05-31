@@ -28,7 +28,7 @@ Visualize a sky as a High Dynamic Range (HDR) image file.
 
 ghenv.Component.Name = 'HB Visualize Sky'
 ghenv.Component.NickName = 'VizSky'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -88,14 +88,16 @@ if all_required_inputs(ghenv.Component):
     sky_file, sky_oct = 'weather.sky', 'sky_visual.oct'
     write_to_file_by_name(sky_dir, sky_file, sky_content, mkdir=True)
     ghi_res, full_ghi_res = 'ghi.res', os.path.join(sky_dir, 'ghi.res')
-    raw_hdr, init_hdr, final_hdr = 'sky_raw.HDR', 'sky_init.HDR', 'sky.HDR'
+    init_hdr, final_hdr = 'sky_init.HDR', 'sky.HDR'
     hdr = os.path.join(sky_dir, final_hdr)
+    if os.path.isfile(hdr):
+        os.remove(hdr)
 
     # build up the commands to render the image of the sky
     oconv = Oconv(inputs=[sky_file], output=sky_oct)
     oconv.options.f = True
 
-    rpict = Rpict(octree=sky_oct, output=raw_hdr)
+    rpict = Rpict(octree=sky_oct, output=init_hdr)
     rpict.options.i = True
     rpict.options.t = 10
     rpict.options.ab = 1
@@ -111,9 +113,6 @@ if all_required_inputs(ghenv.Component):
     rpict.options.vu = (0, 1, 0)
     rpict.options.vh = 180
     rpict.options.vv = 180
-
-    pcond = Pcond(input=raw_hdr, output=init_hdr)
-    pcond.options.h = True
 
     pflip = Pflip(input=init_hdr, output=final_hdr)
     pflip.options.h = True
@@ -135,7 +134,7 @@ if all_required_inputs(ghenv.Component):
     if rad_folders.env != {}:
         env = rad_folders.env
     env = dict(os.environ, **env) if env else None
-    for r_cmd in (oconv, rpict, pcond, pflip, rtrace):
+    for r_cmd in (oconv, rpict, pflip, rtrace):
         r_cmd.run(env, cwd=sky_dir)
     with open(full_ghi_res, 'r') as inf:
         ghi = inf.readlines()[0].strip()

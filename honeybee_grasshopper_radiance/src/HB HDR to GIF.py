@@ -17,11 +17,11 @@ all of the information that an HRD has.
 
     Args:
         _hdr: Path to a High Dynamic Range (HDR) image file.
-        adj_expos_: Boolean to note whether the exposuer of the image shoudl be adjusted to
+        adj_expos_: Boolean to note whether the exposure of the image should be adjusted to
             mimic the human visual response in the output. The goal of this process
             is to output an image that correlates more strongly with a person’s
             subjective impression of a scene rather than the absolute birghtness
-            of the scene.
+            of the scene. (Default: True).
 
     Returns:
         gif: Path to the resulting GIF file,
@@ -29,7 +29,7 @@ all of the information that an HRD has.
 
 ghenv.Component.Name = 'HB HDR to GIF'
 ghenv.Component.NickName = 'HDR-GIF'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -68,9 +68,9 @@ if all_required_inputs(ghenv.Component):
     gif = os.path.join(img_dir, new_image)
 
     # create the command to run the conversion to GIF
-    if adj_expos_:
+    if adj_expos_ or adj_expos_ is None:
         adj_image = input_image.lower().replace('.hdr', '_h.HDR')
-        pcond = Pcond(input=raw_hdr, output=adj_image)
+        pcond = Pcond(input=input_image, output=adj_image)
         pcond.options.h = True
         ra_gif = Ra_GIF(input=adj_image, output=new_image)
         commands = (pcond, ra_gif)
