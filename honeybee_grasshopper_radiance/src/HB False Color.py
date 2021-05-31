@@ -43,12 +43,13 @@ Convert a High Dynamic Range (HDR) image file into a falsecolor version of itsel
 
 ghenv.Component.Name = 'HB False Color'
 ghenv.Component.NickName = 'FalseColor'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 import os
+import subprocess
 
 try:  # import honeybee_radiance_command dependencies
     from honeybee_radiance_command.falsecolor import Falsecolor
@@ -95,7 +96,6 @@ def sense_metric_from_hdr(hdr_path):
                 return 'cd/m2'  # luminance
 
 
-
 if all_required_inputs(ghenv.Component):
     # set up the paths for the various files used in translation
     img_dir = os.path.dirname(_hdr)
@@ -107,16 +107,23 @@ if all_required_inputs(ghenv.Component):
     seg_count_ = seg_count_ if seg_count_ is not None else 10
     if legend_unit_ is None:
         legend_unit_ = sense_metric_from_hdr(_hdr)
-    if max_ is None:
-        if legend_unit_ in ('W/sr-m2', 'W/m2'):
-            max_ = '200'
-        else:
-            max_ = '20000'
     if conversion_ is None:
-        if legend_unit_ == 'W/m2':
+        if legend_unit_ in ('W/sr-m2', 'W/m2'):
             conversion_ = 1
         else:
             conversion_ = 179
+    if max_ is None:  # get the max value by running pextrem
+        pextrem_exe = os.path.join(rad_folders.radbin_path, 'pextrem.exe') if \
+            os.name == 'nt' else os.path.join(rad_folders.radbin_path, 'pextrem')
+        use_shell = True if os.name == 'nt' else False
+        cmds = [pextrem_exe, '-o', _hdr]
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=use_shell)
+        stdout = process.communicate()
+        max_rgb = stdout[0].split('\n')[1]
+        max_ = (sum([float(x) for x in max_rgb.split(' ')[2:]]) / 3) * conversion_
+        if legend_unit_ == 'W/sr-m2' and max_ > 200:  # sun pixel overpowering image
+            max_ = max_ / 50000
+        max_ = str(round(max_, 1))
 
     # create the command to run falsecolor
     falsecolor = Falsecolor(input=input_image, output=new_image)
