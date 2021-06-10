@@ -1,0 +1,92 @@
+{
+  "version": "1.2.0", 
+  "nickname": "PITView", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "results", 
+        "description": "High Dynamic Range (HDR) images for each View in the model. These can be\nplugged into the Ladybug \"Image Viewer\" component to preview the image.\nThey can also be plugged into the \"HB False Color\" component to convert\nthe image into a false color version. Lastly, it can be connected to\nthe \"HB HDR to GIF\" component to get a GIF image that is more portable\nand easily previewed by different software. Pixel values are in the\nstandard SI units of the requested input metric.\n* illuminance = lux (aka. lm/m2)\n* irradiance = W/m2\n* luminance = cd/m2 (aka. lm/m2-sr)\n* radiance = W/m2-sr", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "A Honeybee Model for which a point-in-time view-based study will be run.\nNote that this model should have views assigned to it in order\nto produce meaningfule results.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_sky", 
+      "description": "A Radiance sky from any of the sky components under the \"Light Sources\" tab.\nSkies can be either CIE, ClimateBased/Custom, or for a specific\nIlluminance/Irradiance. This input can also just be a text definition\nof a sky's paramters. Examples include:\n* cie 21 Mar 9:00 -lat 41.78 -lon -87.75 -tz 5 -type 0\n* climate-based 21 Jun 12:00 -lat 41.78 -lon -87.75 -tz 5 -dni 800 -dhi 120\n* irradiance 0", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_metric_", 
+      "description": "Either an integer or the full name of a point-in-time metric to be\ncomputed by the recipe. (Default: luminance). Choose from the following:\n* 0 = illuminance\n* 1 = irradiance\n* 2 = luminance\n* 3 = radiance", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_resolution_", 
+      "description": "An integer for the maximum dimension of each image in pixels\n(either width or height depending on the input view angle and\ntype). (Default: 512).", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "view_filter_", 
+      "description": "Text for a view identifer or a pattern to filter the views of the\nmodel that are simulated. For instance, `first_floor_*` will simulate\nonly the views that have an identifier that starts with `first_floor_`.\nBy default, all views in the model will be simulated.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "view_count_", 
+      "description": "Number of views into which each Model view will be subdivided \nfor parallelized calculation. (Default: 2).", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "skip_overture_", 
+      "description": "A boolean to note whether an ambient file (.amb) should be\ngenerated for an overture calculation before the view is split\ninto smaller views. With an overture calculation, the ambient file\n(aka ambient cache) is first populated with values. Thereby ensuring\nthat - when reused to create an image - Radiance uses interpolation\nbetween already calculated values rather than less reliable\nextrapolation. The overture calculation has comparatively small\ncomputation time to full rendering but is single-core can become\ntime consuming in situations with a high view_count_ and workers.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "radiance_par_", 
+      "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 2 -aa 0.1 -ad 2048 -ar 64).", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "run_settings_", 
+      "description": "Settings from the \"HB Recipe Settings\" component that specify\nhow the recipe should be run. This can also be a text string of\nrecipe settings.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_run", 
+      "description": "Set to True to run the recipe and get results.", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Recipes", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('point-in-time-view')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('sky', _sky)\n    recipe.input_value_by_name('metric', _metric_)\n    recipe.input_value_by_name('resolution', _resolution_)\n    recipe.input_value_by_name('view-filter', view_filter_)\n    recipe.input_value_by_name('view-count', view_count_)\n    recipe.input_value_by_name('skip-overture', skip_overture_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    project_folder = recipe.run(run_settings_, radiance_check=True)\n\n    # load the results\n    results = recipe_result(recipe.output_value_by_name('results', project_folder))\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Point-In-Time View-Based", 
+  "description": "Run a point-in-time view-based study for a Honeybee model.\n_\nPoint-in-time view-based recipes require a sky and can output High Dynamic Range\n(HDR) images of illuminance, irradiance, luminance or radiance.\n_\nThe `view_count_` input can be used to split each view for parallel processing,\nproducing multiple images that are recombined into a single .HDR for the view at\nthe end of the recipe. The recombination process automatically includes an\nanti-aliasing pass that smooths and improves the quality of the image. The recipe\nalso performs an overture calculation prior to splitting each view, which results\nin an image with better interpolation between neighboring pixels.\n-"
+}

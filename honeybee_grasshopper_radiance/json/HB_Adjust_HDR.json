@@ -1,0 +1,50 @@
+{
+  "version": "1.2.0", 
+  "nickname": "AdjustHDR", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "hdr", 
+        "description": "Path to the resulting adjusted HDR image file.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_hdr", 
+      "description": "Path to a High Dynamic Range (HDR) image file.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "adj_expos_", 
+      "description": "Boolean to note whether the exposure of the image should be adjusted to\nmimic the human visual response in the output. The goal of this process\nis to output an image that correlates more strongly with a person\u2019s\nsubjective impression of a scene rather than the absolute birghtness\nof the scene. (Default: False).", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "label_", 
+      "description": "Optional text label to be appended to the bottom of the image. This\nis useful when one has several images and would like to easily\nidentify them while scrolling through them.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "label_hgt_", 
+      "description": "An integer for the height of the label text in pixels. (Default: 32).", 
+      "type": "int", 
+      "default": null
+    }
+  ], 
+  "subcategory": "4 :: Results", 
+  "code": "\nimport os\n\ntry:  # import honeybee_radiance_command dependencies\n    from honeybee_radiance_command.pcond import Pcond\n    from honeybee_radiance_command.psign import Psign\n    from honeybee_radiance_command.pcompos import Pcompos\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance_command:\\n\\t{}'.format(e))\n\ntry:  # import honeybee_radiance dependencies\n    from honeybee_radiance.config import folders as rad_folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n# check the Radiance date of the installed radiance\ntry:  # import lbt_recipes dependencies\n    from lbt_recipes.version import check_radiance_date\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\ncheck_radiance_date()\n\n\nif all_required_inputs(ghenv.Component):\n    # set up the paths for the various files used in translation\n    img_dir = os.path.dirname(_hdr)\n    input_image = os.path.basename(_hdr)\n    hdr = _hdr\n    commands = []\n\n    # add the command to adjust the exposure to reflect human vision (if requested)\n    if adj_expos_:\n        adj_image = input_image.lower().replace('.hdr', '_h.HDR')\n        pcond = Pcond(input=input_image, output=adj_image)\n        pcond.options.h = True\n        commands.append(pcond)\n        hdr = os.path.join(img_dir, adj_image)\n        input_image = adj_image\n\n    # add the command to for a text label (if requested)\n    if label_:\n        label_images = []\n        for i, l_tex in enumerate(reversed(label_.split('\\n'))):\n            label_image = 'label{}.HDR'.format(i)\n            psign = Psign(text=l_tex, output=label_image)\n            psign.options.cb = (0, 0, 0)\n            psign.options.cf = (1, 1, 1)\n            psign.options.h = label_hgt_ if label_hgt_ is not None else 32\n            commands.append(psign)\n            label_images.append(label_image)\n\n        lbl_image = input_image.lower().replace('.hdr', '_label.HDR')\n        pcompos = Pcompos(input=label_images + [input_image], output=lbl_image)\n        pcompos.options.a = 1\n        commands.append(pcompos)\n        hdr = os.path.join(img_dir, lbl_image)\n        input_image = lbl_image\n\n    # run the commands in series and load the global horizontal irradiance\n    env = None\n    if rad_folders.env != {}:\n        env = rad_folders.env\n    env = dict(os.environ, **env) if env else None\n    for r_cmd in commands:\n        r_cmd.run(env, cwd=img_dir)\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Adjust HDR", 
+  "description": "Adjust and format a High Dynamic Range (HDR) image file.\n_\nPossible adjustments include chaging the exposure of the image to mimic what would\nbe seen by a human eye and adding an optional text label to the image.\n-"
+}

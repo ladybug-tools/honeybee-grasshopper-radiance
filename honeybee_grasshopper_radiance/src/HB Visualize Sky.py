@@ -19,7 +19,7 @@ Visualize a sky as a High Dynamic Range (HDR) image file.
         hdr: Path to the High Dynamic Range (HDR) image file of the sky. This can be
             plugged into the Ladybug "Image Viewer" component to preview the image.
             It can also be plugged into the "HB False Color" component to convert
-            the image into a false color version. Lastly, it can bee connected to
+            the image into a false color version. Lastly, it can be connected to
             the "HB HDR to GIF" component to get a GIF image that is more portable
             and easily previewed by different software.
         ghi: The global horizontal irradiance (W/m2) for an upstructed test point under
@@ -28,7 +28,7 @@ Visualize a sky as a High Dynamic Range (HDR) image file.
 
 ghenv.Component.Name = 'HB Visualize Sky'
 ghenv.Component.NickName = 'VizSky'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

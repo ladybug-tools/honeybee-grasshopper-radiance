@@ -48,7 +48,7 @@ Convert a High Dynamic Range (HDR) image file into a falsecolor version of itsel
 
 ghenv.Component.Name = 'HB False Color'
 ghenv.Component.NickName = 'FalseColor'
-ghenv.Component.Message = '1.2.2'
+ghenv.Component.Message = '1.2.3'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -93,9 +93,13 @@ def sense_metric_from_hdr(hdr_path):
             if lineCount < 10:
                 low_line = line.strip().lower()
                 if low_line.startswith('oconv') and low_line.endswith('.sky'):
-                        return 'W/sr-m2'  # this is an image of a sky
+                    return 'W/sr-m2'  # this is an image of a sky
                 if low_line.startswith('rpict'):
-                    if line.find('-i') > -1:
+                    if line.find('_irradiance.vf') > -1:
+                        return 'W/m2'
+                    if line.find('_radiance.vf') > -1:
+                        return 'W/sr-m2'
+                    if line.find('-i') > -1 and not line.find('-i-') > -1:
                         return 'lux'
             else:  # we have passed the header of the file
                 return 'cd/m2'  # luminance
