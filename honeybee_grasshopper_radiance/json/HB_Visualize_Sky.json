@@ -1,12 +1,12 @@
 {
-  "version": "1.2.1", 
+  "version": "1.2.2", 
   "nickname": "VizSky", 
   "outputs": [
     [
       {
         "access": "None", 
         "name": "hdr", 
-        "description": "Path to the High Dynamic Range (HDR) image file of the sky. This can be\nplugged into the Ladybug \"Image Viewer\" component to preview the image.\nIt can also be plugged into the \"HB False Color\" component to convert\nthe image into a false color version. Lastly, it can bee connected to\nthe \"HB HDR to GIF\" component to get a GIF image that is more portable\nand easily previewed by different software.", 
+        "description": "Path to the High Dynamic Range (HDR) image file of the sky. This can be\nplugged into the Ladybug \"Image Viewer\" component to preview the image.\nIt can also be plugged into the \"HB False Color\" component to convert\nthe image into a false color version. Lastly, it can be connected to\nthe \"HB HDR to GIF\" component to get a GIF image that is more portable\nand easily previewed by different software.", 
         "type": null, 
         "default": null
       }, 

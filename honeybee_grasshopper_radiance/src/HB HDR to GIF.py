@@ -12,16 +12,11 @@ Convert a High Dynamic Range (HDR) image file into a Graphics Interchange Format
 _
 GIF files are much smaller than HDRs, they are more portable, and they can be
 previewed with many different types of software. However, they do not contain
-all of the information that an HRD has.
+all of the information that an HDR image has.
 -
 
     Args:
         _hdr: Path to a High Dynamic Range (HDR) image file.
-        adj_expos_: Boolean to note whether the exposure of the image should be adjusted to
-            mimic the human visual response in the output. The goal of this process
-            is to output an image that correlates more strongly with a person’s
-            subjective impression of a scene rather than the absolute birghtness
-            of the scene. (Default: True).
 
     Returns:
         gif: Path to the resulting GIF file,
@@ -29,7 +24,7 @@ all of the information that an HRD has.
 
 ghenv.Component.Name = 'HB HDR to GIF'
 ghenv.Component.NickName = 'HDR-GIF'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -37,7 +32,6 @@ ghenv.Component.AdditionalHelpFromDocStrings = '2'
 import os
 
 try:  # import honeybee_radiance_command dependencies
-    from honeybee_radiance_command.pcond import Pcond
     from honeybee_radiance_command.ra_gif import Ra_GIF
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance_command:\n\t{}'.format(e))
@@ -68,20 +62,11 @@ if all_required_inputs(ghenv.Component):
     gif = os.path.join(img_dir, new_image)
 
     # create the command to run the conversion to GIF
-    if adj_expos_ or adj_expos_ is None:
-        adj_image = input_image.lower().replace('.hdr', '_h.HDR')
-        pcond = Pcond(input=input_image, output=adj_image)
-        pcond.options.h = True
-        ra_gif = Ra_GIF(input=adj_image, output=new_image)
-        commands = (pcond, ra_gif)
-    else:
-        ra_gif = Ra_GIF(input=input_image, output=new_image)
-        commands = (ra_gif,)
+    ra_gif = Ra_GIF(input=input_image, output=new_image)
 
-    # run the commands in series and load the global horizontal irradiance
+    # run the command
     env = None
     if rad_folders.env != {}:
         env = rad_folders.env
     env = dict(os.environ, **env) if env else None
-    for r_cmd in commands:
-        r_cmd.run(env, cwd=img_dir)
+    ra_gif.run(env, cwd=img_dir)
