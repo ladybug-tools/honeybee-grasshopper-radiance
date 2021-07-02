@@ -18,6 +18,8 @@ Honeybee model.
             to produce meaningfule results.
         _wea: A Wea object produced from the Wea components that are under the Light
             Sources tab. This can also be the path to a .wea or a .epw file.
+        _timestep_: An integer for the timestep of the inpput _wea. This value will
+            be used to ensure the units of the results are in hours. (Default: 1)
         north_: A number between -360 and 360 for the counterclockwise difference
             between the North and the positive Y-axis in degrees. This can
             also be Vector for the direction to North. (Default: 0).
@@ -34,20 +36,20 @@ Honeybee model.
 
     Returns:
         report: Reports, errors, warnings, etc.
-        results: Folder with raw result files (.ill) that contain the number of timesteps
-            that each sensor is exposed to sun. The units are the timestep of
-            input wea file. For an hourly wea, each value corresponds to an hour
-            of direct sun.
-        hours: The cumulative number of timesteps that each sensor sees the sun. If the input
-            wea timestep is 1, the results are the number of direct sun hours.
+        results: Raw result files (.ill) that contain matrices of zero/one values
+            indicating whether each sensor is exposed to the sun at a given
+            time step of the input Wea.
+        hours: The cumulative number of hours that each sensor can see the sun.
+            Each value is always in hours provided that the input _timestep_
+            is the same as the input Wea.
 """
 
 ghenv.Component.Name = 'HB Direct Sun Hours'
 ghenv.Component.NickName = 'DirectSunHours'
-ghenv.Component.Message = '1.2.2'
+ghenv.Component.Message = '1.2.3'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
-ghenv.Component.AdditionalHelpFromDocStrings = '1'
+ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 try:
     from lbt_recipes.recipe import Recipe
@@ -65,6 +67,7 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe = Recipe('direct-sun-hours')
     recipe.input_value_by_name('model', _model)
     recipe.input_value_by_name('wea', _wea)
+    recipe.input_value_by_name('timestep', _timestep_)
     recipe.input_value_by_name('north', north_)
     recipe.input_value_by_name('grid-filter', grid_filter_)
     recipe.input_value_by_name('sensor-count', sensor_count_)

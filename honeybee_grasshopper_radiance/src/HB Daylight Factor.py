@@ -38,10 +38,10 @@ Run a daylight factor study for a Honeybee model.
 
 ghenv.Component.Name = 'HB Daylight Factor'
 ghenv.Component.NickName = 'DaylightFactor'
-ghenv.Component.Message = '1.2.3'
+ghenv.Component.Message = '1.2.4'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
-ghenv.Component.AdditionalHelpFromDocStrings = '1'
+ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 try:
     from lbt_recipes.recipe import Recipe

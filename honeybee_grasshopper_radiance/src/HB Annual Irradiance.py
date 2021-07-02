@@ -8,12 +8,18 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Run an annual radiation study for a Honeybee model.
+Run an annual solar irradiance study for a Honeybee model.
 _
-The annual radiation values will be for each timestep of the input wea file.
+The fundamental calculation of this recipe is the same as that of "HB Annual
+Daylight" in that a detailed accounting of direct sun is performed at each
+simulation step. However, this recipe computes broadband solar irradiance in
+W/m2 instead of visible illuminance in lux.
 _
-Total radiation is calculated by summing together the direct irradiance from
-sun disks and the contribution from indirect sky radiation.
+As such, this recipe can not only be used to get a high-accuraccy tally of
+cumulative radiation over the Wea time period but the `peak_irradiance` and the
+detailed result matrices are suitable for assessing the radiant temperatures
+expereinced by occupants and determining the worst-case solar load from clear
+sky Weas that represent cooling design days.
 
 -
     Args:
@@ -22,6 +28,8 @@ sun disks and the contribution from indirect sky radiation.
             to produce meaningfule results.
         _wea: A Wea object produced from the Wea components that are under the Light
             Sources tab. This can also be the path to a .wea or a .epw file.
+        _timestep_: An integer for the timestep of the inpput _wea. This value is used
+            to compute average irradiance and cumulative radiation. (Default: 1)
         north_: A number between -360 and 360 for the counterclockwise difference
             between the North and the positive Y-axis in degrees. This can
             also be Vector for the direction to North. (Default: 0).
@@ -40,15 +48,20 @@ sun disks and the contribution from indirect sky radiation.
 
     Returns:
         report: Reports, errors, warnings, etc.
-        total: Folder with raw result files (.ill) that contain irradiance matrices
-            for the total radiation at each sensor and timestep.
-        direct: Folder with raw result files (.ill) that contain irradiance matrices
-            for the direct radiation at each sensor and timestep.
+        results: Raw result files (.ill) that contain matrices of irradiance in W/m2
+            for each time step of the wea.
+        avg_irr: The average irradiance in W/m2 for each sensor over the Wea time period.
+        peak_irr: The highest irradiance value in W/m2 during the Wea time period. This
+            is suitable for assessing the worst-case solar load of clear skies on
+            cooling design days. It can also be used to determine the highest
+            radiant temperatures that occupants might experience in over the
+            time period of the Wea.
+        radiation: The cumulative radiation in kWh/m2 over the Wea time period.
 """
 
-ghenv.Component.Name = 'HB Annual Radiation'
-ghenv.Component.NickName = 'AnnualRadiation'
-ghenv.Component.Message = '1.2.2'
+ghenv.Component.Name = 'HB Annual Irradiance'
+ghenv.Component.NickName = 'AnnualIrradiance'
+ghenv.Component.Message = '1.2.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -66,7 +79,7 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component) and _run:
     # create the recipe and set the input arguments
-    recipe = Recipe('annual-radiation')
+    recipe = Recipe('annual-irradiance')
     recipe.input_value_by_name('model', _model)
     recipe.input_value_by_name('wea', _wea)
     recipe.input_value_by_name('north', north_)
@@ -78,5 +91,7 @@ if all_required_inputs(ghenv.Component) and _run:
     project_folder = recipe.run(run_settings_, radiance_check=True)
 
     # load the results
-    total = recipe_result(recipe.output_value_by_name('total-radiation', project_folder))
-    direct = recipe_result(recipe.output_value_by_name('direct-radiation', project_folder))
+    results = recipe_result(recipe.output_value_by_name('results', project_folder))
+    avg_irr = recipe_result(recipe.output_value_by_name('average-irradiance', project_folder))
+    peak_irr = recipe_result(recipe.output_value_by_name('peak-irradiance', project_folder))
+    radiation = recipe_result(recipe.output_value_by_name('cumulative-radiation', project_folder))
