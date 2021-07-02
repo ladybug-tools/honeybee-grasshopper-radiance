@@ -7,12 +7,11 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Annual Daylight Metrics.
+Compute annual irradiance metrics from detailed result matrices (.ill files).
 
 -
-
     Args:
-        _results: An list of annual Radiance result files from the "HB Annual Radiation"
+        _results: An list of annual Radiance result files from the "HB Annual Irradiance"
             component.  This should include both the .ill files and the
             sun-up-hours.txt
         hoys_: An optional integer or list of integers (each greater than or equal to 0)
@@ -30,8 +29,8 @@ Annual Daylight Metrics.
         radiation: Cumulative radiation valules for each sensor in Wh/m2.
 """
 
-ghenv.Component.Name = "HB Annual Radiation Result"
-ghenv.Component.NickName = 'RadiationResult'
+ghenv.Component.Name = "HB Annual Irradiance Result"
+ghenv.Component.NickName = 'IrradianceResult'
 ghenv.Component.Message = '1.2.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'

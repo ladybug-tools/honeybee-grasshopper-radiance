@@ -1,19 +1,19 @@
 {
-  "version": "1.2.2", 
+  "version": "1.2.3", 
   "nickname": "DirectSunHours", 
   "outputs": [
     [
       {
         "access": "None", 
         "name": "results", 
-        "description": "Folder with raw result files (.ill) that contain the number of timesteps\nthat each sensor is exposed to sun. The units are the timestep of\ninput wea file. For an hourly wea, each value corresponds to an hour\nof direct sun.", 
+        "description": "Raw result files (.ill) that contain matrices of zero/one values\nindicating whether each sensor is exposed to the sun at a given\ntime step of the input Wea.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "hours", 
-        "description": "The cumulative number of timesteps that each sensor sees the sun. If the input\nwea timestep is 1, the results are the number of direct sun hours.", 
+        "description": "The cumulative number of hours that each sensor can see the sun.\nEach value is always in hours provided that the input _timestep_\nis the same as the input Wea.", 
         "type": null, 
         "default": null
       }
@@ -32,6 +32,13 @@
       "name": "_wea", 
       "description": "A Wea object produced from the Wea components that are under the Light\nSources tab. This can also be the path to a .wea or a .epw file.", 
       "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_timestep_", 
+      "description": "An integer for the timestep of the inpput _wea. This value will\nbe used to ensure the units of the results are in hours. (Default: 1)", 
+      "type": "int", 
       "default": null
     }, 
     {
@@ -71,7 +78,7 @@
     }
   ], 
   "subcategory": "3 :: Recipes", 
-  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('direct-sun-hours')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n\n    # run the recipe\n    project_folder = recipe.run(run_settings_, radiance_check=True)\n\n    # load the results\n    results = recipe_result(recipe.output_value_by_name('direct-sun-hours', project_folder))\n    hours = recipe_result(recipe.output_value_by_name('cumulative-sun-hours', project_folder))\n", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('direct-sun-hours')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('timestep', _timestep_)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n\n    # run the recipe\n    project_folder = recipe.run(run_settings_, radiance_check=True)\n\n    # load the results\n    results = recipe_result(recipe.output_value_by_name('direct-sun-hours', project_folder))\n    hours = recipe_result(recipe.output_value_by_name('cumulative-sun-hours', project_folder))\n", 
   "category": "HB-Radiance", 
   "name": "HB Direct Sun Hours", 
   "description": "Calculate the number of hours of direct sun received by grids of sensors in a\nHoneybee model.\n-"

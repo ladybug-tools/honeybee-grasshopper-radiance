@@ -1,6 +1,6 @@
 {
   "version": "1.2.0", 
-  "nickname": "RadiationResult", 
+  "nickname": "IrradianceResult", 
   "outputs": [
     [
       {
@@ -23,7 +23,7 @@
     {
       "access": "list", 
       "name": "_results", 
-      "description": "An list of annual Radiance result files from the \"HB Annual Radiation\"\ncomponent.  This should include both the .ill files and the\nsun-up-hours.txt", 
+      "description": "An list of annual Radiance result files from the \"HB Annual Irradiance\"\ncomponent.  This should include both the .ill files and the\nsun-up-hours.txt", 
       "type": "string", 
       "default": null
     }, 
@@ -45,6 +45,6 @@
   "subcategory": "4 :: Results", 
   "code": "\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, list_to_data_tree\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef parse_sun_up_hours(result_files, hoys, timestep):\n    \"\"\"Parse the sun-up hours from the result file .txt file.\n\n    Args:\n        result_files: A list of result files that contains the .txt file.\n        hoys: A list of 8760 * timestep values for the hoys to select. If an empty\n            list is passed, None will be returned.\n    \"\"\"\n    for i, r_file in enumerate(result_files):\n        if r_file.endswith('.txt'):\n            result_files.pop(i)  # remove it from the list\n            if len(hoys) != 0:\n                schedule = [False] * (8760 * timestep)\n                for hr in hoys:\n                    schedule[int(hr * timestep)] = True\n                with open(r_file) as soh_f:\n                    occ_pattern = [schedule[int(float(h) * timestep)] for h in soh_f]\n                return occ_pattern\n\n\ndef cumulative_radiation(ill_file, occ_pattern, timestep):\n    \"\"\"Compute cumulative radiation for a given result file.\"\"\"\n    irradiance, radiation = [], []\n    with open(ill_file) as results:\n        if occ_pattern is None:  # no HOY filter on results\n            for pt_res in results:\n                values = [float(r) for r in pt_res.split()]\n                total_val = sum(values)\n                irradiance.append(total_val / len(values))\n                radiation.append(total_val / timestep)\n        else: \n            for pt_res in results:\n                values = [float(r) for r, is_hoy in zip(pt_res.split(), occ_pattern) if is_hoy]\n                total_val = sum(values)\n                irradiance.append(total_val / len(values))\n                radiation.append(total_val / timestep)\n    return irradiance, radiation\n\n\nif all_required_inputs(ghenv.Component):\n    # process the sun-up hours and parse timestep\n    timestep_ = 1 if timestep_ is None else timestep_\n    occ_pattern = parse_sun_up_hours(_results, hoys_, timestep_)\n\n    # compute the annual metrics\n    irradiance, radiation = [], []\n    for ill_file in _results:\n        irr, rad = cumulative_radiation(ill_file, occ_pattern, timestep_)\n        irradiance.append(irr)\n        radiation.append(rad)\n    irradiance = list_to_data_tree(irradiance)\n    radiation = list_to_data_tree(radiation)\n", 
   "category": "HB-Radiance", 
-  "name": "HB Annual Radiation Result", 
-  "description": "Annual Daylight Metrics.\n-"
+  "name": "HB Annual Irradiance Result", 
+  "description": "Compute annual irradiance metrics from detailed result matrices (.ill files).\n-"
 }
