@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0", 
+  "version": "1.2.1", 
   "nickname": "RadPar", 
   "outputs": [
     [
@@ -16,7 +16,7 @@
     {
       "access": "item", 
       "name": "_recipe_type", 
-      "description": "An integer or text for the type of recipe. Acceptable text inputs are\neither the full text of the recipe type (eg. point-in-time-grid) or\nthe name of the Radiance command for which the parameters are being\nused (eg. rtrace). Choose from the following options.\n* 0 | rtrace     | point-in-time-grid | daylight-factor\n* 1 | rpict      | point-in-time-image\n* 2 | rfluxmtx   | annual", 
+      "description": "An integer or text for the type of recipe. Acceptable text inputs are\neither the full text of the recipe type (eg. point-in-time-grid) or\nthe name of the Radiance command for which the parameters are being\nused (eg. rtrace). Choose from the following options.\n* 0 | rtrace     | point-in-time-grid | daylight-factor\n* 1 | rpict      | point-in-time-view\n* 2 | rfluxmtx   | annual", 
       "type": "string", 
       "default": null
     }, 

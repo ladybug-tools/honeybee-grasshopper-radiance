@@ -24,7 +24,7 @@ http://radiance-online.org/community/workshops/2011-berkeley-ca/presentations/da
             the name of the Radiance command for which the parameters are being
             used (eg. rtrace). Choose from the following options.
                 * 0 | rtrace     | point-in-time-grid | daylight-factor
-                * 1 | rpict      | point-in-time-image
+                * 1 | rpict      | point-in-time-view
                 * 2 | rfluxmtx   | annual
         _detail_level_: An integer or text for the level of detail/quality for which
             radiance parameters will be output. (Default: 0 for low).
@@ -42,7 +42,7 @@ http://radiance-online.org/community/workshops/2011-berkeley-ca/presentations/da
 
 ghenv.Component.Name = 'HB Radiance Parameter'
 ghenv.Component.NickName = 'RadPar'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '6'
