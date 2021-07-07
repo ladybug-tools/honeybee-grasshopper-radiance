@@ -38,7 +38,7 @@ Annual Daylight Metrics.
 
 ghenv.Component.Name = "HB Annual Daylight Metrics"
 ghenv.Component.NickName = 'AnnualMetrics'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -145,7 +145,10 @@ if all_required_inputs(ghenv.Component):
             raise ValueError('honeybee-energy must be installed to reference '
                              'occupancy schedules by identifier.')
     else:  # assume that it is a honeybee schedule object
-        schedule = _occ_sch_.values()
+        try:
+            schedule = _occ_sch_.values()
+        except TypeError:  # it's probably a ScheduleFixedInterval
+            schedule = _occ_sch_.values
     total_occupied_hours = sum(schedule)
     occ_pattern = parse_sun_up_hours(_results, schedule)
 
