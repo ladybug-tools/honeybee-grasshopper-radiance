@@ -18,7 +18,7 @@ Annual Daylight Metrics.
         _occ_sch_: An annual occupancy schedule as a Ladybug Data Collection or a HB-Energy
             schedule object. This can also be the identifier of a schedule in
             your HB-Energy schedule library. Any value in this schedule that is
-            0.5 or above will be considered occupied. If None, a schedule from
+            0.1 or above will be considered occupied. If None, a schedule from
             9AM to 5PM on weekdays will be used.
         _threshold_: Threshhold for daylight autonomy in lux (default: 300).
         _min_max_: A list for min, max value for useful daylight illuminance
@@ -38,7 +38,7 @@ Annual Daylight Metrics.
 
 ghenv.Component.Name = "HB Annual Daylight Metrics"
 ghenv.Component.NickName = 'AnnualMetrics'
-ghenv.Component.Message = '1.2.2'
+ghenv.Component.Message = '1.2.3'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -103,7 +103,7 @@ def annual_metrics(ill_file, occ_pattern, total_occupied_hours,
         for pt_res in results:
             pda, pudi, pudi_low, pudi_up = 0, 0, 0, 0
             for is_occ, hourly_res in zip(occ_pattern, pt_res.split()):
-                if is_occ < 0.5:
+                if is_occ < 0.1:
                     continue
                 value = float(hourly_res)
                 if value > threshold:
