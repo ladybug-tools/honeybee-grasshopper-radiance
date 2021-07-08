@@ -8,28 +8,35 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Run an annual solar irradiance study for a Honeybee model.
+Run a cumulative radiation study for a Honeybee model.
 _
-The fundamental calculation of this recipe is the same as that of "HB Annual
-Daylight" in that a detailed accounting of direct sun is performed at each
-simulation step. However, this recipe computes broadband solar irradiance in
-W/m2 instead of visible illuminance in lux.
+This recipe calculates average irradiance (W/m2) and cumulative radiation (kWh/m2)
+over the time period of a specified Wea.
 _
-As such, this recipe can not only be used to get a high-accuraccy tally of
-cumulative radiation over the Wea time period but the `peak_irradiance` and the
-detailed result matrices are suitable for assessing the radiant temperatures
-expereinced by occupants and determining the worst-case solar load from clear
-sky Weas that represent cooling design days.
+The fundamental calculation of this recipe is the same as that of the "LB Incident
+Radiation" component except that this recipe uses Radiance and can therefore
+account for ambient reflections. Like LB Incident Radiation, the direct sun in this
+recipe is diffused between several sky patches and so the precise line between shadow
+and sun for each hour is blurred. This approximation is fine for studies where
+one is only concerned about the average/total conditions over time and the
+timestep-by-timestep irradiance values do not need to be exact. For accurate
+modeling of direct irradiance on a timestep-by-timestep basis, see the "HB Annual
+Irradiance" recipe.
 
 -
     Args:
-        _model: A Honeybee Model for which Annual Irradiance will be simulated.
+        _model: A Honeybee Model for which Cumulative Radiation will be simulated.
             Note that this model should have grids assigned to it in order
             to produce meaningfule results.
         _wea: A Wea object produced from the Wea components that are under the Light
             Sources tab. This can also be the path to a .wea or a .epw file.
-        _timestep_: An integer for the timestep of the inpput _wea. This value is used
-            to compute average irradiance and cumulative radiation. (Default: 1)
+        _timestep_: An integer for the timestep of the inpput _wea. (Default: 1)
+        _sky_density_: An integer for the number of times that that the original Tregenza
+            sky patches are subdivided. 1 indicates that 145 patches are used
+            to describe the sky hemisphere, 2 indicates that 577 patches describe
+            the hemisphere, and each successive value will roughly quadruple the
+            number of patches used. Setting this to a high value will result in
+            a more accurate analysis but will take longer to run. (Default: 1).
         north_: A number between -360 and 360 for the counterclockwise difference
             between the North and the positive Y-axis in degrees. This can
             also be Vector for the direction to North. (Default: 0).
@@ -48,23 +55,16 @@ sky Weas that represent cooling design days.
 
     Returns:
         report: Reports, errors, warnings, etc.
-        results: Raw result files (.ill) that contain matrices of irradiance in W/m2
-            for each time step of the wea.
         avg_irr: The average irradiance in W/m2 for each sensor over the Wea time period.
-        peak_irr: The highest irradiance value in W/m2 during the Wea time period. This
-            is suitable for assessing the worst-case solar load of clear skies on
-            cooling design days. It can also be used to determine the highest
-            radiant temperatures that occupants might experience in over the
-            time period of the Wea.
         radiation: The cumulative radiation in kWh/m2 over the Wea time period.
 """
 
-ghenv.Component.Name = 'HB Annual Irradiance'
-ghenv.Component.NickName = 'AnnualIrradiance'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Name = 'HB Cumulative Radiation'
+ghenv.Component.NickName = 'CumulativeRadiation'
+ghenv.Component.Message = '1.2.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
-ghenv.Component.AdditionalHelpFromDocStrings = '1'
+ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 try:
     from lbt_recipes.recipe import Recipe
@@ -79,10 +79,11 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component) and _run:
     # create the recipe and set the input arguments
-    recipe = Recipe('annual-irradiance')
+    recipe = Recipe('cumulative-radiation')
     recipe.input_value_by_name('model', _model)
     recipe.input_value_by_name('wea', _wea)
     recipe.input_value_by_name('timestep', _timestep_)
+    recipe.input_value_by_name('sky-density', _sky_density_)
     recipe.input_value_by_name('north', north_)
     recipe.input_value_by_name('grid-filter', grid_filter_)
     recipe.input_value_by_name('sensor-count', sensor_count_)
@@ -92,7 +93,5 @@ if all_required_inputs(ghenv.Component) and _run:
     project_folder = recipe.run(run_settings_, radiance_check=True)
 
     # load the results
-    results = recipe_result(recipe.output_value_by_name('results', project_folder))
     avg_irr = recipe_result(recipe.output_value_by_name('average-irradiance', project_folder))
-    peak_irr = recipe_result(recipe.output_value_by_name('peak-irradiance', project_folder))
     radiation = recipe_result(recipe.output_value_by_name('cumulative-radiation', project_folder))

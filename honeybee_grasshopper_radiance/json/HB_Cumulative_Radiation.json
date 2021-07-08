@@ -1,0 +1,99 @@
+{
+  "version": "1.2.0", 
+  "nickname": "CumulativeRadiation", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "avg_irr", 
+        "description": "The average irradiance in W/m2 for each sensor over the Wea time period.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "radiation", 
+        "description": "The cumulative radiation in kWh/m2 over the Wea time period.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "A Honeybee Model for which Cumulative Radiation will be simulated.\nNote that this model should have grids assigned to it in order\nto produce meaningfule results.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_wea", 
+      "description": "A Wea object produced from the Wea components that are under the Light\nSources tab. This can also be the path to a .wea or a .epw file.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_timestep_", 
+      "description": "An integer for the timestep of the inpput _wea. (Default: 1)", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_sky_density_", 
+      "description": "An integer for the number of times that that the original Tregenza\nsky patches are subdivided. 1 indicates that 145 patches are used\nto describe the sky hemisphere, 2 indicates that 577 patches describe\nthe hemisphere, and each successive value will roughly quadruple the\nnumber of patches used. Setting this to a high value will result in\na more accurate analysis but will take longer to run. (Default: 1).", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "north_", 
+      "description": "A number between -360 and 360 for the counterclockwise difference\nbetween the North and the positive Y-axis in degrees. This can\nalso be Vector for the direction to North. (Default: 0).", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "grid_filter_", 
+      "description": "Text for a grid identifer or a pattern to filter the sensor grids of\nthe model that are simulated. For instance, first_floor_* will simulate\nonly the sensor grids that have an identifier that starts with\nfirst_floor_. By default, all grids in the model will be simulated.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "sensor_count_", 
+      "description": "Integer for the maximum number of sensor grid points per\nparallel execution. (Default: 200).", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "radiance_par_", 
+      "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 2 -ad 5000 -lw 2e-05).", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "run_settings_", 
+      "description": "Settings from the \"HB Recipe Settings\" component that specify\nhow the recipe should be run. This can also be a text string of\nrecipe settings.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_run", 
+      "description": "Set to True to run the recipe and get results.", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Recipes", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('cumulative-radiation')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('timestep', _timestep_)\n    recipe.input_value_by_name('sky-density', _sky_density_)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    project_folder = recipe.run(run_settings_, radiance_check=True)\n\n    # load the results\n    avg_irr = recipe_result(recipe.output_value_by_name('average-irradiance', project_folder))\n    radiation = recipe_result(recipe.output_value_by_name('cumulative-radiation', project_folder))\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Cumulative Radiation", 
+  "description": "Run a cumulative radiation study for a Honeybee model.\n_\nThis recipe calculates average irradiance (W/m2) and cumulative radiation (kWh/m2)\nover the time period of a specified Wea.\n_\nThe fundamental calculation of this recipe is the same as that of the \"LB Incident\nRadiation\" component except that this recipe uses Radiance and can therefore\naccount for ambient reflections. Like LB Incident Radiation, the direct sun in this\nrecipe is diffused between several sky patches and so the precise line between shadow\nand sun for each hour is blurred. This approximation is fine for studies where\none is only concerned about the average/total conditions over time and the\ntimestep-by-timestep irradiance values do not need to be exact. For accurate\nmodeling of direct irradiance on a timestep-by-timestep basis, see the \"HB Annual\nIrradiance\" recipe.\n-"
+}
