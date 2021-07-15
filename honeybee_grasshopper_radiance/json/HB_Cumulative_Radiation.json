@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0", 
+  "version": "1.2.1", 
   "nickname": "CumulativeRadiation", 
   "outputs": [
     [
@@ -86,13 +86,13 @@
     {
       "access": "item", 
       "name": "_run", 
-      "description": "Set to True to run the recipe and get results.", 
-      "type": "bool", 
+      "description": "Set to True to run the recipe and get results. This input can also be\nthe integer \"2\" to run the recipe silently.", 
+      "type": "int", 
       "default": null
     }
   ], 
   "subcategory": "3 :: Recipes", 
-  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('cumulative-radiation')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('timestep', _timestep_)\n    recipe.input_value_by_name('sky-density', _sky_density_)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    project_folder = recipe.run(run_settings_, radiance_check=True)\n\n    # load the results\n    avg_irr = recipe_result(recipe.output_value_by_name('average-irradiance', project_folder))\n    radiation = recipe_result(recipe.output_value_by_name('cumulative-radiation', project_folder))\n", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('cumulative-radiation')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('timestep', _timestep_)\n    recipe.input_value_by_name('sky-density', _sky_density_)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        avg_irr = recipe_result(recipe.output_value_by_name('average-irradiance', project_folder))\n        radiation = recipe_result(recipe.output_value_by_name('cumulative-radiation', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
   "category": "HB-Radiance", 
   "name": "HB Cumulative Radiation", 
   "description": "Run a cumulative radiation study for a Honeybee model.\n_\nThis recipe calculates average irradiance (W/m2) and cumulative radiation (kWh/m2)\nover the time period of a specified Wea.\n_\nThe fundamental calculation of this recipe is the same as that of the \"LB Incident\nRadiation\" component except that this recipe uses Radiance and can therefore\naccount for ambient reflections. Like LB Incident Radiation, the direct sun in this\nrecipe is diffused between several sky patches and so the precise line between shadow\nand sun for each hour is blurred. This approximation is fine for studies where\none is only concerned about the average/total conditions over time and the\ntimestep-by-timestep irradiance values do not need to be exact. For accurate\nmodeling of direct irradiance on a timestep-by-timestep basis, see the \"HB Annual\nIrradiance\" recipe.\n-"

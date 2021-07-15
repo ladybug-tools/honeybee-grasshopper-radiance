@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0", 
+  "version": "1.2.1", 
   "nickname": "PITView", 
   "outputs": [
     [
@@ -79,13 +79,13 @@
     {
       "access": "item", 
       "name": "_run", 
-      "description": "Set to True to run the recipe and get results.", 
-      "type": "bool", 
+      "description": "Set to True to run the recipe and get results. This input can also be\nthe integer \"2\" to run the recipe silently.", 
+      "type": "int", 
       "default": null
     }
   ], 
   "subcategory": "3 :: Recipes", 
-  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('point-in-time-view')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('sky', _sky)\n    recipe.input_value_by_name('metric', _metric_)\n    recipe.input_value_by_name('resolution', _resolution_)\n    recipe.input_value_by_name('view-filter', view_filter_)\n    recipe.input_value_by_name('view-count', view_count_)\n    recipe.input_value_by_name('skip-overture', skip_overture_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    project_folder = recipe.run(run_settings_, radiance_check=True)\n\n    # load the results\n    results = recipe_result(recipe.output_value_by_name('results', project_folder))\n", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('point-in-time-view')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('sky', _sky)\n    recipe.input_value_by_name('metric', _metric_)\n    recipe.input_value_by_name('resolution', _resolution_)\n    recipe.input_value_by_name('view-filter', view_filter_)\n    recipe.input_value_by_name('view-count', view_count_)\n    recipe.input_value_by_name('skip-overture', skip_overture_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
   "category": "HB-Radiance", 
   "name": "HB Point-In-Time View-Based", 
   "description": "Run a point-in-time view-based study for a Honeybee model.\n_\nPoint-in-time view-based recipes require a sky and can output High Dynamic Range\n(HDR) images of illuminance, irradiance, luminance or radiance.\n_\nThe `view_count_` input can be used to split each view for parallel processing,\nproducing multiple images that are recombined into a single .HDR for the view at\nthe end of the recipe. The recombination process automatically includes an\nanti-aliasing pass that smooths and improves the quality of the image. The recipe\nalso performs an overture calculation prior to splitting each view, which results\nin an image with better interpolation between neighboring pixels.\n-"
