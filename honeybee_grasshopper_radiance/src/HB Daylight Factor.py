@@ -26,7 +26,8 @@ Run a daylight factor study for a Honeybee model.
         run_settings_: Settings from the "HB Recipe Settings" component that specify
             how the recipe should be run. This can also be a text string of
             recipe settings.
-        _run: Set to True to run the recipe and get results.
+        _run: Set to True to run the recipe and get results. This input can also be
+            the integer "2" to run the recipe silently.
 
     Returns:
         report: Reports, errors, warnings, etc.
@@ -38,7 +39,7 @@ Run a daylight factor study for a Honeybee model.
 
 ghenv.Component.Name = 'HB Daylight Factor'
 ghenv.Component.NickName = 'DaylightFactor'
-ghenv.Component.Message = '1.2.4'
+ghenv.Component.Message = '1.2.5'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -63,7 +64,11 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
 
     # run the recipe
-    project_folder = recipe.run(run_settings_, radiance_check=True)
+    silent = True if _run > 1 else False
+    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)
 
     # load the results
-    results = recipe_result(recipe.output_value_by_name('results', project_folder))
+    try:
+        results = recipe_result(recipe.output_value_by_name('results', project_folder))
+    except Exception:
+        raise Exception(recipe.failure_message(project_folder))
