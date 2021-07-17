@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0", 
+  "version": "1.2.1", 
   "nickname": "CertainIllum", 
   "outputs": [
     [
@@ -16,7 +16,7 @@
     {
       "access": "item", 
       "name": "_value_", 
-      "description": "Desired value for sky horizontal illuminance in lux", 
+      "description": "Desired value for sky horizontal illuminance in lux. (Default: 10000).", 
       "type": "double", 
       "default": null
     }

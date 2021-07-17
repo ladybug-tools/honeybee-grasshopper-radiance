@@ -9,18 +9,18 @@
 
 """
 Create a uniform sky that yields a certain illuminance.
--
 
+-
     Args:
-        _value: Desired value for sky horizontal illuminance in lux. (Default: 10000).
-    
+        _value_: Desired value for sky horizontal illuminance in lux. (Default: 10000).
+
     Returns:
         sky: A honeybee sky that can be used to create a point-in-time recipe.
 """
 
 ghenv.Component.Name = 'HB Certain Illuminance'
 ghenv.Component.NickName = 'CertainIllum'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
