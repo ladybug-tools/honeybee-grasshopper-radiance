@@ -25,8 +25,8 @@ luminance or radiance.
                 * cie 21 Mar 9:00 -lat 41.78 -lon -87.75 -tz 5 -type 0
                 * climate-based 21 Jun 12:00 -lat 41.78 -lon -87.75 -tz 5 -dni 800 -dhi 120
                 * irradiance 0
-        _metric_: Either an integer or the full name of a point-in-time metric to be
-            computed by the recipe. Choose from the following:
+        _metric_: Either an integer or the full name of a point-in-time metric to be computed
+            by the recipe. (Default: illuminance). Choose from the following:
                 * 0 = illuminance
                 * 1 = irradiance
                 * 2 = luminance
@@ -59,7 +59,7 @@ luminance or radiance.
 
 ghenv.Component.Name = 'HB Point-In-Time Grid-Based'
 ghenv.Component.NickName = 'PITGrid'
-ghenv.Component.Message = '1.2.2'
+ghenv.Component.Message = '1.2.3'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

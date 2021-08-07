@@ -1,5 +1,5 @@
 {
-  "version": "1.2.2", 
+  "version": "1.2.3", 
   "nickname": "PITGrid", 
   "outputs": [
     [
@@ -30,7 +30,7 @@
     {
       "access": "item", 
       "name": "_metric_", 
-      "description": "Either an integer or the full name of a point-in-time metric to be\ncomputed by the recipe. Choose from the following:\n* 0 = illuminance\n* 1 = irradiance\n* 2 = luminance\n* 3 = radiance", 
+      "description": "Either an integer or the full name of a point-in-time metric to be computed\nby the recipe. (Default: illuminance). Choose from the following:\n* 0 = illuminance\n* 1 = irradiance\n* 2 = luminance\n* 3 = radiance", 
       "type": "string", 
       "default": null
     }, 
