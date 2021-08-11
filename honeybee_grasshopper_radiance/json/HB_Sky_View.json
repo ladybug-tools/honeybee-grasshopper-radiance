@@ -1,0 +1,71 @@
+{
+  "version": "1.2.0", 
+  "nickname": "SkyView", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "results", 
+        "description": "Numbers for the sky view or sky exposure at each sensor. These can be plugged\ninto the \"LB Spatial Heatmap\" component along with meshes of the\nsensor grids to visualize results. Values are in percent (between 0\nand 100).", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "A Honeybee Model for which Sky View or Wky Exposure will be simulated.\nNote that this model should have grids assigned to it in order\nto produce meaningful results.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "cloudy_sky_", 
+      "description": "A boolean to note whether a uniform sky should be used  (False) or\na cloudy overcast sky (True). (Default: False).", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "grid_filter_", 
+      "description": "Text for a grid identifer or a pattern to filter the sensor grids of\nthe model that are simulated. For instance, `first_floor_*` will simulate\nonly the sensor grids that have an identifier that starts with\n`first_floor_`. By default, all grids in the model will be simulated.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "sensor_count_", 
+      "description": "Integer for the maximum number of sensor grid points per\nparallel execution. (Default: 200).", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "radiance_par_", 
+      "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 2 -aa 0.1 -ad 2048 -ar 64).", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "run_settings_", 
+      "description": "Settings from the \"HB Recipe Settings\" component that specify\nhow the recipe should be run. This can also be a text string of\nrecipe settings.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_run", 
+      "description": "Set to True to run the recipe and get results.", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Recipes", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('sky-view')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('cloudy-sky', cloudy_sky_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    project_folder = recipe.run(run_settings_, radiance_check=True)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Sky View", 
+  "description": "Run a Sky View (SV) study for a Honeybee model.\n_\nSky View is defined as the percent of the sky dome seen by a surface. These can\nbe computed either using a uniform (default) sky or a cloudy sky.\n_\nNote that computing cloudy Sky View for a vertically-oriented geometry (horizontal\nsensor direction) will yield Vertical Sky Component (VSC) as described by the UK\nBuilding Research Establishment (BRE). VSC is defined as the ratio of cloudy sky\nilluminance falling on a vertical wall to the simultaneous horizontal illuminance\nunder an unobstructed sky [Littlefair, 1991].\n_\nAlso note that this recipe still respects the transparency of objects, reducing\nthe percentage of the sky visible through a certain geometry by the transmittance\nof that geometry.\n-"
+}
