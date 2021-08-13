@@ -49,18 +49,36 @@ Run an annual daylight study for a Honeybee model.
     Returns:
         report: Reports, errors, warnings, etc.
         results: Folder with raw result files (.ill) that contain illuminance matrices.
-        DA: Daylight autonomy results.
-        cDA: Continuous daylight autonomy results.
-        UDI: Useful daylight illuminance results.
+        DA: Daylight autonomy results in percent. DA is the percentage of occupied hours
+            that each sensor recieves equal or more than the illuminance threshold.
+            Each value is for a different sensor of the grid. These can be plugged
+            into the "LB Spatial Heatmap" component along with meshes of the sensor
+            grids to visualize results. These can also be connected to the "HB
+            Spatial Daylight Autonomy" component to compute spatial daylight
+            autonomy for each grid.
+        cDA: Continuous daylight autonomy results in percent. cDA is similar to DA except
+            that values below the illuminance threshold can still count partially
+            towards the final percentage. Each value is for a different
+            sensor of the grid. These can be plugged into the "LB Spatial Heatmap"
+            component along with meshes of the sensor grids to visualize results.
+        UDI: Useful daylight illuminance results in percent. UDI is the percentage of time
+            that illuminace falls between minimum and maximum thresholds. Each value
+            is for a different sensor of the grid. These can be plugged into the
+            "LB Spatial Heatmap" component along with meshes of the sensor grids
+            to visualize results.
         UDI_low: Results for the percent of time that is below the lower threshold
-            of useful daylight illuminance.
+            of useful daylight illuminance in percent. Each value is for a different
+            sensor of the grid. These can be plugged into the "LB Spatial Heatmap"
+            component along with meshes of the sensor grids to visualize results.
         UDI_up: Results for the percent of time that is above the upper threshold
-            of useful daylight illuminance.
+            of useful daylight illuminance in percent. Each value is for a different
+            sensor of the grid. These can be plugged into the "LB Spatial Heatmap"
+            component along with meshes of the sensor grids to visualize results.
 """
 
 ghenv.Component.Name = 'HB Annual Daylight'
 ghenv.Component.NickName = 'AnnualDaylight'
-ghenv.Component.Message = '1.2.3'
+ghenv.Component.Message = '1.2.4'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

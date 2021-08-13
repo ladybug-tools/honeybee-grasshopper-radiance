@@ -1,0 +1,57 @@
+{
+  "version": "1.2.0", 
+  "nickname": "AnnualValues", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "avg_vals", 
+        "description": "Average illuminance or irradiance valules for each sensor in lux or W/m2.\nEach value is for a different sensor of the grid. These can be plugged\ninto the \"LB Spatial Heatmap\" component along with meshes of the sensor\ngrids to visualize results.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "cumul_vals", 
+        "description": "In the case of an annual irradaince simulation, this is the cumulative\nradiation valules for each sensor in Wh/m2. For annual daylight,\nit is cumulative illuminance. These can be plugged into the \"LB\nSpatial Heatmap\" component along with meshes of the sensor\ngrids to visualize results.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_results", 
+      "description": "An list of annual Radiance result files from either the \"HB Annual Daylight\"\nor the \"HB Annual Irradiance\" component (containing the .ill files and\nthe sun-up-hours.txt). This can also be just the path to the folder\ncontaining these result files.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_hoys_", 
+      "description": "An optional numbers or list of numbers to select the hours of the year (HOYs)\nfor which results will be computed. These HOYs can be obtained from the\n\"LB Calculate HOY\" or the \"LB Analysis Period\" components. If None, all\nhours of the results will be used.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "timestep_", 
+      "description": "The timesteps per hour of the Wea that was used for the analysis.\nThis will be used to ensure cumulative values are in the correct\nunits (with hours as the unit). (Default: 1).", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "grid_filter_", 
+      "description": "The name of a grid or a pattern to filter the grids. For instance,\nfirst_floor_* will simulate only the sensor grids that have an\nidentifier that starts with first_floor_. By default all the grids\nwill be processed.", 
+      "type": "string", 
+      "default": null
+    }
+  ], 
+  "subcategory": "4 :: Results", 
+  "code": "\nimport os\n\ntry:\n    from honeybee_radiance.postprocess.annualdaylight import _process_input_folder\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, list_to_data_tree\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef parse_sun_up_hours(sun_up_hours, hoys, timestep):\n    \"\"\"Parse the sun-up hours from the result file .txt file.\n\n    Args:\n        sun_up_hours: A list of integers for the sun-up hours.\n        hoys: A list of 8760 * timestep values for the hoys to select. If an empty\n            list is passed, None will be returned.\n        timestep: Integer for the timestep of the analysis.\n    \"\"\"\n    if len(hoys) != 0:\n        schedule = [False] * (8760 * timestep)\n        for hr in hoys:\n            schedule[int(hr * timestep)] = True\n        su_pattern = [schedule[int(h * timestep)] for h in sun_up_hours]\n        return su_pattern\n\n\ndef average_values(ill_file, su_pattern, timestep):\n    \"\"\"Compute average/cumulative values for a given result file.\"\"\"\n    avg_vals, cumul_vals = [], []\n    with open(ill_file) as results:\n        if su_pattern is None:  # no HOY filter on results\n            for pt_res in results:\n                values = [float(r) for r in pt_res.split()]\n                total_val = sum(values)\n                avg_vals.append(total_val / len(values))\n                cumul_vals.append(total_val / timestep)\n        else: \n            for pt_res in results:\n                values = [float(r) for r, is_hoy in zip(pt_res.split(), su_pattern) if is_hoy]\n                total_val = sum(values)\n                try:\n                    avg_vals.append(total_val / len(values))\n                    cumul_vals.append(total_val / timestep)\n                except ZeroDivisionError:\n                    avg_vals.append(0)\n                    cumul_vals.append(0)\n    return avg_vals, cumul_vals\n\n\nif all_required_inputs(ghenv.Component):\n    # set default values\n    grid_filter_ = '*' if grid_filter_ is None else grid_filter_\n    timestep_ = 1 if timestep_ is None else timestep_\n\n    # get the relevant .ill files\n    res_folder = os.path.dirname(_results[0]) if os.path.isfile(_results[0]) \\\n        else _results[0]\n    grids, sun_up_hours = _process_input_folder(res_folder, grid_filter_)\n    su_pattern = parse_sun_up_hours(sun_up_hours, _hoys_, timestep_)\n\n    # compute the annual metrics\n    avg_vals, cumul_vals = [], []\n    for grid_info in grids:\n        ill_file = os.path.join(res_folder, '%s.ill' % grid_info['full_id'])\n        irr, rad = average_values(ill_file, su_pattern, timestep_)\n        avg_vals.append(irr)\n        cumul_vals.append(rad)\n    avg_vals = list_to_data_tree(avg_vals)\n    cumul_vals = list_to_data_tree(cumul_vals)\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Annual Result Values", 
+  "description": "Get the average illuminance or irradiance value from an annual daylight or irradiance\nsimulation.\n_\nThis can also be used to obtain cumulative radiation values in the case of an annual\nirradiance simulation.\n_\nThe _hoys_ input can be used to filter the data for a particular time period or\nhour/timestep of the simulation.\n-"
+}
