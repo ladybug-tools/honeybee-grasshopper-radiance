@@ -1,12 +1,12 @@
 {
-  "version": "1.2.5", 
+  "version": "1.2.6", 
   "nickname": "DaylightFactor", 
   "outputs": [
     [
       {
         "access": "None", 
         "name": "results", 
-        "description": "The daylight factor values from the simulation in percent. Each\nvalue is for a fidderent sensor of the grid. These can be plugged\ninto the \"LB Spatial Heatmap\" component along with meshes of the\nsensor grids to visualize results.", 
+        "description": "The daylight factor values from the simulation in percent. Each\nvalue is for a different sensor of the grid. These can be plugged\ninto the \"LB Spatial Heatmap\" component along with meshes of the\nsensor grids to visualize results.", 
         "type": null, 
         "default": null
       }

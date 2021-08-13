@@ -1,5 +1,5 @@
 {
-  "version": "1.2.3", 
+  "version": "1.2.4", 
   "nickname": "AnnualDaylight", 
   "outputs": [
     [
@@ -13,35 +13,35 @@
       {
         "access": "None", 
         "name": "DA", 
-        "description": "Daylight autonomy results.", 
+        "description": "Daylight autonomy results in percent. DA is the percentage of occupied hours\nthat each sensor recieves equal or more than the illuminance threshold.\nEach value is for a different sensor of the grid. These can be plugged\ninto the \"LB Spatial Heatmap\" component along with meshes of the sensor\ngrids to visualize results. These can also be connected to the \"HB\nSpatial Daylight Autonomy\" component to compute spatial daylight\nautonomy for each grid.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "cDA", 
-        "description": "Continuous daylight autonomy results.", 
+        "description": "Continuous daylight autonomy results in percent. cDA is similar to DA except\nthat values below the illuminance threshold can still count partially\ntowards the final percentage. Each value is for a different\nsensor of the grid. These can be plugged into the \"LB Spatial Heatmap\"\ncomponent along with meshes of the sensor grids to visualize results.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "UDI", 
-        "description": "Useful daylight illuminance results.", 
+        "description": "Useful daylight illuminance results in percent. UDI is the percentage of time\nthat illuminace falls between minimum and maximum thresholds. Each value\nis for a different sensor of the grid. These can be plugged into the\n\"LB Spatial Heatmap\" component along with meshes of the sensor grids\nto visualize results.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "UDI_low", 
-        "description": "Results for the percent of time that is below the lower threshold\nof useful daylight illuminance.", 
+        "description": "Results for the percent of time that is below the lower threshold\nof useful daylight illuminance in percent. Each value is for a different\nsensor of the grid. These can be plugged into the \"LB Spatial Heatmap\"\ncomponent along with meshes of the sensor grids to visualize results.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "UDI_up", 
-        "description": "Results for the percent of time that is above the upper threshold\nof useful daylight illuminance.", 
+        "description": "Results for the percent of time that is above the upper threshold\nof useful daylight illuminance in percent. Each value is for a different\nsensor of the grid. These can be plugged into the \"LB Spatial Heatmap\"\ncomponent along with meshes of the sensor grids to visualize results.", 
         "type": null, 
         "default": null
       }

@@ -32,14 +32,14 @@ Run a daylight factor study for a Honeybee model.
     Returns:
         report: Reports, errors, warnings, etc.
         results: The daylight factor values from the simulation in percent. Each
-            value is for a fidderent sensor of the grid. These can be plugged
+            value is for a different sensor of the grid. These can be plugged
             into the "LB Spatial Heatmap" component along with meshes of the
             sensor grids to visualize results.
 """
 
 ghenv.Component.Name = 'HB Daylight Factor'
 ghenv.Component.NickName = 'DaylightFactor'
-ghenv.Component.Message = '1.2.5'
+ghenv.Component.Message = '1.2.6'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
