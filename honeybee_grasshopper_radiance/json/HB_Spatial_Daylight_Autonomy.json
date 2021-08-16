@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0", 
+  "version": "1.2.1", 
   "nickname": "sDA", 
   "outputs": [
     [
@@ -39,7 +39,7 @@
       "name": "_target_DA_", 
       "description": "A number for the minimum target value for daylight autonomy\nat wich a given sensor is considered well daylit. (default: 50).", 
       "type": "double", 
-      "default": 50
+      "default": null
     }
   ], 
   "subcategory": "4 :: Results", 

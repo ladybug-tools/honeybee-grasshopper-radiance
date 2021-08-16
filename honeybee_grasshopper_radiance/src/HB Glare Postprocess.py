@@ -64,10 +64,10 @@ http://web.mit.edu/tito_/www/Projects/Glare/GlareRecommendationsForPractice.html
 
 ghenv.Component.Name = 'HB Glare Postprocess'
 ghenv.Component.NickName = 'Glare'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
-ghenv.Component.AdditionalHelpFromDocStrings = '2'
+ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 import os
 import subprocess

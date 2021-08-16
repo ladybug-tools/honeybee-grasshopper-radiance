@@ -8,15 +8,30 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Run an annual daylight study for a Honeybee model.
+Run an annual daylight study for a Honeybee model to compute hourly illuminance
+for each sensor in a model's sensor grids.
+_
+This recipe uses an enhanced 2-phase method for daylight simulation which accurately
+models direct sun by tracing rays from each sensor to the solar position at each
+hour of the calculation.
+_
+The resulting illuminance is used to compute the following metrics:
+_
+* Daylight Autonomy (DA) - The percentage of occupied hours that each sensor
+        recieves more than the illuminance threshold.
+* Continuous Daylight Autonomy (cDA) - Similar to DA except that values below the
+        illuminance threshold can still count partially towards the final percentage.
+* Useful Daylight Illuminance (UDI) - The percentage of occupied hours that
+        illuminace falls between minimum and maximum thresholds
 
 -
     Args:
         _model: A Honeybee Model for which Annual Daylight will be simulated.
-            Note that this model should have grids assigned to it in order
-            to produce meaningfule results.
+            Note that this model must have grids assigned to it.
         _wea: A Wea object produced from the Wea components that are under the Light
             Sources tab. This can also be the path to a .wea or a .epw file.
+            Note that the Wea must have a timestep of 1 to be used with this
+            recipe.
         north_: A number between -360 and 360 for the counterclockwise difference
             between the North and the positive Y-axis in degrees. This can
             also be Vector for the direction to North. (Default: 0).
@@ -61,11 +76,11 @@ Run an annual daylight study for a Honeybee model.
             towards the final percentage. Each value is for a different
             sensor of the grid. These can be plugged into the "LB Spatial Heatmap"
             component along with meshes of the sensor grids to visualize results.
-        UDI: Useful daylight illuminance results in percent. UDI is the percentage of time
-            that illuminace falls between minimum and maximum thresholds. Each value
-            is for a different sensor of the grid. These can be plugged into the
-            "LB Spatial Heatmap" component along with meshes of the sensor grids
-            to visualize results.
+        UDI: Useful daylight illuminance results in percent. UDI is the percentage of
+            occupied hours that illuminace falls between minimum and maximum
+            thresholds. Each value is for a different sensor of the grid. These
+            can be plugged into the "LB Spatial Heatmap" component along with
+            meshes of the sensor grids to visualize results.
         UDI_low: Results for the percent of time that is below the lower threshold
             of useful daylight illuminance in percent. Each value is for a different
             sensor of the grid. These can be plugged into the "LB Spatial Heatmap"
@@ -78,7 +93,7 @@ Run an annual daylight study for a Honeybee model.
 
 ghenv.Component.Name = 'HB Annual Daylight'
 ghenv.Component.NickName = 'AnnualDaylight'
-ghenv.Component.Message = '1.2.4'
+ghenv.Component.Message = '1.2.5'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

@@ -35,10 +35,10 @@ deconstructed for detailed analysis with native Grasshopper math components.
 
 ghenv.Component.Name = 'HB Annual Results to Data'
 ghenv.Component.NickName = 'AnnualToData'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
-ghenv.Component.AdditionalHelpFromDocStrings = '1'
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 import os
 
@@ -66,7 +66,7 @@ except ImportError as e:
 
 
 def file_to_data(ill_file, point_filter, su_pattern, header, timestep):
-    """Compute average/cumulative values for a given result file."""
+    """Get a list of data collections for a given result file."""
     data_colls = []
     with open(ill_file) as results:
         if point_filter is None:

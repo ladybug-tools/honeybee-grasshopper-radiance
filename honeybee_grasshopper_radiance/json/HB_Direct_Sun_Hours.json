@@ -1,5 +1,5 @@
 {
-  "version": "1.2.4", 
+  "version": "1.2.5", 
   "nickname": "DirectSunHours", 
   "outputs": [
     [
@@ -81,5 +81,5 @@
   "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('direct-sun-hours')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('timestep', _timestep_)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name(\n            'direct-sun-hours', project_folder))\n        hours = recipe_result(recipe.output_value_by_name(\n            'cumulative-sun-hours', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
   "category": "HB-Radiance", 
   "name": "HB Direct Sun Hours", 
-  "description": "Calculate the number of hours of direct sun received by grids of sensors in a\nHoneybee model.\n-"
+  "description": "Calculate the number of hours of direct sun received by grids of sensors in a\nHoneybee model.\n_\nThe fundamental calculation of this recipe is the same as that of the \"LB Direct\nSun Hours\" component except that this recipe uses Radiance, which allows the\nsimulation to scale better for large numbers of sensors.\n-"
 }

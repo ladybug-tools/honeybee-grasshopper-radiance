@@ -10,6 +10,10 @@
 """
 Calculate the number of hours of direct sun received by grids of sensors in a
 Honeybee model.
+_
+The fundamental calculation of this recipe is the same as that of the "LB Direct
+Sun Hours" component except that this recipe uses Radiance, which allows the
+simulation to scale better for large numbers of sensors.
 
 -
     Args:
@@ -47,7 +51,7 @@ Honeybee model.
 
 ghenv.Component.Name = 'HB Direct Sun Hours'
 ghenv.Component.NickName = 'DirectSunHours'
-ghenv.Component.Message = '1.2.4'
+ghenv.Component.Message = '1.2.5'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

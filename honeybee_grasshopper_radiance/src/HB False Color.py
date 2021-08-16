@@ -48,10 +48,10 @@ Convert a High Dynamic Range (HDR) image file into a falsecolor version of itsel
 
 ghenv.Component.Name = 'HB False Color'
 ghenv.Component.NickName = 'FalseColor'
-ghenv.Component.Message = '1.2.3'
+ghenv.Component.Message = '1.2.4'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
-ghenv.Component.AdditionalHelpFromDocStrings = '2'
+ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 import os
 import subprocess

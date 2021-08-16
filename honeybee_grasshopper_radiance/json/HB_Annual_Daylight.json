@@ -1,5 +1,5 @@
 {
-  "version": "1.2.4", 
+  "version": "1.2.5", 
   "nickname": "AnnualDaylight", 
   "outputs": [
     [
@@ -27,7 +27,7 @@
       {
         "access": "None", 
         "name": "UDI", 
-        "description": "Useful daylight illuminance results in percent. UDI is the percentage of time\nthat illuminace falls between minimum and maximum thresholds. Each value\nis for a different sensor of the grid. These can be plugged into the\n\"LB Spatial Heatmap\" component along with meshes of the sensor grids\nto visualize results.", 
+        "description": "Useful daylight illuminance results in percent. UDI is the percentage of\noccupied hours that illuminace falls between minimum and maximum\nthresholds. Each value is for a different sensor of the grid. These\ncan be plugged into the \"LB Spatial Heatmap\" component along with\nmeshes of the sensor grids to visualize results.", 
         "type": null, 
         "default": null
       }, 
@@ -51,14 +51,14 @@
     {
       "access": "item", 
       "name": "_model", 
-      "description": "A Honeybee Model for which Annual Daylight will be simulated.\nNote that this model should have grids assigned to it in order\nto produce meaningfule results.", 
+      "description": "A Honeybee Model for which Annual Daylight will be simulated.\nNote that this model must have grids assigned to it.", 
       "type": "System.Object", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_wea", 
-      "description": "A Wea object produced from the Wea components that are under the Light\nSources tab. This can also be the path to a .wea or a .epw file.", 
+      "description": "A Wea object produced from the Wea components that are under the Light\nSources tab. This can also be the path to a .wea or a .epw file.\nNote that the Wea must have a timestep of 1 to be used with this\nrecipe.", 
       "type": "System.Object", 
       "default": null
     }, 
@@ -123,5 +123,5 @@
   "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('annual-daylight')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('thresholds', _thresholds_)\n    recipe.input_value_by_name('schedule', _schedule_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        DA = recipe_result(recipe.output_value_by_name('da', project_folder))\n        cDA = recipe_result(recipe.output_value_by_name('cda', project_folder))\n        UDI = recipe_result(recipe.output_value_by_name('udi', project_folder))\n        UDI_low = recipe_result(recipe.output_value_by_name('udi-lower', project_folder))\n        UDI_up = recipe_result(recipe.output_value_by_name('udi-upper', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
   "category": "HB-Radiance", 
   "name": "HB Annual Daylight", 
-  "description": "Run an annual daylight study for a Honeybee model.\n-"
+  "description": "Run an annual daylight study for a Honeybee model to compute hourly illuminance\nfor each sensor in a model's sensor grids.\n_\nThis recipe uses an enhanced 2-phase method for daylight simulation which accurately\nmodels direct sun by tracing rays from each sensor to the solar position at each\nhour of the calculation.\n_\nThe resulting illuminance is used to compute the following metrics:\n_\n* Daylight Autonomy (DA) - The percentage of occupied hours that each sensor\n        recieves more than the illuminance threshold.\n* Continuous Daylight Autonomy (cDA) - Similar to DA except that values below the\n        illuminance threshold can still count partially towards the final percentage.\n* Useful Daylight Illuminance (UDI) - The percentage of occupied hours that\n        illuminace falls between minimum and maximum thresholds\n-"
 }
