@@ -7,13 +7,10 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Get the average illuminance or irradiance value from an annual daylight or irradiance
+Get average illuminance or irradiance values over an annual daylight or irradiance
 simulation.
 _
-This can also be used to obtain cumulative radiation values in the case of an annual
-irradiance simulation.
-_
-The _hoys_ input can be used to filter the data for a particular time period or
+The _hoys_ input can also be used to filter the data for a particular time period or
 hour/timestep of the simulation.
 
 -
@@ -26,9 +23,6 @@ hour/timestep of the simulation.
             for which results will be computed. These HOYs can be obtained from the
             "LB Calculate HOY" or the "LB Analysis Period" components. If None, all
             hours of the results will be used.
-        timestep_: The timesteps per hour of the Wea that was used for the analysis.
-            This will be used to ensure cumulative values are in the correct
-            units (with hours as the unit). (Default: 1).
         grid_filter_: The name of a grid or a pattern to filter the grids. For instance,
             first_floor_* will simulate only the sensor grids that have an
             identifier that starts with first_floor_. By default all the grids
@@ -36,19 +30,14 @@ hour/timestep of the simulation.
 
     Returns:
         report: Reports, errors, warnings, etc.
-        avg_vals: Average illuminance or irradiance valules for each sensor in lux or W/m2.
+        values: Average illuminance or irradiance valules for each sensor in lux or W/m2.
             Each value is for a different sensor of the grid. These can be plugged
             into the "LB Spatial Heatmap" component along with meshes of the sensor
             grids to visualize results.
-        cumul_vals: In the case of an annual irradaince simulation, this is the cumulative
-            radiation valules for each sensor in Wh/m2. For annual daylight,
-            it is cumulative illuminance. These can be plugged into the "LB
-            Spatial Heatmap" component along with meshes of the sensor
-            grids to visualize results.
 """
 
-ghenv.Component.Name = 'HB Annual Result Values'
-ghenv.Component.NickName = 'AnnualValues'
+ghenv.Component.Name = 'HB Annual Average Values'
+ghenv.Component.NickName = 'AvgValues'
 ghenv.Component.Message = '1.2.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
@@ -84,46 +73,48 @@ def parse_sun_up_hours(sun_up_hours, hoys, timestep):
         return su_pattern
 
 
-def average_values(ill_file, su_pattern, timestep):
-    """Compute average/cumulative values for a given result file."""
-    avg_vals, cumul_vals = [], []
+def average_values(ill_file, su_pattern, full_len):
+    """Compute average values for a given result file."""
+    avg_vals = []
     with open(ill_file) as results:
         if su_pattern is None:  # no HOY filter on results
             for pt_res in results:
                 values = [float(r) for r in pt_res.split()]
                 total_val = sum(values)
-                avg_vals.append(total_val / len(values))
-                cumul_vals.append(total_val / timestep)
+                avg_vals.append(total_val / full_len)
         else: 
             for pt_res in results:
                 values = [float(r) for r, is_hoy in zip(pt_res.split(), su_pattern) if is_hoy]
                 total_val = sum(values)
                 try:
-                    avg_vals.append(total_val / len(values))
-                    cumul_vals.append(total_val / timestep)
+                    avg_vals.append(total_val / full_len)
                 except ZeroDivisionError:
                     avg_vals.append(0)
-                    cumul_vals.append(0)
-    return avg_vals, cumul_vals
+    return avg_vals
 
 
 if all_required_inputs(ghenv.Component):
-    # set default values
-    grid_filter_ = '*' if grid_filter_ is None else grid_filter_
-    timestep_ = 1 if timestep_ is None else timestep_
-
     # get the relevant .ill files
+    grid_filter_ = '*' if grid_filter_ is None else grid_filter_
     res_folder = os.path.dirname(_results[0]) if os.path.isfile(_results[0]) \
         else _results[0]
     grids, sun_up_hours = _process_input_folder(res_folder, grid_filter_)
-    su_pattern = parse_sun_up_hours(sun_up_hours, _hoys_, timestep_)
 
-    # compute the annual metrics
-    avg_vals, cumul_vals = [], []
+    # extract the timestep if it exists
+    timestep = 1
+    tstep_file = os.path.join(res_folder, 'timestep.txt')
+    if os.path.isfile(tstep_file):
+        with open(tstep_file) as tf:
+            timestep = int(tf.readline())
+    full_len = 8760 * timestep if len(_hoys_) == 0 else len(_hoys_)
+
+    # parse the sun-up-hours
+    su_pattern = parse_sun_up_hours(sun_up_hours, _hoys_, timestep)
+
+    # compute the average values
+    values = []
     for grid_info in grids:
         ill_file = os.path.join(res_folder, '%s.ill' % grid_info['full_id'])
-        irr, rad = average_values(ill_file, su_pattern, timestep_)
-        avg_vals.append(irr)
-        cumul_vals.append(rad)
-    avg_vals = list_to_data_tree(avg_vals)
-    cumul_vals = list_to_data_tree(cumul_vals)
+        avg = average_values(ill_file, su_pattern, full_len)
+        values.append(avg)
+    values = list_to_data_tree(values)
