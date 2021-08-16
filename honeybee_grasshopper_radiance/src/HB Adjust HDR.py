@@ -31,10 +31,10 @@ be seen by a human eye and adding an optional text label to the image.
 
 ghenv.Component.Name = 'HB Adjust HDR'
 ghenv.Component.NickName = 'AdjustHDR'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
-ghenv.Component.AdditionalHelpFromDocStrings = '2'
+ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 import os
 

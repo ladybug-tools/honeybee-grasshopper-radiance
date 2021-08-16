@@ -9,6 +9,17 @@
 
 """
 Run a daylight factor study for a Honeybee model.
+_
+Daylight Factor (DF) is defined as the ratio of the indoor daylight illuminance
+to outdoor illuminance under an unobstructed overcast sky. It is expressed as a
+percentage between 0 and 100.
+_
+Because daylight factor is computed using an overcast sky, it does not change
+with [North, East, South, West] orientation. As such, it is more suited to
+assessing daylight in climates where cloudy conditions are common. The "HB
+Annual Daylight" recipe yields a much more accurate assessment of daylight
+and is suitable for all climates, though it requires a significantly longer
+calculation time than Daylight Factor.
 
 -
     Args:
@@ -39,7 +50,7 @@ Run a daylight factor study for a Honeybee model.
 
 ghenv.Component.Name = 'HB Daylight Factor'
 ghenv.Component.NickName = 'DaylightFactor'
-ghenv.Component.Message = '1.2.6'
+ghenv.Component.Message = '1.2.7'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

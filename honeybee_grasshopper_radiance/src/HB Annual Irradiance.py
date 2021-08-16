@@ -8,24 +8,24 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Run an annual solar irradiance study for a Honeybee model.
+Run an annual irradiance study for a Honeybee model to compute hourly solar
+irradiance for each sensor in a model's sensor grids.
 _
 The fundamental calculation of this recipe is the same as that of "HB Annual
-Daylight" in that a detailed accounting of direct sun is performed at each
-simulation step. However, this recipe computes broadband solar irradiance in
-W/m2 instead of visible illuminance in lux.
+Daylight" in that an enhaced 2-phase method is used to accurately account for
+direct sun at each simulation step. However, this recipe computes broadband
+solar irradiance in W/m2 instead of visible illuminance in lux.
 _
-As such, this recipe can not only be used to get a high-accuraccy tally of
-cumulative radiation over the Wea time period but the `peak_irradiance` and the
-detailed result matrices are suitable for assessing the radiant temperatures
-expereinced by occupants and determining the worst-case solar load from clear
-sky Weas that represent cooling design days.
+Consequently, the average irradiance and cumulative radiation values produced from
+this recipe are more accurate than those produced by the "HB Cumulative Radiation"
+recipe. Furthermore, because the hourly irriadiance values are accurate, this
+recipe can be used to evaluate `peak_irradiance` and determine the worst-case
+solar loads over clear sky Weas that represent cooling design days.
 
 -
     Args:
         _model: A Honeybee Model for which Annual Irradiance will be simulated.
-            Note that this model should have grids assigned to it in order
-            to produce meaningfule results.
+            Note that this model must have grids assigned to it.
         _wea: A Wea object produced from the Wea components that are under the Light
             Sources tab. This can also be the path to a .wea or a .epw file.
         _timestep_: An integer for the timestep of the inpput _wea. This value is used
@@ -62,7 +62,7 @@ sky Weas that represent cooling design days.
 
 ghenv.Component.Name = 'HB Annual Irradiance'
 ghenv.Component.NickName = 'AnnualIrradiance'
-ghenv.Component.Message = '1.2.2'
+ghenv.Component.Message = '1.2.3'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

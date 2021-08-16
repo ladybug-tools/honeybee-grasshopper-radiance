@@ -10,15 +10,15 @@
 """
 Run a cumulative radiation study for a Honeybee model.
 _
-This recipe calculates average irradiance (W/m2) and cumulative radiation (kWh/m2)
+This recipe calculates cumulative radiation (kWh/m2) and average irradiance (W/m2)
 over the time period of a specified Wea.
 _
 The fundamental calculation of this recipe is the same as that of the "LB Incident
 Radiation" component except that this recipe uses Radiance and can therefore
 account for ambient reflections. Like LB Incident Radiation, the direct sun in this
 recipe is diffused between several sky patches and so the precise line between shadow
-and sun for each hour is blurred. This approximation is fine for studies where
-one is only concerned about the average/total conditions over time and the
+and sun for each hour is blurred. This approximation is acceptable for studies
+where one is only concerned about the average/total conditions over time and the
 timestep-by-timestep irradiance values do not need to be exact. For accurate
 modeling of direct irradiance on a timestep-by-timestep basis, see the "HB Annual
 Irradiance" recipe.
@@ -26,8 +26,7 @@ Irradiance" recipe.
 -
     Args:
         _model: A Honeybee Model for which Cumulative Radiation will be simulated.
-            Note that this model should have grids assigned to it in order
-            to produce meaningfule results.
+            Note that this model should have grids assigned to it.
         _wea: A Wea object produced from the Wea components that are under the Light
             Sources tab. This can also be the path to a .wea or a .epw file.
         _timestep_: An integer for the timestep of the inpput _wea. (Default: 1)
@@ -62,7 +61,7 @@ Irradiance" recipe.
 
 ghenv.Component.Name = 'HB Cumulative Radiation'
 ghenv.Component.NickName = 'CumulativeRadiation'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
