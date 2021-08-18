@@ -18,9 +18,9 @@ studies off of a consistent set of geometry and modifiers.
     Args:
         _model: A honeybee model object possessing all geometry, radiance modifiers
             and simulation assets like Sensor Grids and Views.
-        _folder_: An optional folder to into which the Model Radiance Folder
-            will be written. NOTE THAT DIRECTORIES INPUT HERE SHOULD NOT HAVE
-            ANY SPACES OR UNDERSCORES IN THE FILE PATH.
+        _folder_: Path to a folder to into which the Model Radiance Folder will be
+            written. If unspecified, it will be written to a sub-folder
+            within the default simulation folder.
         _write: Set to True to write the Model to a Radiance folder.
 
     Returns:
@@ -30,12 +30,13 @@ studies off of a consistent set of geometry and modifiers.
 
 ghenv.Component.Name = 'HB Model to Rad Folder'
 ghenv.Component.NickName = 'ModelToRad'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
 
 import os
+import re
 
 try:
     from ladybug.futil import write_to_file_by_name, nukedir, preparedir
@@ -60,8 +61,9 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component) and _write:
     # process the simulation folder name and the directory
-    _folder_ = folders.default_simulation_folder if _folder_ is None else _folder_
-    folder = os.path.join(_folder_, _model.identifier, 'Radiance')
+    clean_name = re.sub(r'[^.A-Za-z0-9_-]', '_', _model.display_name)
+    folder = os.path.join(folders.default_simulation_folder, clean_name, 'radiance') \
+        if _folder_ is None else _folder_
     if os.path.isdir(folder):
         nukedir(folder, rmdir=True)  # delete the folder if it already exists
     else:
