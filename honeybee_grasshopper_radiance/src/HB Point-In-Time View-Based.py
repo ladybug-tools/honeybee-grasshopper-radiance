@@ -46,7 +46,11 @@ in an image with better interpolation between neighboring pixels.
             only the views that have an identifier that starts with `first_floor_`.
             By default, all views in the model will be simulated.
         view_count_: Number of views into which each Model view will be subdivided 
-            for parallelized calculation. (Default: 2).
+            for parallelized calculation. If unspecified, an attempt will be
+            made to set this to an optimal value based on the number of
+            workers dedicated for the simulation and the number of view
+            in the Model. If the number of views could not be sensed, this
+            will default to 2.
         skip_overture_: A boolean to note whether an ambient file (.amb) should be
             generated for an overture calculation before the view is split
             into smaller views. With an overture calculation, the ambient file
@@ -81,10 +85,17 @@ in an image with better interpolation between neighboring pixels.
 
 ghenv.Component.Name = 'HB Point-In-Time View-Based'
 ghenv.Component.NickName = 'PITView'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
+
+import os
+
+try:
+    from honeybee.model import Model
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
     from lbt_recipes.recipe import Recipe
@@ -92,7 +103,8 @@ except ImportError as e:
     raise ImportError('\nFailed to import lbt_recipes:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs, recipe_result
+    from ladybug_rhino.grasshopper import all_required_inputs, recipe_result, \
+        recommended_processor_count
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -105,9 +117,22 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('metric', _metric_)
     recipe.input_value_by_name('resolution', _resolution_)
     recipe.input_value_by_name('view-filter', view_filter_)
-    recipe.input_value_by_name('view-count', view_count_)
     recipe.input_value_by_name('skip-overture', skip_overture_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
+
+    # treat the view_count input specially in an attempt to get an optimal value
+    if view_count_ is not None:
+        recipe.input_value_by_name('view-count', view_count_)
+    else:
+        work_count = run_settings_.workers if run_settings_ is not None else \
+            recommended_processor_count()
+        if isinstance(_model, Model):
+            view_count = len(_model.properties.radiance.views)
+            opt_slit = int(work_count / view_count)
+            opt_slit = 1 if opt_slit == 0 else opt_slit
+            recipe.input_value_by_name('view-count', opt_slit)
+        else:
+            recipe.input_value_by_name('view-count', 2)
 
     # run the recipe
     silent = True if _run > 1 else False
