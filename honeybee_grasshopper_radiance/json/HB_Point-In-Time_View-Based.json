@@ -1,5 +1,5 @@
 {
-  "version": "1.2.2", 
+  "version": "1.2.3", 
   "nickname": "PITView", 
   "outputs": [
     [
@@ -37,7 +37,7 @@
     {
       "access": "item", 
       "name": "_resolution_", 
-      "description": "An integer for the maximum dimension of each image in pixels\n(either width or height depending on the input view angle and\ntype). (Default: 512).", 
+      "description": "An integer for the maximum dimension of each image in pixels\n(either width or height depending on the input view angle and\ntype). (Default: 800).", 
       "type": "int", 
       "default": null
     }, 
@@ -65,7 +65,7 @@
     {
       "access": "item", 
       "name": "radiance_par_", 
-      "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 2 -aa 0.1 -ad 2048 -ar 64).", 
+      "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 2 -aa 0.25 -ad 512 -ar 16).", 
       "type": "string", 
       "default": null
     }, 

@@ -38,7 +38,7 @@ of view-based simulations, the "HB Point-in-time View-based" recipe should be us
                 * 3 = radiance
         _resolution_: An integer for the maximum dimension of each image in pixels
             (either width or height depending on the input view angle and
-            type). (Default: 512).
+            type). (Default: 800).
         radiance_par_: Text for the radiance parameters to be used for ray
             tracing. (Default: -ab 2 -aa 0.25 -ad 512 -ar 16).
         _run: Set to "True" to run Radiance and get an image of the scene.
@@ -60,7 +60,7 @@ of view-based simulations, the "HB Point-in-time View-based" recipe should be us
 
 ghenv.Component.Name = 'HB Check Scene'
 ghenv.Component.NickName = 'CheckScene'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '6'
@@ -124,7 +124,7 @@ metric_dict = {
 
 if all_required_inputs(ghenv.Component) and _run:
     # set defaults for resolution, metric and view
-    _resolution_ = 512 if _resolution_ is None else _resolution_
+    _resolution_ = 800 if _resolution_ is None else _resolution_
     try:
         _metric_ = metric_dict[_metric_.lower()] if _metric_ is not None else 'luminance'
     except KeyError:

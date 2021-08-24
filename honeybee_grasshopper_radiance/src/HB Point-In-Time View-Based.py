@@ -40,7 +40,7 @@ in an image with better interpolation between neighboring pixels.
                 * 3 = radiance
         _resolution_: An integer for the maximum dimension of each image in pixels
             (either width or height depending on the input view angle and
-            type). (Default: 512).
+            type). (Default: 800).
         view_filter_: Text for a view identifer or a pattern to filter the views of the
             model that are simulated. For instance, `first_floor_*` will simulate
             only the views that have an identifier that starts with `first_floor_`.
@@ -61,7 +61,7 @@ in an image with better interpolation between neighboring pixels.
             computation time to full rendering but is single-core can become
             time consuming in situations with a high view_count_ and workers.
         radiance_par_: Text for the radiance parameters to be used for ray
-            tracing. (Default: -ab 2 -aa 0.1 -ad 2048 -ar 64).
+            tracing. (Default: -ab 2 -aa 0.25 -ad 512 -ar 16).
         run_settings_: Settings from the "HB Recipe Settings" component that specify
             how the recipe should be run. This can also be a text string of
             recipe settings.
@@ -85,7 +85,7 @@ in an image with better interpolation between neighboring pixels.
 
 ghenv.Component.Name = 'HB Point-In-Time View-Based'
 ghenv.Component.NickName = 'PITView'
-ghenv.Component.Message = '1.2.2'
+ghenv.Component.Message = '1.2.3'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
