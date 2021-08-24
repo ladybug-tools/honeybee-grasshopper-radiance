@@ -21,9 +21,9 @@ Create a Honeybee View for an image-based analysis.
             The length of this vector indicates the focal distance as needed by
             the pixel depth of field (-pd) in rpict.
         _up_vector_: An optional vector to set the vertical direction of the
-            view (-vu). Default: (0, 0, 1)
+            view (-vu). (Default: (0, 0, 1)).
         _view_type_: An integer to set the view type (-vt). Choose from the choices
-            below. Default: 0.
+            below. (Default: 0).
                 * 0 Perspective (v)
                 * 1 Hemispherical fisheye (h)
                 * 2 Parallel (l)
@@ -35,19 +35,19 @@ Create a Honeybee View for an image-based analysis.
         _h_angle_: A number for the view horizontal size (-vh) in degrees. For a
             perspective projection (including fisheye views), val is the horizontal
             field of view. For a parallel projection, val is the view width in
-            world coordinates. Default: 60.
+            world coordinates. (Default: 60).
         _v_angle_: A number for the view vertical size (-vv) in degrees. For
             a perspective projection (including fisheye views), val is the horizontal
             field of view. For a parallel projection, val is the view width in
-            world coordinates. Default: 60.
-    
+            world coordinates. (Default: 60).
+
     Returns:
         view: A Honeybee View object that can be used in an image-based recipe.
 """
 
 ghenv.Component.Name = 'HB View'
 ghenv.Component.NickName = 'View'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -79,11 +79,15 @@ if all_required_inputs(ghenv.Component):
     name = clean_and_id_rad_string('View') if _name_ is None else _name_
     _up_vec = (_up_vector_.X, _up_vector_.Y, _up_vector_.Z) if _up_vector_ \
         is not None else (0, 0, 1)
-    _type_= 'v' if _view_type_ is None else VIEW_TYPES[_view_type_]
+    if _view_type_ is None:
+        _type_= 'v'
+    else:
+        _type_= _view_type_ if _view_type_ in VIEW_TYPES else VIEW_TYPES[int(_view_type_)]
     _h_angle_ = 60 if _h_angle_ is None else _h_angle_
     _v_angle_ = 60 if _v_angle_ is None else _v_angle_
 
     view = View(clean_rad_string(name), _pos, _dir, _up_vec, _type_,
                 _h_angle_, _v_angle_)
+    view.standardize_fisheye()
     if _name_ is not None:
         view.display_name = _name_

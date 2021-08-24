@@ -64,7 +64,7 @@ http://web.mit.edu/tito_/www/Projects/Glare/GlareRecommendationsForPractice.html
 
 ghenv.Component.Name = 'HB Glare Postprocess'
 ghenv.Component.NickName = 'Glare'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -103,7 +103,7 @@ def check_hdr_luminance_and_fisheye(hdr_path):
     msg = 'Connected _hdr image must be for luminance. Got "{}".'
     with open(hdr_path, 'r') as hdr_file:
         for lineCount, line in enumerate(hdr_file):
-            if lineCount < 10:
+            if lineCount < 200:
                 low_line = line.strip().lower()
                 if low_line.startswith('rpict'):
                     if line.find('_irradiance.vf') > -1:
@@ -115,8 +115,14 @@ def check_hdr_luminance_and_fisheye(hdr_path):
                 elif low_line.startswith('view='):
                     if not line.find('-vth') > -1:
                         raise ValueError(
-                            'Connected _hdr image is not a hemispheical fisheye.')
-
+                            'Connected _hdr image is not a hemispheical fisheye.\n'
+                            'Make sure the view type of the image is 1(h).')
+                elif 'pcond -h' in low_line:
+                    raise ValueError(
+                        'Connected _hdr image has had the exposure adjusted on it.\n'
+                        'Make sure adj_expos_ has been set to False in previous steps.')
+            else:  # no need to check the rest of the document
+                break
 
 def check_hdr_dimensions(hdr_path):
     """Check that a given HDR file has dimensions suitable for evalglare.
@@ -142,16 +148,12 @@ def check_hdr_dimensions(hdr_path):
     # check the X and Y dimensions of the image
     x = int(img_dim.split(' ')[-1].strip())
     y = int(img_dim.split(' ')[-3].strip())
-    msg = 'Input _hdr image dimensions must be {} {} x {} pixels. Got "{} x {}"'
+    msg = 'Recommended _hdr image dimensions for glare analysis should be \n' \
+        '{} {} x {} pixels. Got {} x {}.'
     if x < 800 or y < 800:
-        raise ValueError(msg.format('at least', 800, 800, x, y))
+        give_warning(ghenv.Component, msg.format('at least', 800, 800, x, y))
     elif x > 1500 or y > 1500:
-        raise ValueError(msg.format('no greater than', 1500, 1500, x, y))
-    elif not (999 <= x <=1001 and 999 <= y <=1001):
-        msg = 'Input _hdr image dimensions are not the recommended values of 1000 x 1000.\n' \
-            'Got {} x {}. Glare analysis is still performed, though you might ' \
-            'consider revising the image size.'.format(x, y)
-        give_warning(ghenv.Component, msg)
+        give_warning(ghenv.Component, msg.format('no greater than', 1500, 1500, x, y))
     return x, y
 
 

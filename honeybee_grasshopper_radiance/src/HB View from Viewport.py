@@ -39,7 +39,7 @@ Create a Honeybee View for an image-based analysis using a Rhino viewport.
 
 ghenv.Component.Name = 'HB View from Viewport'
 ghenv.Component.NickName = 'Viewport'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -64,12 +64,21 @@ VIEW_TYPES = ('v', 'h', 'l', 'c', 'a')
 
 
 # set the default values
-_name_ = clean_and_id_rad_string('View') if _name_ is None else _name_
-viewp = viewport_by_name(_viewport_)
-v_props = viewport_properties(viewp, _view_type_)
+name = clean_and_id_rad_string('View') if _name_ is None else _name_
+if _view_type_ is None:
+    _type_= 0
+else:
+    _type_= VIEW_TYPES.index(_view_type_) if _view_type_ in VIEW_TYPES else int(_view_type_)
 
+# process the Rhino viewport
+viewp = viewport_by_name(_viewport_)
+v_props = viewport_properties(viewp, _type_)
+
+# create the view object
 view = View(
-    clean_rad_string(_name_), v_props['position'], v_props['direction'],
+    clean_rad_string(name), v_props['position'], v_props['direction'],
     v_props['up_vector'], VIEW_TYPES[v_props['view_type']],
     v_props['h_angle'], v_props['v_angle'])
-view.display_name = _name_
+view.standardize_fisheye()
+if _name_ is not None:
+    view.display_name = _name_
