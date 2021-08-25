@@ -85,7 +85,7 @@ in an image with better interpolation between neighboring pixels.
 
 ghenv.Component.Name = 'HB Point-In-Time View-Based'
 ghenv.Component.NickName = 'PITView'
-ghenv.Component.Message = '1.2.3'
+ghenv.Component.Message = '1.2.4'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -126,7 +126,7 @@ if all_required_inputs(ghenv.Component) and _run:
     else:
         work_count = run_settings_.workers if run_settings_ is not None else \
             recommended_processor_count()
-        if isinstance(_model, Model):
+        if isinstance(_model, Model) and len(_model.properties.radiance.views) != 0:
             view_count = len(_model.properties.radiance.views)
             opt_slit = int(work_count / view_count)
             opt_slit = 1 if opt_slit == 0 else opt_slit
@@ -141,5 +141,7 @@ if all_required_inputs(ghenv.Component) and _run:
     # load the results
     try:
         results = recipe_result(recipe.output_value_by_name('results', project_folder))
+        if hasattr(results, 'BranchCount') and results.BranchCount == 0:
+            raise ValueError()
     except Exception:
         raise Exception(recipe.failure_message(project_folder))
