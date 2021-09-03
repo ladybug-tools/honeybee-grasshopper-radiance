@@ -60,7 +60,7 @@ Calculate Annual Daylight Metrics from a result (.ill) files.
 
 ghenv.Component.Name = "HB Annual Daylight Metrics"
 ghenv.Component.NickName = 'AnnualMetrics'
-ghenv.Component.Message = '1.2.4'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

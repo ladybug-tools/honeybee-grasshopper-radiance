@@ -29,7 +29,7 @@ used.
 
 ghenv.Component.Name = 'HB Assign Grids and Views'
 ghenv.Component.NickName = 'AssignGridsViews'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'

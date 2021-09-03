@@ -85,7 +85,7 @@ in an image with better interpolation between neighboring pixels.
 
 ghenv.Component.Name = 'HB Point-In-Time View-Based'
 ghenv.Component.NickName = 'PITView'
-ghenv.Component.Message = '1.2.4'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

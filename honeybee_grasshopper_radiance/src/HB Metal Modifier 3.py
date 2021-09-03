@@ -31,7 +31,7 @@ Create a metal radiance modifier from red, green, and blue reflectances.
 
 ghenv.Component.Name = 'HB Metal Modifier 3'
 ghenv.Component.NickName = 'MetalMod3'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

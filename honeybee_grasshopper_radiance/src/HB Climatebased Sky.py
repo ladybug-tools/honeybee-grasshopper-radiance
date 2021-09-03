@@ -26,7 +26,7 @@ Create a point-in-time climate-based sky from a Wea.
 
 ghenv.Component.Name = 'HB Climatebased Sky'
 ghenv.Component.NickName = 'ClimateBased'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

@@ -27,7 +27,7 @@ in the Rhino scene.
 
 ghenv.Component.Name = 'HB Get Grids and Views'
 ghenv.Component.NickName = 'GetGridsViews'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'

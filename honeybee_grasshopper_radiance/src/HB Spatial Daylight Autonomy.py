@@ -40,7 +40,7 @@ per year. The sDA value is expressed as a percentage of area.
 
 ghenv.Component.Name = 'HB Spatial Daylight Autonomy'
 ghenv.Component.NickName = 'sDA'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

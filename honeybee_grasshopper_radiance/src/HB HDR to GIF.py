@@ -24,7 +24,7 @@ all of the information that an HDR image has.
 
 ghenv.Component.Name = 'HB HDR to GIF'
 ghenv.Component.NickName = 'HDR-GIF'
-ghenv.Component.Message = '1.2.3'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
