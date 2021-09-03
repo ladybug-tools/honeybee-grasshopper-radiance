@@ -27,7 +27,7 @@ Create an glass radiance modifier from a single transmittance.
 
 ghenv.Component.Name = 'HB Glass Modifier'
 ghenv.Component.NickName = 'GlassMod'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

@@ -93,7 +93,7 @@ _
 
 ghenv.Component.Name = 'HB Annual Daylight'
 ghenv.Component.NickName = 'AnnualDaylight'
-ghenv.Component.Message = '1.2.5'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

@@ -51,7 +51,7 @@ simulation to scale better for large numbers of sensors.
 
 ghenv.Component.Name = 'HB Direct Sun Hours'
 ghenv.Component.NickName = 'DirectSunHours'
-ghenv.Component.Message = '1.2.5'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

@@ -38,7 +38,7 @@ hour/timestep of the simulation.
 
 ghenv.Component.Name = 'HB Annual Peak Values'
 ghenv.Component.NickName = 'PeakValues'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

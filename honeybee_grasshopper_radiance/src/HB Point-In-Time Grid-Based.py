@@ -59,7 +59,7 @@ luminance or radiance.
 
 ghenv.Component.Name = 'HB Point-In-Time Grid-Based'
 ghenv.Component.NickName = 'PITGrid'
-ghenv.Component.Message = '1.2.3'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

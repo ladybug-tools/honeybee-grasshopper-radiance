@@ -39,7 +39,7 @@ Create a Honeybee View for an image-based analysis using a Rhino viewport.
 
 ghenv.Component.Name = 'HB View from Viewport'
 ghenv.Component.NickName = 'Viewport'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
