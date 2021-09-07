@@ -42,7 +42,7 @@ http://radiance-online.org/community/workshops/2011-berkeley-ca/presentations/da
 
 ghenv.Component.Name = 'HB Radiance Parameter'
 ghenv.Component.NickName = 'RadPar'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '6'
@@ -103,9 +103,6 @@ RFLUXMTX = {
     'ab': [3, 5, 6],
     'ad': [5000, 15000, 25000],
     'as_': [128, 2048, 4096],
-    'ar': [16, 64, 128],
-    'aa': [.25, .2, .1],
-    'dj': [0, .5, 1],
     'ds': [.5, .25, .05],
     'dt': [.5, .25, .15],
     'dc': [.25, .5, .75],
