@@ -13,6 +13,9 @@ _
 This assignment is necessary for any Radiance study, though whether a grid or a
 view is required for a particular type of study is depenednet upon the recipe
 used.
+_
+Multiple copies of this component can be used in series and each will add the
+grids or views to any that already exist.
 
 -
 
@@ -29,7 +32,7 @@ used.
 
 ghenv.Component.Name = 'HB Assign Grids and Views'
 ghenv.Component.NickName = 'AssignGridsViews'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'
@@ -50,6 +53,6 @@ if all_required_inputs(ghenv.Component):
         'Expected Honeybee Model. Got {}.'.format(type(_model))
     model = _model.duplicate()  # duplicate to avoid editing the input
     if len(grids_) != 0:
-        model.properties.radiance.sensor_grids = grids_
+        model.properties.radiance.add_sensor_grids(grids_)
     if len(views_) != 0:
-        model.properties.radiance.views = views_
+        model.properties.radiance.add_views(views_)
