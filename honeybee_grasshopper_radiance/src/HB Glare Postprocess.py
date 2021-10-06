@@ -64,7 +64,7 @@ http://web.mit.edu/tito_/www/Projects/Glare/GlareRecommendationsForPractice.html
 
 ghenv.Component.Name = 'HB Glare Postprocess'
 ghenv.Component.NickName = 'Glare'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -101,6 +101,7 @@ def check_hdr_luminance_and_fisheye(hdr_path):
         hdr_path: The path to an HDR image file.
     """
     msg = 'Connected _hdr image must be for luminance. Got "{}".'
+    projection = '-vth'
     with open(hdr_path, 'r') as hdr_file:
         for lineCount, line in enumerate(hdr_file):
             if lineCount < 200:
@@ -113,16 +114,21 @@ def check_hdr_luminance_and_fisheye(hdr_path):
                     if line.find('-i') > -1 and not line.find('-i-') > -1:
                         raise ValueError(msg.format('illuminance'))
                 elif low_line.startswith('view='):
-                    if not line.find('-vth') > -1:
+                    if line.find('-vth') > -1:
+                        projection = '-vth'
+                    elif line.find('-vta') > -1:
+                        projection = '-vta'
+                    else:
                         raise ValueError(
-                            'Connected _hdr image is not a hemispheical fisheye.\n'
-                            'Make sure the view type of the image is 1(h).')
+                            'Connected _hdr image is not a fisheye projection.\n'
+                            'Make sure the view type of the image is 1(h) or 4(a).')
                 elif 'pcond -h' in low_line:
                     raise ValueError(
                         'Connected _hdr image has had the exposure adjusted on it.\n'
                         'Make sure adj_expos_ has been set to False in previous steps.')
             else:  # no need to check the rest of the document
                 break
+    return projection
 
 def check_hdr_dimensions(hdr_path):
     """Check that a given HDR file has dimensions suitable for evalglare.
@@ -171,7 +177,7 @@ def dgp_comfort_category(dgp):
 
 if all_required_inputs(ghenv.Component):
     # check the input image to ensure it meets the criteria
-    check_hdr_luminance_and_fisheye(_hdr)
+    projection = check_hdr_luminance_and_fisheye(_hdr)
     width, height = check_hdr_dimensions(_hdr)
 
     # get the path the the evalglare command and setup the check image argument
@@ -185,7 +191,7 @@ if all_required_inputs(ghenv.Component):
 
     # since pcomp is used to merge images, the input usually doesn't have view information
     # add default view information for hemispheical fish-eye camera
-    cmds.extend(['-vth', '-vv', '180', '-vh', '180'])
+    cmds.extend([projection, '-vv', '180', '-vh', '180'])
 
     # process the task position and add the input HDR
     if task_pos_:
