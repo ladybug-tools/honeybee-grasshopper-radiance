@@ -60,7 +60,7 @@ Calculate Annual Daylight Metrics from a result (.ill) files.
 
 ghenv.Component.Name = "HB Annual Daylight Metrics"
 ghenv.Component.NickName = 'AnnualMetrics'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -116,6 +116,12 @@ if all_required_inputs(ghenv.Component):
             schedule = _occ_sch_.values()
         except TypeError:  # it's probably a ScheduleFixedInterval
             schedule = _occ_sch_.values
+    if schedule is not None:
+        bin_schedule = []
+        for val in schedule:
+            bin_val = 1 if val >= 0.1 else 0
+            bin_schedule.append(bin_val)
+        schedule = bin_schedule
 
     # compute the annual metrics
     res_folder = os.path.dirname(_results[0]) if os.path.isfile(_results[0]) \
