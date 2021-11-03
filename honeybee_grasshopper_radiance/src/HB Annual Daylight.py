@@ -66,9 +66,12 @@ _
             that each sensor recieves equal or more than the illuminance threshold.
             Each value is for a different sensor of the grid. These can be plugged
             into the "LB Spatial Heatmap" component along with meshes of the sensor
-            grids to visualize results. These can also be connected to the "HB
+            grids to visualize results.
+            _
+            These can also be connected to the "HB
             Spatial Daylight Autonomy" component to compute spatial daylight
-            autonomy for each grid.
+            autonomy for each grid. Note: You should ONLY do that if you have
+            a compliant IES-LM-83-12 blinds setup.
         cDA: Continuous daylight autonomy results in percent. cDA is similar to DA except
             that values below the illuminance threshold can still count partially
             towards the final percentage. Each value is for a different
