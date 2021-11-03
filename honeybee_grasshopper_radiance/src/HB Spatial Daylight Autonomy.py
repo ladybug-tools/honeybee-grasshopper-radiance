@@ -18,15 +18,16 @@ daylight illuminance level for a specified fraction of the operating hours
 per year. The sDA value is expressed as a percentage of area.
 _
 Note: This component will only output a LEED compliant sDA if you've run the
-simulation with blinds and blinds schedules as per the IES-LM-83-12. If you are not
-using the blinds and using this component on a regular DA output, then this is NOT LEED compliant
-_
+simulation with dynamic blinds and blind schedules as per the IES-LM-83-12
+standard. If you are not using dynamic blinds, then this output is NOT LEED
+compliant.
 
 -
     Args:
         _DA: A data tree of daylight autonomy values output from the "HB Annual Dalyight"
-            recipe or the "HB Annual Daylight Metrics" component. Note that this simulation has to follow LM83 blinds setup,
-            otherwise we are not showing a sDA, but only the floor area compliant for a DA.
+            recipe or the "HB Annual Daylight Metrics" component. Note that,
+            unless these DA values follow LM83 dynamic blinds setup, the resulting
+            sDA is not LEED compliant.
         mesh_: An optional list of Meshes that align with the _DA data tree above, which
             will be used to assign an area to each sensor. If no mesh is connected
             here, it will be assumed that each sensor represents an equal area
@@ -46,7 +47,7 @@ _
 
 ghenv.Component.Name = 'HB Spatial Daylight Autonomy'
 ghenv.Component.NickName = 'sDA'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

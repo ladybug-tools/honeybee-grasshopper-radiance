@@ -44,7 +44,7 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -119,25 +119,30 @@ if all_required_inputs(ghenv.Component):
             if remove_out_:
                 pattern = [room.geometry.is_point_inside(pt)
                            for pt in lb_mesh.face_centroids]
-                lb_mesh, vertex_pattern = lb_mesh.remove_faces(pattern)
+                try:
+                    lb_mesh, vertex_pattern = lb_mesh.remove_faces(pattern)
+                except AssertionError:  # the grid lies completely outside of the room
+                    lb_mesh = None
 
-            # extract positions and directions from the mesh
-            base_points = [from_point3d(pt) for pt in lb_mesh.face_centroids]
-            base_poss = [(pt.x, pt.y, pt.z) for pt in lb_mesh.face_centroids]
-            base_dirs = [(vec.x, vec.y, vec.z) for vec in lb_mesh.face_normals]
+            if lb_mesh is not None:
+                # extract positions and directions from the mesh
+                base_points = [from_point3d(pt) for pt in lb_mesh.face_centroids]
+                base_poss = [(pt.x, pt.y, pt.z) for pt in lb_mesh.face_centroids]
+                base_dirs = [(vec.x, vec.y, vec.z) for vec in lb_mesh.face_normals]
 
-            # create the sensor grid
-            s_grid = SensorGrid.from_position_and_direction(
-                clean_rad_string(room.display_name), base_poss, base_dirs)
-            s_grid.display_name = room.display_name
-            s_grid.room_identifier = room.identifier
-            s_grid.mesh = lb_mesh
-            s_grid.base_geometry = tuple(f.move(f.normal * _dist_floor_) for f in lb_floors)
+                # create the sensor grid
+                s_grid = SensorGrid.from_position_and_direction(
+                    clean_rad_string(room.display_name), base_poss, base_dirs)
+                s_grid.display_name = room.display_name
+                s_grid.room_identifier = room.identifier
+                s_grid.mesh = lb_mesh
+                s_grid.base_geometry = \
+                    tuple(f.move(f.normal * _dist_floor_) for f in lb_floors)
 
-            # append everything to the lists
-            grid.append(s_grid)
-            points.append(base_points)
-            mesh.append(from_mesh3d(lb_mesh))
+                # append everything to the lists
+                grid.append(s_grid)
+                points.append(base_points)
+                mesh.append(from_mesh3d(lb_mesh))
 
     # convert the lists of points to data trees
     points = list_to_data_tree(points)
