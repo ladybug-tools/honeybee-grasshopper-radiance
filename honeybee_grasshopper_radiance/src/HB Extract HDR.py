@@ -19,13 +19,13 @@ conversions between 180 FOV angular and hemispherical HDR images can be made.
     Args:
         _view: A view to interpolate or extrapolate. Use "HB View" to create a
             view.
+        _hdr: Path to a High Dynamic Range (HDR) image file from which to
+            interpolate or extrapolate a view.
         _resolution_: An integer for the dimension of the output image in pixels.
             If extracting a 180 FOV angular or hemispherical HDR image from a
             360 FOV HDR image, the default resolution is 1/3 of the resolution of
             _hdr. If converting between 180 FOV angular or hemispherical HDR 
             images, the default resolution is that of _hdr.
-        _hdr: Path to a High Dynamic Range (HDR) image file from which to
-            interpolate or extrapolate a view.
 
     Returns:
         hdr: Path to the resulting HDR image file.
@@ -36,7 +36,7 @@ ghenv.Component.NickName = 'ExtractHDR'
 ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
-ghenv.Component.AdditionalHelpFromDocStrings = '3'
+ghenv.Component.AdditionalHelpFromDocStrings = '0'
 
 import os
 import subprocess
@@ -75,8 +75,8 @@ def check_view_hdr(hdr_path):
     Args:
         hdr_path: The path to an HDR image file.
     """
-    # set valid view = False. Will later be set to True if a valid view is found
-    valid_view = False
+    # set hdr_view to None
+    hdr_view = None
     
     # read hdr image and search for a valid view
     with open(hdr_path, 'r') as hdr_file:
@@ -85,15 +85,10 @@ def check_view_hdr(hdr_path):
                 low_line = line.lower()
                 if not low_line.startswith('\t'):
                     if low_line.startswith('view='):
-                        valid_view = True
-                        if line.find('-vth') > -1:
-                            projection = '-vth'
-                        elif line.find('-vta') > -1:
-                            projection = '-vta'
                         hdr_view = View.from_string('hdr_view', line)
             else:  # no need to check the rest of the document
                 break
-    if not valid_view:
+    if not hdr_view:
         raise ValueError(
             'Connected _hdr image does not contain a valid view in the header.\n'
             'Note that indented views in the header will be ignored by pinterp.')
@@ -123,8 +118,8 @@ def check_resolution(hdr_path, resolution, view, hdr_view):
     
     A warning is raised if the HDR image dimensions are not square. A warning is
     raised if the resolution is larger than one third of the HDR image
-    resolution. A warning is raised if the output resolution is larger than the
-    input resolution.
+    resolution if converting a 360 FOV HDR to 180 FOV HDR. A warning is raised 
+    if the output resolution is larger than the input resolution.
     
     Args:
         hdr_path: The path to an HDR image file.
@@ -146,7 +141,8 @@ def check_resolution(hdr_path, resolution, view, hdr_view):
     # check the X and Y dimensions of the image
     hdr_x = int(img_dim.split(' ')[-1].strip())
     hdr_y = int(img_dim.split(' ')[-3].strip())
-    if hdr_x == hdr_y: hdr_resolution = hdr_x = hdr_y
+    if hdr_x == hdr_y: 
+        hdr_resolution = hdr_x = hdr_y
     else:
         msg = 'It is recommended that image dimensions of _hdr are square.\n' \
             'Got {} x {}.'
@@ -154,16 +150,17 @@ def check_resolution(hdr_path, resolution, view, hdr_view):
     
     # check resolution ratio of output image / input image
     if hdr_view.h_size == 360 and hdr_view.v_size == 360:
-        if resolution is None: resolution = hdr_resolution / 3
+        if resolution is None: 
+            resolution = hdr_resolution / 3
         if resolution > hdr_resolution / 3:
             msg = 'Recommended _resolution_ is one third or less of the _hdr resolution. \n' \
                 'Got {} for _resolution_ and {} for _hdr. Recommended _resolution_ \n' \
                 'is {} or lower.'
             give_warning(ghenv.Component, msg.format(resolution, hdr_resolution, 
-                         int(hdr_resolution/3)))
+                         int(hdr_resolution / 3)))
     else:
-        if resolution is None: resolution = hdr_resolution
-        print(resolution, hdr_resolution)
+        if resolution is None: 
+            resolution = hdr_resolution
         if resolution > hdr_resolution:
             msg = 'Output image resolution ({}) is larger than input image \n' \
                 'resolution ({}). It is recommended that _resolution_ is equal \n' \
