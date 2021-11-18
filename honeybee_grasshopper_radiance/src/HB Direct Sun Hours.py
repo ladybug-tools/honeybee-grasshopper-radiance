@@ -31,8 +31,6 @@ simulation to scale better for large numbers of sensors.
             the model that are simulated. For instance, first_floor_* will simulate
             only the sensor grids that have an identifier that starts with
             first_floor_. By default, all grids in the model will be simulated.
-        sensor_count_: Integer for the maximum number of sensor grid points per
-            parallel execution. (Default: 200).
         run_settings_: Settings from the "HB Recipe Settings" component that specify
             how the recipe should be run. This can also be a text string of
             recipe settings.
@@ -51,7 +49,7 @@ simulation to scale better for large numbers of sensors.
 
 ghenv.Component.Name = 'HB Direct Sun Hours'
 ghenv.Component.NickName = 'DirectSunHours'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -75,7 +73,6 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('timestep', _timestep_)
     recipe.input_value_by_name('north', north_)
     recipe.input_value_by_name('grid-filter', grid_filter_)
-    recipe.input_value_by_name('sensor-count', sensor_count_)
 
     # run the recipe
     silent = True if _run > 1 else False
