@@ -1,5 +1,5 @@
 {
-  "version": "1.3.1", 
+  "version": "1.3.2", 
   "nickname": "AnnualDaylight", 
   "outputs": [
     [
@@ -13,7 +13,7 @@
       {
         "access": "None", 
         "name": "DA", 
-        "description": "Daylight autonomy results in percent. DA is the percentage of occupied hours\nthat each sensor recieves equal or more than the illuminance threshold.\nEach value is for a different sensor of the grid. These can be plugged\ninto the \"LB Spatial Heatmap\" component along with meshes of the sensor\ngrids to visualize results. These can also be connected to the \"HB\nSpatial Daylight Autonomy\" component to compute spatial daylight\nautonomy for each grid.", 
+        "description": "Daylight autonomy results in percent. DA is the percentage of occupied hours\nthat each sensor recieves equal or more than the illuminance threshold.\nEach value is for a different sensor of the grid. These can be plugged\ninto the \"LB Spatial Heatmap\" component along with meshes of the sensor\ngrids to visualize results. These can also be connected to the \"HB\nSpatial Daylight Autonomy\" component to compute spatial daylight\nautonomy for each grid. Note that the resulting sDA is only compliant\nwith LEED if dynamic blinds have been simulated using the methods\nin IES-LM-83-12.", 
         "type": null, 
         "default": null
       }, 
