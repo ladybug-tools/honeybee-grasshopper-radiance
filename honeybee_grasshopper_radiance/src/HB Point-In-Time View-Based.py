@@ -45,12 +45,6 @@ in an image with better interpolation between neighboring pixels.
             model that are simulated. For instance, `first_floor_*` will simulate
             only the views that have an identifier that starts with `first_floor_`.
             By default, all views in the model will be simulated.
-        view_count_: Number of views into which each Model view will be subdivided 
-            for parallelized calculation. If unspecified, an attempt will be
-            made to set this to an optimal value based on the number of
-            workers dedicated for the simulation and the number of view
-            in the Model. If the number of views could not be sensed, this
-            will default to 2.
         skip_overture_: A boolean to note whether an ambient file (.amb) should be
             generated for an overture calculation before the view is split
             into smaller views. With an overture calculation, the ambient file
@@ -85,7 +79,7 @@ in an image with better interpolation between neighboring pixels.
 
 ghenv.Component.Name = 'HB Point-In-Time View-Based'
 ghenv.Component.NickName = 'PITView'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -119,20 +113,6 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('view-filter', view_filter_)
     recipe.input_value_by_name('skip-overture', skip_overture_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
-
-    # treat the view_count input specially in an attempt to get an optimal value
-    if view_count_ is not None:
-        recipe.input_value_by_name('view-count', view_count_)
-    else:
-        work_count = run_settings_.workers if run_settings_ is not None else \
-            recommended_processor_count()
-        if isinstance(_model, Model) and len(_model.properties.radiance.views) != 0:
-            view_count = len(_model.properties.radiance.views)
-            opt_slit = int(work_count / view_count)
-            opt_slit = 1 if opt_slit == 0 else opt_slit
-            recipe.input_value_by_name('view-count', opt_slit)
-        else:
-            recipe.input_value_by_name('view-count', 2)
 
     # run the recipe
     silent = True if _run > 1 else False

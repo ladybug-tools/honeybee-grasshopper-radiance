@@ -68,7 +68,9 @@ _
             into the "LB Spatial Heatmap" component along with meshes of the sensor
             grids to visualize results. These can also be connected to the "HB
             Spatial Daylight Autonomy" component to compute spatial daylight
-            autonomy for each grid.
+            autonomy for each grid. Note that the resulting sDA is only compliant
+            with LEED if dynamic blinds have been simulated using the methods
+            in IES-LM-83-12.
         cDA: Continuous daylight autonomy results in percent. cDA is similar to DA except
             that values below the illuminance threshold can still count partially
             towards the final percentage. Each value is for a different
@@ -91,7 +93,7 @@ _
 
 ghenv.Component.Name = 'HB Annual Daylight'
 ghenv.Component.NickName = 'AnnualDaylight'
-ghenv.Component.Message = '1.3.1'
+ghenv.Component.Message = '1.3.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
