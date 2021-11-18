@@ -35,7 +35,7 @@ deconstructed for detailed analysis with native Grasshopper math components.
 
 ghenv.Component.Name = 'HB Annual Results to Data'
 ghenv.Component.NickName = 'AnnualToData'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -45,6 +45,7 @@ import os
 try:
     from ladybug.datatype.illuminance import Illuminance
     from ladybug.datatype.energyflux import Irradiance
+    from ladybug.datatype.time import Time
     from ladybug.analysisperiod import AnalysisPeriod
     from ladybug.header import Header
     from ladybug.datacollection import HourlyContinuousCollection
@@ -111,20 +112,24 @@ if all_required_inputs(ghenv.Component):
             pt_filter[i].append(j)
 
     # extract the timestep if it exists
-    timestep, is_irr = 1, False
+    timestep, has_t_step = 1, False
     tstep_file = os.path.join(res_folder, 'timestep.txt')
     if os.path.isfile(tstep_file):  # it's an annual irradiance simulation
         with open(tstep_file) as tf:
             timestep = int(tf.readline())
-        is_irr = True
+        has_t_step = True
 
     # parse the sun-up-hours
     sun_up_hours = [int(h * timestep) for h in sun_up_hours]
 
     # create the header that will be used for all of the data collections
     aper = AnalysisPeriod(timestep=timestep)
-    head =  Header(Irradiance(), 'W/m2', aper) if is_irr else \
-        Header(Illuminance(), 'lux', aper)
+    if 'direct_sun_hours' in res_folder:
+        head = Header(Time(), 'hr', aper)
+    elif has_t_step:
+        head = Header(Irradiance(), 'W/m2', aper)
+    else:
+        head = Header(Illuminance(), 'lux', aper)
 
     # create the data collections from the .ill files
     data = []

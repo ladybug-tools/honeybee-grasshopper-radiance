@@ -35,8 +35,6 @@ luminance or radiance.
             the model that are simulated. For instance, `first_floor_*` will simulate
             only the sensor grids that have an identifier that starts with
             `first_floor_`. By default, all grids in the model will be simulated.
-        sensor_count_: Integer for the maximum number of sensor grid points per
-            parallel execution. (Default: 200).
         radiance_par_: Text for the radiance parameters to be used for ray
             tracing. (Default: -ab 2 -aa 0.1 -ad 2048 -ar 64).
         run_settings_: Settings from the "HB Recipe Settings" component that specify
@@ -59,7 +57,7 @@ luminance or radiance.
 
 ghenv.Component.Name = 'HB Point-In-Time Grid-Based'
 ghenv.Component.NickName = 'PITGrid'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -82,7 +80,6 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('sky', _sky)
     recipe.input_value_by_name('metric', _metric_)
     recipe.input_value_by_name('grid-filter', grid_filter_)
-    recipe.input_value_by_name('sensor-count', sensor_count_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
 
     # run the recipe

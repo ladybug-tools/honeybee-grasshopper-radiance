@@ -1,5 +1,5 @@
 {
-  "version": "1.3.0", 
+  "version": "1.3.1", 
   "nickname": "DaylightFactor", 
   "outputs": [
     [
@@ -29,13 +29,6 @@
     }, 
     {
       "access": "item", 
-      "name": "sensor_count_", 
-      "description": "Integer for the maximum number of sensor grid points per\nparallel execution. (Default: 200).", 
-      "type": "int", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
       "name": "radiance_par_", 
       "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 2 -aa 0.1 -ad 2048 -ar 64).", 
       "type": "string", 
@@ -57,7 +50,7 @@
     }
   ], 
   "subcategory": "3 :: Recipes", 
-  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('daylight-factor')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('daylight-factor')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
   "category": "HB-Radiance", 
   "name": "HB Daylight Factor", 
   "description": "Run a daylight factor study for a Honeybee model.\n_\nDaylight Factor (DF) is defined as the ratio of the indoor daylight illuminance\nto outdoor illuminance under an unobstructed overcast sky. It is expressed as a\npercentage between 0 and 100.\n_\nBecause daylight factor is computed using an overcast sky, it does not change\nwith [North, East, South, West] orientation. As such, it is more suited to\nassessing daylight in climates where cloudy conditions are common. The \"HB\nAnnual Daylight\" recipe yields a much more accurate assessment of daylight\nand is suitable for all climates, though it requires a significantly longer\ncalculation time than Daylight Factor.\n-"

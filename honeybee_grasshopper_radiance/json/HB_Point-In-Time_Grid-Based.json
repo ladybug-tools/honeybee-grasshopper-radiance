@@ -1,5 +1,5 @@
 {
-  "version": "1.3.0", 
+  "version": "1.3.1", 
   "nickname": "PITGrid", 
   "outputs": [
     [
@@ -43,13 +43,6 @@
     }, 
     {
       "access": "item", 
-      "name": "sensor_count_", 
-      "description": "Integer for the maximum number of sensor grid points per\nparallel execution. (Default: 200).", 
-      "type": "int", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
       "name": "radiance_par_", 
       "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 2 -aa 0.1 -ad 2048 -ar 64).", 
       "type": "string", 
@@ -71,7 +64,7 @@
     }
   ], 
   "subcategory": "3 :: Recipes", 
-  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('point-in-time-grid')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('sky', _sky)\n    recipe.input_value_by_name('metric', _metric_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('point-in-time-grid')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('sky', _sky)\n    recipe.input_value_by_name('metric', _metric_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
   "category": "HB-Radiance", 
   "name": "HB Point-In-Time Grid-Based", 
   "description": "Run a point-in-time grid-based study for a Honeybee model.\n_\nPoint-in-time recipes require a sky and can output illuminance, irradiance,\nluminance or radiance.\n-"
