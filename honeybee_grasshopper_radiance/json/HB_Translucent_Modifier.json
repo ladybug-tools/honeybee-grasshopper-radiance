@@ -1,5 +1,5 @@
 {
-  "version": "1.3.0", 
+  "version": "1.3.1", 
   "nickname": "TransMod", 
   "outputs": [
     [
@@ -22,30 +22,30 @@
     }, 
     {
       "access": "item", 
-      "name": "_diff_ref", 
-      "description": "A number between 0 and 1 for the opaque diffuse reflectance.\nThis reflectance will be the same for the red, green and blue channels.", 
+      "name": "_avg_ref", 
+      "description": "The average reflectance of the material. The value should be\nbetween 0 and 1.", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
-      "name": "_diff_trans", 
-      "description": "A number between 0 and 1 for the transmitted diffuse component.\nThis is the fraction of transmitted light that is diffusely scattered.", 
+      "name": "_avg_trans", 
+      "description": "The average transmittance of the material. The value should be\nbetween 0 and 1.", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
-      "name": "_spec_trans", 
-      "description": "A number between 0 and 1 for the transmitted specular component.\nThis is the fraction of transmitted light that is not diffusely\nscattered but passes through like a beam.", 
-      "type": "double", 
+      "name": "_is_spec_", 
+      "description": "Boolean to note if the reflected component is specular (True) or\ndiffuse (False). (Default: False).", 
+      "type": "bool", 
       "default": null
     }, 
     {
       "access": "item", 
-      "name": "_spec_", 
-      "description": "A number between 0 and 1 for the fraction of specularity. Specularity\nfractions greater than 0.1 are not common in non-metallic\nmaterials. (Default: 0).", 
-      "type": "double", 
+      "name": "_is_diffusing_", 
+      "description": "Boolean to note if the tranmitted component is diffused (True)\ninstead of specular like glass (False). (Default: True).", 
+      "type": "bool", 
       "default": null
     }, 
     {
@@ -57,8 +57,8 @@
     }
   ], 
   "subcategory": "1 :: Modifiers", 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_rad_string, clean_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.modifier.material import Trans\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default modifier properties\n    _spec_ = 0.0 if _spec_ is None else _spec_\n    _rough_ = 0.0 if _rough_ is None else _rough_\n    name = clean_and_id_rad_string('TransMaterial') if _name_ is None else \\\n        clean_rad_string(_name_)\n\n    # create the modifier\n    modifier = Trans.from_single_reflectance(name, _diff_ref, _spec_, _rough_,\n                                             _diff_trans, _spec_trans)\n    if _name_ is not None:\n        modifier.display_name = _name_\n", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_rad_string, clean_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.modifier.material import Trans\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default modifier properties\n    _is_spec_ = False if _is_spec_ is None else _is_spec_\n    _is_diffusing_ = True if _is_diffusing_ is None else _is_diffusing_\n    _rough_ = 0.0 if _rough_ is None else _rough_\n    name = clean_and_id_rad_string('TransMaterial') if _name_ is None else \\\n        clean_rad_string(_name_)\n\n    # create the modifier\n    modifier = Trans.from_average_properties(\n        name, _avg_ref, _avg_trans, _is_spec_, _is_diffusing_, _rough_)\n    if _name_ is not None:\n        modifier.display_name = _name_\n", 
   "category": "HB-Radiance", 
   "name": "HB Translucent Modifier", 
-  "description": "Create a translucent radiance modifier from a reflectances and transmittances.\n-"
+  "description": "Create a translucent radiance modifier from a reflectance and transmittance.\n_\nThe sum of the average reflectance and average transmittance must be less than 1\nand any energy not transmitted or reflected is assumed to be absorbed.\nThe resulting material will always be grey with equivalent red, green and\nblue channels.\n_\nMore properties are available with the \"HB Translucent Modifier 3\" component.\n-"
 }
