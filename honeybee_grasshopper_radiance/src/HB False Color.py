@@ -48,7 +48,7 @@ Convert a High Dynamic Range (HDR) image file into a falsecolor version of itsel
 
 ghenv.Component.Name = 'HB False Color'
 ghenv.Component.NickName = 'FalseColor'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -132,7 +132,7 @@ if all_required_inputs(ghenv.Component):
         max_ = (sum([float(x) for x in max_rgb.split(' ')[2:]]) / 3) * conversion_
         if legend_unit_ == 'W/sr-m2' and max_ > 200:  # sun pixel overpowering image
             max_ = max_ / 50000
-        max_ = str(round(max_, 1))
+        max_ = str(round(max_, 1)) if max_ >= 0.1 else str(max_)
 
     # create the command to run falsecolor
     falsecolor = Falsecolor(input=input_image, output=new_image)
