@@ -1,17 +1,10 @@
-#
-# Honeybee: A Plugin for Environmental Analysis (GPL) started by Mostapha Sadeghipour Roudsari
-# 
-# This file is part of Honeybee.
-# 
-# Copyright (c) 2021, Ladybug Tools.
-# Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2021, Ladybug Tools.
-# You should have received a copy of the GNU General Public License
+# Copyright (c) 2022, Ladybug Tools.
+# You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
-# @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
+# @license AGPL-3.0-or-later <https://spdx.org/licenses/AGPL-3.0-or-later>
 
 """
 Generate electric lighting schedules from annual daylight results, which can be
@@ -74,7 +67,7 @@ controlled by different sensors.
 
 ghenv.Component.Name = 'HB Daylight Control Schedule'
 ghenv.Component.NickName = 'DaylightSchedule'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.4.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
