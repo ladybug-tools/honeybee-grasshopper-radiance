@@ -35,6 +35,8 @@ The names of the grids will be the same as the rooms that they came from.
             add significantly to the component's run time and this check is
             usually not necessary in the case that all walls are vertical
             and all floors are horizontal (Default: False).
+        wall_offset_: A number for the distance at which sensors close to walls
+            should be removed.
 
     Returns:
         grid: A SensorGrid object that can be used in a grid-based recipe.
@@ -44,7 +46,7 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -59,7 +61,7 @@ except ImportError as e:
 try:  # import the core honeybee dependencies
     from honeybee.model import Model
     from honeybee.room import Room
-    from honeybee.facetype import Floor
+    from honeybee.facetype import Floor, Wall
     from honeybee.typing import clean_rad_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
@@ -119,6 +121,22 @@ if all_required_inputs(ghenv.Component):
             if remove_out_:
                 pattern = [room.geometry.is_point_inside(pt)
                            for pt in lb_mesh.face_centroids]
+                try:
+                    lb_mesh, vertex_pattern = lb_mesh.remove_faces(pattern)
+                except AssertionError:  # the grid lies completely outside of the room
+                    lb_mesh = None
+
+            # remove any sensors within a certain distance of the walls, if requested
+            if wall_offset_ is not None and lb_mesh is not None:
+                wall_geos = [f.geometry for f in room.faces if isinstance(f.type, Wall)]
+                pattern = []
+                for pt in lb_mesh.face_centroids:
+                    for wg in wall_geos:
+                        if wg.plane.distance_to_point(pt) <= wall_offset_:
+                            pattern.append(False)
+                            break
+                    else:
+                        pattern.append(True)
                 try:
                     lb_mesh, vertex_pattern = lb_mesh.remove_faces(pattern)
                 except AssertionError:  # the grid lies completely outside of the room
