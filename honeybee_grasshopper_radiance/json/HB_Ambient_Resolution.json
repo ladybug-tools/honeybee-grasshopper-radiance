@@ -1,0 +1,43 @@
+{
+  "version": "1.4.0", 
+  "nickname": "AR", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "ar", 
+        "description": "The abmient resolution needed to resolve the _detail_dim as a text string.\nThese can be plugged into the additional_par_ of the \"HB Radiance\nParameter\" component or the radiance_par_ input of the recipes.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "The Honeybee Model being used for Radiance simulation.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_detail_dim", 
+      "description": "A number in model units that represents the dimension of the\nsmallest detail that must be resolved in the Radiance simulation.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_aa_", 
+      "description": "An number for ambient accuracy (-aa) being used in the Radiance smiulation.\nThis value should be matched between this component and the component\ninto which the ouput ar is being input. (Default: 0.25 for\nlow-resolution Radiance studies).", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Recipes", 
+  "code": "\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default -aa\n    aa = 0.25 if _aa_ is None else _aa_\n\n    # get the longest dimension\n    min_pt, max_pt = _model.min, _model.max\n    x_dim = max_pt.x - min_pt.x\n    y_dim = max_pt.y - min_pt.y\n    z_dim = max_pt.z - min_pt.z\n    longest_dim = max((x_dim, y_dim, z_dim))\n    \n    # calculate the ambient resolution.\n    a_res = int((longest_dim * aa) / _detail_dim)\n    ar = '-ar {}'.format(a_res)\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Ambient Resolution", 
+  "description": "Get the recommended ambient resoluation (-ar) needed to resolve details with a\ngiven dimension in model units.\n_\nThis recommendation is derived from the overall dimensions of the Radince scene\nbeing simulated as well as the ambient accuracy (-aa) being used in the simulation.\n_\nThe result from this component can be plugged directly into the additional_par_\nof the \"HB Radiance Parameter\" component or into the radiance_par of any\nrecipe components.\n-"
+}
