@@ -39,7 +39,7 @@ Create a Honeybee View for an image-based analysis using a Rhino viewport.
 
 ghenv.Component.Name = 'HB View from Viewport'
 ghenv.Component.NickName = 'Viewport'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -60,7 +60,7 @@ try:  # import ladybug_rhino dependencies
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
-VIEW_TYPES = ('v', 'h', 'l', 'c', 'a')
+VIEW_TYPES = ('v', 'h', 'l', 'c', 'a', 's')
 
 
 # set the default values
