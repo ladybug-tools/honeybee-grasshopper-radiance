@@ -31,13 +31,14 @@ Convert a High Dynamic Range (HDR) image file into a falsecolor version of itsel
         contour_lines_: Set to True ro render the image with colored contour lines.
         extrema_: Set to True to cause extrema points to be printed on the brightest
             and darkest pixels of the input picture.
+        mask_: A boolen to note whether pixels with a value of zero should be masked in
+            black. (Default: False).
         color_palette_: Optional interger or text to change the color palette.
             Choose from the following.
                 * 0 = def - default colors
                 * 1 = pm3d -  a variation of the default colors
                 * 2 = spec - the old spectral mapping
                 * 3 = hot - a thermal scale
-        
 
     Returns:
         hdr: Path to the resulting falsecolor HDR file. This can be plugged into the
@@ -48,7 +49,7 @@ Convert a High Dynamic Range (HDR) image file into a falsecolor version of itsel
 
 ghenv.Component.Name = 'HB False Color'
 ghenv.Component.NickName = 'FalseColor'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -58,6 +59,7 @@ import subprocess
 
 try:  # import honeybee_radiance_command dependencies
     from honeybee_radiance_command.falsecolor import Falsecolor
+    from honeybee_radiance_command.pcomb import Pcomb
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance_command:\n\t{}'.format(e))
 
@@ -105,6 +107,24 @@ def sense_metric_from_hdr(hdr_path):
                 return 'cd/m2'  # luminance
 
 
+def is_fisheye(hdr_path):
+    """Sense whether a given HDR file is a fisheye.
+
+    Args:
+        hdr_path: The path to an HDR image file
+
+    Returns:
+        Text for the units of the file (either 'lux', 'W/m2', 'cd/m2', 'W/sr-m2')
+    """
+    with open(hdr_path, 'r') as hdr_file:
+        for lineCount, line in enumerate(hdr_file):
+            if lineCount < 10:
+                if '-vth' in line:
+                    return True
+            else:
+                return False
+
+
 if all_required_inputs(ghenv.Component):
     # set up the paths for the various files used in translation
     img_dir = os.path.dirname(_hdr)
@@ -135,7 +155,9 @@ if all_required_inputs(ghenv.Component):
         max_ = str(round(max_, 1)) if max_ >= 0.1 else str(max_)
 
     # create the command to run falsecolor
-    falsecolor = Falsecolor(input=input_image, output=new_image)
+    mask = True if mask_ and is_fisheye(_hdr) else False
+    out_img = new_image if not mask else input_image.lower().replace('.hdr', '_fc_temp.HDR')
+    falsecolor = Falsecolor(input=input_image, output=out_img)
     falsecolor.options.s = max_
     falsecolor.options.n = seg_count_
     falsecolor.options.l = legend_unit_
@@ -168,3 +190,29 @@ if all_required_inputs(ghenv.Component):
         env = rad_folders.env
     env = dict(os.environ, **env) if env else None
     falsecolor.run(env, cwd=img_dir)
+
+    # if we should maske, then run an additional pcomb command
+    if mask:
+        # get the dimensions of the image
+        getinfo_exe = os.path.join(rad_folders.radbin_path, 'getinfo.exe') if \
+            os.name == 'nt' else os.path.join(rad_folders.radbin_path, 'getinfo')
+        cmds = [getinfo_exe, '-d', _hdr]
+        use_shell = True if os.name == 'nt' else False
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=use_shell)
+        stdout = process.communicate()
+        img_dim = stdout[0]
+        x = int(img_dim.split(' ')[-1].strip())
+        y = int(img_dim.split(' ')[-3].strip())
+
+        # mask the image
+        xw = legend_width_ if legend_width_ is not None else 100
+        lh = int(legend_height_ * 1.17) if legend_height_ is not None else (200 * 1.17)
+        yw = lh - y if lh - y > 0 else 0
+        expression = 's(x):x*x;' \
+            'm=if((xmax-{0})*(ymax-{1})/4-s(x-{0}-(xmax-{0})/2)-s(y-(ymax-{1})/2),1,if({0}-x,1,0));' \
+            'ro=m*ri(1);' \
+            'go=m*gi(1);' \
+            'bo=m*bi(1)'.format(xw, yw)
+        pcomb = Pcomb(input=out_img, output=new_image)
+        pcomb.options.e = expression
+        pcomb.run(env, cwd=img_dir)
