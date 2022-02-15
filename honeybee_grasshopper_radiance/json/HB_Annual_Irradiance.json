@@ -1,5 +1,5 @@
 {
-  "version": "1.4.0", 
+  "version": "1.4.1", 
   "nickname": "AnnualIrradiance", 
   "outputs": [
     [
@@ -57,6 +57,13 @@
     }, 
     {
       "access": "item", 
+      "name": "visible_", 
+      "description": "Boolean to indicate the type of irradiance output, which can be solar (False)\nor visible (True). Note that the output values will still be\nirradiance (W/m2) when \"visible\" is selected but these irradiance\nvalues will be just for the visible portion of the electromagnetic\nspectrum. The visible irradiance values can be converted into\nilluminance by multiplying them by the Radiance luminous efficacy\nfactor of 179. (Default: False).", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
       "name": "north_", 
       "description": "A number between -360 and 360 for the counterclockwise difference\nbetween the North and the positive Y-axis in degrees. This can\nalso be Vector for the direction to North. (Default: 0).", 
       "type": "System.Object", 
@@ -92,7 +99,7 @@
     }
   ], 
   "subcategory": "3 :: Recipes", 
-  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('annual-irradiance')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('timestep', _timestep_)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        avg_irr = recipe_result(recipe.output_value_by_name('average-irradiance', project_folder))\n        peak_irr = recipe_result(recipe.output_value_by_name('peak-irradiance', project_folder))\n        radiation = recipe_result(recipe.output_value_by_name('cumulative-radiation', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('annual-irradiance')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('timestep', _timestep_)\n    recipe.input_value_by_name('output-type', visible_)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        avg_irr = recipe_result(recipe.output_value_by_name('average-irradiance', project_folder))\n        peak_irr = recipe_result(recipe.output_value_by_name('peak-irradiance', project_folder))\n        radiation = recipe_result(recipe.output_value_by_name('cumulative-radiation', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
   "category": "HB-Radiance", 
   "name": "HB Annual Irradiance", 
   "description": "Run an annual irradiance study for a Honeybee model to compute hourly solar\nirradiance for each sensor in a model's sensor grids.\n_\nThe fundamental calculation of this recipe is the same as that of \"HB Annual\nDaylight\" in that an enhaced 2-phase method is used to accurately account for\ndirect sun at each simulation step. However, this recipe computes broadband\nsolar irradiance in W/m2 instead of visible illuminance in lux.\n_\nConsequently, the average irradiance and cumulative radiation values produced from\nthis recipe are more accurate than those produced by the \"HB Cumulative Radiation\"\nrecipe. Furthermore, because the hourly irriadiance values are accurate, this\nrecipe can be used to evaluate `peak_irradiance` and determine the worst-case\nsolar loads over clear sky Weas that represent cooling design days.\n-"

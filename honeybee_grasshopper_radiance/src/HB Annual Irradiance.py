@@ -30,6 +30,13 @@ solar loads over clear sky Weas that represent cooling design days.
             Sources tab. This can also be the path to a .wea or a .epw file.
         _timestep_: An integer for the timestep of the inpput _wea. This value is used
             to compute average irradiance and cumulative radiation. (Default: 1)
+        visible_: Boolean to indicate the type of irradiance output, which can be solar (False)
+            or visible (True). Note that the output values will still be
+            irradiance (W/m2) when "visible" is selected but these irradiance
+            values will be just for the visible portion of the electromagnetic
+            spectrum. The visible irradiance values can be converted into
+            illuminance by multiplying them by the Radiance luminous efficacy
+            factor of 179. (Default: False).
         north_: A number between -360 and 360 for the counterclockwise difference
             between the North and the positive Y-axis in degrees. This can
             also be Vector for the direction to North. (Default: 0).
@@ -60,7 +67,7 @@ solar loads over clear sky Weas that represent cooling design days.
 
 ghenv.Component.Name = 'HB Annual Irradiance'
 ghenv.Component.NickName = 'AnnualIrradiance'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -82,6 +89,7 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('model', _model)
     recipe.input_value_by_name('wea', _wea)
     recipe.input_value_by_name('timestep', _timestep_)
+    recipe.input_value_by_name('output-type', visible_)
     recipe.input_value_by_name('north', north_)
     recipe.input_value_by_name('grid-filter', grid_filter_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
