@@ -31,8 +31,9 @@ compliant.
             will be used to assign an area to each sensor. If no mesh is connected
             here, it will be assumed that each sensor represents an equal area
             to all of the others.
-        _target_DA_: A number for the minimum target value for daylight autonomy
-            at wich a given sensor is considered well daylit. (default: 50).
+        _target_time_: A minimum threshold of occupied time (eg. 50% of the time), above
+            which a given sensor passes and contributes to the spatial daylight
+            autonomy. (Default: 50%).
 
     Returns:
         report: Reports, errors, warnings, etc.
@@ -46,7 +47,7 @@ compliant.
 
 ghenv.Component.Name = 'HB Spatial Daylight Autonomy'
 ghenv.Component.NickName = 'sDA'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -66,11 +67,11 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     # process the input values into a rokable format
     da_mtx = [item[-1] for item in data_tree_to_list(_DA)]
-    _target_DA_ = 50 if _target_DA_ is None else _target_DA_
+    _target_time_ = 50 if _target_time_ is None else _target_time_
     lb_meshes = [to_mesh3d(mesh) for mesh in mesh_]
 
     # determine whether each point passes or fails
-    pass_fail = [[int(val > _target_DA_) for val in grid] for grid in da_mtx]
+    pass_fail = [[int(val > _target_time_) for val in grid] for grid in da_mtx]
 
     # compute spatial daylight autonomy from the pass/fail results
     if len(lb_meshes) == 0:  # all sensors represent the same area
