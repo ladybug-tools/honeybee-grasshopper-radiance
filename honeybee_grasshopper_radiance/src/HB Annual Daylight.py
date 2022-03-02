@@ -61,7 +61,12 @@ _
 
     Returns:
         report: Reports, errors, warnings, etc.
-        results: Folder with raw result files (.ill) that contain illuminance matrices.
+        results: Raw result files (.ill) that contain illuminance matrices for each sensor
+            at each hour of the simulation. These can be postprocessed using
+            various components under the 4::Results sub-tab.
+        res_direct: Raw result files (.ill) that contain illuminance matrices for just the
+            direct sun at each hour of the simulation. These can be postprocessed
+            using various components under the 4::Results sub-tab.
         DA: Daylight autonomy results in percent. DA is the percentage of occupied hours
             that each sensor recieves equal or more than the illuminance threshold.
             Each value is for a different sensor of the grid. These can be plugged
@@ -93,7 +98,7 @@ _
 
 ghenv.Component.Name = 'HB Annual Daylight'
 ghenv.Component.NickName = 'AnnualDaylight'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -127,6 +132,7 @@ if all_required_inputs(ghenv.Component) and _run:
     # load the results
     try:
         results = recipe_result(recipe.output_value_by_name('results', project_folder))
+        res_direct = recipe_result(recipe.output_value_by_name('results-direct', project_folder))
         DA = recipe_result(recipe.output_value_by_name('da', project_folder))
         cDA = recipe_result(recipe.output_value_by_name('cda', project_folder))
         UDI = recipe_result(recipe.output_value_by_name('udi', project_folder))
