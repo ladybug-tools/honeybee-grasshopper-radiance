@@ -18,6 +18,8 @@ studies off of a consistent set of geometry and modifiers.
     Args:
         _model: A honeybee model object possessing all geometry, radiance modifiers
             and simulation assets like Sensor Grids and Views.
+        minimal_: Boolean to note whether the radiance strings should be written in a minimal
+            format (with spaces instead of line breaks). (Default: False).
         _folder_: Path to a folder to into which the Model Radiance Folder will be
             written. If unspecified, it will be written to a sub-folder
             within the default simulation folder.
@@ -30,7 +32,7 @@ studies off of a consistent set of geometry and modifiers.
 
 ghenv.Component.Name = 'HB Model to Rad Folder'
 ghenv.Component.NickName = 'ModelToRad'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -70,4 +72,4 @@ if all_required_inputs(ghenv.Component) and _write:
         preparedir(folder)  # create the directory if it's not there
 
     # write the model folder
-    _model.to.rad_folder(_model, folder)
+    _model.to.rad_folder(_model, folder, minimal=bool(minimal_))

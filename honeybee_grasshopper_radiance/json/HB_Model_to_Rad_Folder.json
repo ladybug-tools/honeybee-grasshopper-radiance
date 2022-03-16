@@ -1,5 +1,5 @@
 {
-  "version": "1.4.0", 
+  "version": "1.4.1", 
   "nickname": "ModelToRad", 
   "outputs": [
     [
@@ -22,6 +22,13 @@
     }, 
     {
       "access": "item", 
+      "name": "minimal_", 
+      "description": "Boolean to note whether the radiance strings should be written in a minimal\nformat (with spaces instead of line breaks). (Default: False).", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
       "name": "_folder_", 
       "description": "Path to a folder to into which the Model Radiance Folder will be\nwritten. If unspecified, it will be written to a sub-folder\nwithin the default simulation folder.", 
       "type": "string", 
@@ -36,7 +43,7 @@
     }
   ], 
   "subcategory": "4 :: Results", 
-  "code": "\nimport os\nimport re\n\ntry:\n    from ladybug.futil import write_to_file_by_name, nukedir, preparedir\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance_folder.folder import ModelFolder\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance_folder:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, give_warning\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _write:\n    # process the simulation folder name and the directory\n    clean_name = re.sub(r'[^.A-Za-z0-9_-]', '_', _model.display_name)\n    folder = os.path.join(folders.default_simulation_folder, clean_name, 'radiance') \\\n        if _folder_ is None else _folder_\n    if os.path.isdir(folder):\n        nukedir(folder, rmdir=True)  # delete the folder if it already exists\n    else:\n        preparedir(folder)  # create the directory if it's not there\n\n    # write the model folder\n    _model.to.rad_folder(_model, folder)\n", 
+  "code": "\nimport os\nimport re\n\ntry:\n    from ladybug.futil import write_to_file_by_name, nukedir, preparedir\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance_folder.folder import ModelFolder\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance_folder:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, give_warning\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _write:\n    # process the simulation folder name and the directory\n    clean_name = re.sub(r'[^.A-Za-z0-9_-]', '_', _model.display_name)\n    folder = os.path.join(folders.default_simulation_folder, clean_name, 'radiance') \\\n        if _folder_ is None else _folder_\n    if os.path.isdir(folder):\n        nukedir(folder, rmdir=True)  # delete the folder if it already exists\n    else:\n        preparedir(folder)  # create the directory if it's not there\n\n    # write the model folder\n    _model.to.rad_folder(_model, folder, minimal=bool(minimal_))\n", 
   "category": "HB-Radiance", 
   "name": "HB Model to Rad Folder", 
   "description": "Write a Honeybee Model to a Radiance Model Folder.\n_\nThis Radiance Model Folder is what is used to run various types of Radiance\nstudies off of a consistent set of geometry and modifiers.\n-"

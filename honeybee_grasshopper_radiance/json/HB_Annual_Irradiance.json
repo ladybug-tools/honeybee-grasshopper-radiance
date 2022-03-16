@@ -1,5 +1,5 @@
 {
-  "version": "1.4.1", 
+  "version": "1.4.2", 
   "nickname": "AnnualIrradiance", 
   "outputs": [
     [
@@ -7,6 +7,13 @@
         "access": "None", 
         "name": "results", 
         "description": "Raw result files (.ill) that contain matrices of irradiance in W/m2\nfor each time step of the wea.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "res_direct", 
+        "description": "Raw result files (.ill) that contain irradiance matrices for just the\ndirect sun at each hour of the simulation. These can be postprocessed\nusing various components under the 4::Results sub-tab.", 
         "type": null, 
         "default": null
       }, 
@@ -99,7 +106,7 @@
     }
   ], 
   "subcategory": "3 :: Recipes", 
-  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('annual-irradiance')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('timestep', _timestep_)\n    recipe.input_value_by_name('output-type', visible_)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        avg_irr = recipe_result(recipe.output_value_by_name('average-irradiance', project_folder))\n        peak_irr = recipe_result(recipe.output_value_by_name('peak-irradiance', project_folder))\n        radiation = recipe_result(recipe.output_value_by_name('cumulative-radiation', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('annual-irradiance')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('timestep', _timestep_)\n    recipe.input_value_by_name('output-type', visible_)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        res_direct = recipe_result(recipe.output_value_by_name('results-direct', project_folder))\n        avg_irr = recipe_result(recipe.output_value_by_name('average-irradiance', project_folder))\n        peak_irr = recipe_result(recipe.output_value_by_name('peak-irradiance', project_folder))\n        radiation = recipe_result(recipe.output_value_by_name('cumulative-radiation', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
   "category": "HB-Radiance", 
   "name": "HB Annual Irradiance", 
   "description": "Run an annual irradiance study for a Honeybee model to compute hourly solar\nirradiance for each sensor in a model's sensor grids.\n_\nThe fundamental calculation of this recipe is the same as that of \"HB Annual\nDaylight\" in that an enhaced 2-phase method is used to accurately account for\ndirect sun at each simulation step. However, this recipe computes broadband\nsolar irradiance in W/m2 instead of visible illuminance in lux.\n_\nConsequently, the average irradiance and cumulative radiation values produced from\nthis recipe are more accurate than those produced by the \"HB Cumulative Radiation\"\nrecipe. Furthermore, because the hourly irriadiance values are accurate, this\nrecipe can be used to evaluate `peak_irradiance` and determine the worst-case\nsolar loads over clear sky Weas that represent cooling design days.\n-"
