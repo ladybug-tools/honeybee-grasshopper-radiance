@@ -56,6 +56,9 @@ solar loads over clear sky Weas that represent cooling design days.
         report: Reports, errors, warnings, etc.
         results: Raw result files (.ill) that contain matrices of irradiance in W/m2
             for each time step of the wea.
+        res_direct: Raw result files (.ill) that contain irradiance matrices for just the
+            direct sun at each hour of the simulation. These can be postprocessed
+            using various components under the 4::Results sub-tab.
         avg_irr: The average irradiance in W/m2 for each sensor over the Wea time period.
         peak_irr: The highest irradiance value in W/m2 during the Wea time period. This
             is suitable for assessing the worst-case solar load of clear skies on
@@ -67,7 +70,7 @@ solar loads over clear sky Weas that represent cooling design days.
 
 ghenv.Component.Name = 'HB Annual Irradiance'
 ghenv.Component.NickName = 'AnnualIrradiance'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.4.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -101,6 +104,7 @@ if all_required_inputs(ghenv.Component) and _run:
     # load the results
     try:
         results = recipe_result(recipe.output_value_by_name('results', project_folder))
+        res_direct = recipe_result(recipe.output_value_by_name('results-direct', project_folder))
         avg_irr = recipe_result(recipe.output_value_by_name('average-irradiance', project_folder))
         peak_irr = recipe_result(recipe.output_value_by_name('peak-irradiance', project_folder))
         radiation = recipe_result(recipe.output_value_by_name('cumulative-radiation', project_folder))
