@@ -1,5 +1,5 @@
 {
-  "version": "1.4.0", 
+  "version": "1.4.1", 
   "nickname": "BSDFMod", 
   "outputs": [
     [
@@ -30,13 +30,20 @@
     {
       "access": "item", 
       "name": "thickness_", 
-      "description": "Optional number to set the thickness of the BSDF. (Default: 0).", 
+      "description": "Optional number to set the thickness of the BSDF. Thickness\nis not supported for aBSDF type. (Default: 0).", 
       "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_bsdf_type_", 
+      "description": "An integer to set the bsdf type. Choose from the choices\nbelow. (Default: 0).\n* 0 BSDF\n* 1 aBSDF", 
+      "type": "string", 
       "default": null
     }
   ], 
   "subcategory": "1 :: Modifiers", 
-  "code": "\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.modifier.material import BSDF\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # process the vector input\n    if _up_vec_ is not None:\n        _up_vec_ = (_up_vec_.X, _up_vec_.Y, _up_vec_.Z)\n\n    # create the modifier\n    modifier = BSDF(\n        _xml_file, up_orientation=_up_vec_, thickness=thickness_)\n", 
+  "code": "\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.modifier.material import BSDF, aBSDF\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\nBSDF_TYPES = ('bsdf', 'absdf')\n\nif all_required_inputs(ghenv.Component):\n    # process the vector input\n    if _up_vec_ is not None:\n        _up_vec_ = (_up_vec_.X, _up_vec_.Y, _up_vec_.Z)\n\n    if _bsdf_type_ is None:\n        _type_= 'bsdf'\n    else:\n        _type_= _bsdf_type_ if _bsdf_type_ in BSDF_TYPES else BSDF_TYPES[int(_bsdf_type_)]\n\n    # create the modifier\n    if _type_ == 'bsdf':\n        modifier = BSDF(\n            _xml_file, up_orientation=_up_vec_, thickness=thickness_)\n    else:\n        modifier = aBSDF(\n            _xml_file, up_orientation=_up_vec_)\n", 
   "category": "HB-Radiance", 
   "name": "HB BSDF Modifier", 
   "description": "Create a Bidirectional Scattering Distribution Function (BSDF) radiance modifier\nfrom an XML file.\n-"
