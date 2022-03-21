@@ -23,7 +23,12 @@ from an XML file.
             coordinated with the direction that the geometry is facing.
             The default is set to (0.01, 0.01, 1.00), which should hopefully
             not be normal to any typical face.
-        thickness_: Optional number to set the thickness of the BSDF. (Default: 0).
+        thickness_: Optional number to set the thickness of the BSDF. Thickness
+            is not supported for aBSDF type. (Default: 0).
+        _bsdf_type_: An integer to set the bsdf type. Choose from the choices
+            below. (Default: 0).
+                * 0 BSDF
+                * 1 aBSDF
 
     Returns:
         modifier: A BSDF modifier that can be assigned to a Honeybee geometry
@@ -32,13 +37,13 @@ from an XML file.
 
 ghenv.Component.Name = 'HB BSDF Modifier'
 ghenv.Component.NickName = 'BSDFMod'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 try:  # import the honeybee-radiance dependencies
-    from honeybee_radiance.modifier.material import BSDF
+    from honeybee_radiance.modifier.material import BSDF, aBSDF
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
 
@@ -47,12 +52,20 @@ try:  # import ladybug_rhino dependencies
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
+BSDF_TYPES = ('bsdf', 'absdf')
 
 if all_required_inputs(ghenv.Component):
     # process the vector input
     if _up_vec_ is not None:
         _up_vec_ = (_up_vec_.X, _up_vec_.Y, _up_vec_.Z)
 
+    if _bsdf_type_ is None:
+        _type_= 'bsdf'
+    else:
+        _type_= _bsdf_type_ if _bsdf_type_ in BSDF_TYPES else BSDF_TYPES[int(_bsdf_type_)]
+
     # create the modifier
-    modifier = BSDF(
-        _xml_file, up_orientation=_up_vec_, thickness=thickness_)
+    if _type_ == 'bsdf':
+        modifier = BSDF(_xml_file, up_orientation=_up_vec_, thickness=thickness_)
+    else:
+        modifier = aBSDF(_xml_file, up_orientation=_up_vec_)
