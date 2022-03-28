@@ -29,6 +29,11 @@ from an XML file.
             below. (Default: 0).
                 * 0 BSDF
                 * 1 aBSDF
+            Choose aBSDF (peak extraction) for systems with a strong specular
+            transmission component. A proposed guideline for when to use aBSDF
+            can be found in chapter 6 in "BSDF generation procedures for
+            daylighting systems". Find the white paper at:
+            * https://task61.iea-shc.org/publications
 
     Returns:
         modifier: A BSDF modifier that can be assigned to a Honeybee geometry
@@ -66,6 +71,8 @@ if all_required_inputs(ghenv.Component):
 
     # create the modifier
     if _type_ == 'bsdf':
-        modifier = BSDF(_xml_file, up_orientation=_up_vec_, thickness=thickness_)
+        modifier = BSDF(
+            _xml_file, up_orientation=_up_vec_, thickness=thickness_)
     else:
-        modifier = aBSDF(_xml_file, up_orientation=_up_vec_)
+        modifier = aBSDF(
+            _xml_file, up_orientation=_up_vec_)
