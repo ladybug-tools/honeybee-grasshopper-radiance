@@ -1,5 +1,5 @@
 {
-  "version": "1.4.0", 
+  "version": "1.4.1", 
   "nickname": "SensorGrid", 
   "outputs": [
     [
@@ -23,7 +23,7 @@
     {
       "access": "list", 
       "name": "_positions", 
-      "description": "A list or a datatree of points with one point for the position\nof eah sensor. Each branch of the datatree will be considered as a\nseparate sensor grid.", 
+      "description": "A list or a datatree of points with one point for the position\nof each sensor. Each branch of the datatree will be considered as a\nseparate sensor grid.", 
       "type": "Point3d", 
       "default": null
     }, 

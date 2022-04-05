@@ -1,0 +1,78 @@
+{
+  "version": "1.4.0", 
+  "nickname": "SensorGrid", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "grid", 
+        "description": "An SensorGrid object that can be used in a grid-based recipe.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "points", 
+        "description": "Script variable SensorGrid", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "vecs", 
+        "description": "Script variable SensorGrid", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "mesh", 
+        "description": "Analysis mesh that can be passed to the 'Spatial Heatmap' component.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name_", 
+      "description": "A name for this sensor grid.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_positions", 
+      "description": "A list or a datatree of points with one point for the position\nof each radial sensor. Each branch of the datatree will be\nconsidered as a separate sensor grid.", 
+      "type": "Point3d", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_dir_count_", 
+      "description": "A positive integer for the number of radial directions to be\ngenerated around each position. (Default: 8).", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_start_vec_", 
+      "description": "A Vector3D to set the start direction of the generated directions.\nThis can be used to orient the resulting sensors to specific parts\nof the scene. It can also change the elevation of the resulting\ndirections since this start vector will always be rotated in the\nXY plane to generate the resulting directions. (Default: (0, -1, 0)).", 
+      "type": "Vector3d", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "mesh_radius_", 
+      "description": "An optional number that can be used to generate a mesh that is\naligned with the resulting sensors and will automatically be\nassigned to the grid. Such meshes will resemble a circle around\neach sensor with the specified radius and will contain triangular\nfaces that can be colored with simulation results. If zero, no mesh\nwill be generated for the sensor grid. (Default: 0.2 meters).", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import the ladybug_geometry dependencies\n    from ladybug_geometry.geometry3d.pointvector import Vector3D, Point3D\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_geometry:\\n\\t{}'.format(e))\n\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_rad_string, clean_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.sensorgrid import SensorGrid\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.config import conversion_to_meters\n    from ladybug_{{cad}}.togeometry import to_vector3d\n    from ladybug_{{cad}}.fromgeometry import from_mesh3d, from_point3d, from_vector3d\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default name and process the points to tuples\n    name = clean_and_id_rad_string('SensorGrid') if _name_ is None else _name_\n    pts = [(pt.X, pt.Y, pt.Z) for pt in _positions]\n    dir_count = 8 if _dir_count_ is None else _dir_count_\n    mesh_radius = 0.2 / conversion_to_meters() if mesh_radius_ is None else mesh_radius_\n    try:\n        st_vec = to_vector3d(_start_vec_)\n    except AttributeError:\n        st_vec = Vector3D(0, -1, 0)\n\n    # create the sensor grid object\n    id  = clean_rad_string(name) if '/' not in name else clean_rad_string(name.split('/')[0])\n    grid = SensorGrid.from_positions_radial(\n        id, pts, dir_count=8, start_vector=st_vec, mesh_radius=mesh_radius)\n\n    # set the display name and get outputs\n    if _name_ is not None:\n        grid.display_name = _name_\n    if '/' in name:\n        grid.group_identifier = \\\n            '/'.join(clean_rad_string(key) for key in name.split('/')[1:])\n    sensors = grid.sensors\n    points = [from_point3d(Point3D(*sen.pos)) for sen in sensors]\n    vecs = [from_vector3d(Vector3D(*sen.dir)) for sen in sensors]\n    lb_mesh = grid.mesh\n    if lb_mesh is not None:\n        mesh = from_mesh3d(lb_mesh)\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Radial Sensor Grid", 
+  "description": "Create a Sensor Grid object from radial directions around sensor positions.\n_\nThis type of sensor grid is particularly helpful for studies of multiple view\ndirections, such as imageless glare studies.\n-"
+}

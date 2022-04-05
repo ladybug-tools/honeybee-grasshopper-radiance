@@ -14,7 +14,7 @@ Create a Sensor Grid object that can be used in a grid-based recipe.
     Args:
         _name_: A name for this sensor grid.
         _positions: A list or a datatree of points with one point for the position
-            of eah sensor. Each branch of the datatree will be considered as a
+            of each sensor. Each branch of the datatree will be considered as a
             separate sensor grid.
         _directions_: A list or a datatree of vectors with one vector for the
             direction of each sensor. The input here MUST therefor align with
@@ -35,7 +35,7 @@ Create a Sensor Grid object that can be used in a grid-based recipe.
 
 ghenv.Component.Name = 'HB Sensor Grid'
 ghenv.Component.NickName = 'SensorGrid'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

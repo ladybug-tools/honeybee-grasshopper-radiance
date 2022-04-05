@@ -1,0 +1,85 @@
+{
+  "version": "1.4.0", 
+  "nickname": "RadialGridRooms", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "grid", 
+        "description": "A SensorGrid object that can be used in a grid-based recipe.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "points", 
+        "description": "The points that are at the center of each circle. These align with\nthe vecs output below and can be visualized with the native\nGrasshopper vector display component.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "vecs", 
+        "description": "The vectors for the directions of each sensor. These align with\nthe points output above and can be visualized with the native\nGrasshopper vector display component.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "mesh", 
+        "description": "Analysis mesh that can be passed to the 'Spatial Heatmap' component.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_rooms", 
+      "description": "A list of honeybee Rooms for which sensor grids will be generated.\nThis can also be an entire Honeybee Model from which Rooms will\nbe extracted.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_grid_size", 
+      "description": "Number for the size of the grid cells.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_dist_floor_", 
+      "description": "Number for the distance to move points from the floors of\nthe input rooms. (Default: 1.2 meters).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_dir_count_", 
+      "description": "A positive integer for the number of radial directions to be\ngenerated around each position. (Default: 8).", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_start_vec_", 
+      "description": "A Vector3D to set the start direction of the generated directions.\nThis can be used to orient the resulting sensors to specific parts\nof the scene. It can also change the elevation of the resulting\ndirections since this start vector will always be rotated in the\nXY plane to generate the resulting directions. (Default: (0, -1, 0)).", 
+      "type": "Vector3d", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "wall_offset_", 
+      "description": "A number for the distance at which sensors close to walls\nshould be removed.", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import the ladybug_geometry dependencies\n    from ladybug_geometry.geometry3d.pointvector import Vector3D, Point3D\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_geometry:\\n\\t{}'.format(e))\n\ntry:  # import the core honeybee dependencies\n    from honeybee.model import Model\n    from honeybee.room import Room\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.config import conversion_to_meters\n    from ladybug_{{cad}}.togeometry import to_vector3d\n    from ladybug_{{cad}}.fromgeometry import from_mesh3d, from_point3d, from_vector3d\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, list_to_data_tree\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set defaults for any blank inputs and process the quad_only_\n    _dist_floor_ = 1.2 / conversion_to_meters() if _dist_floor_ is None else _dist_floor_\n    wall_offset = 0 if wall_offset_ is None else wall_offset_\n    dir_count = 8 if _dir_count_ is None else _dir_count_\n    try:\n        st_vec = to_vector3d(_start_vec_)\n    except AttributeError:\n        st_vec = Vector3D(0, -1, 0)\n\n    # gather all of the rooms\n    rooms = []\n    for obj in _rooms:\n        if isinstance(obj, Model):\n            rooms.extend(obj.rooms)\n        elif isinstance(obj, Room):\n            rooms.append(obj)\n        else:\n            raise TypeError('Expected Honeybee Room or Model. Got {}.'.format(type(obj)))\n\n    # create lists to be filled with content\n    grid, points, vecs, mesh = [], [], [], []\n    # loop through the rooms and create the grids\n    for room in rooms:\n        s_grid = room.properties.radiance.generate_sensor_grid_radial(\n            _grid_size, offset=_dist_floor_, remove_out=True, wall_offset=wall_offset,\n            dir_count=dir_count, start_vector=st_vec)\n\n        if s_grid is not None:\n            grid.append(s_grid)\n            sensors = s_grid.sensors\n            base_points = [from_point3d(Point3D(*sen.pos)) for sen in sensors]\n            base_vecs = [from_vector3d(Vector3D(*sen.dir)) for sen in sensors]\n            points.append(base_points)\n            vecs.append(base_vecs)\n            lb_mesh = s_grid.mesh\n            if lb_mesh is not None:\n                mesh.append(from_mesh3d(lb_mesh))\n            else:\n                mesh.append(None)\n\n    # convert the lists of points to data trees\n    points = list_to_data_tree(points)\n    vecs = list_to_data_tree(vecs)\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Radial Grid from Rooms", 
+  "description": "Generate SensorGrids of radial directions around positions from the floors of rooms.\n_\nThis type of sensor grid is particularly helpful for studies of multiple view\ndirections, such as imageless glare studies.\n_\nThe names of the grids will be the same as the rooms that they came from.\n-"
+}
