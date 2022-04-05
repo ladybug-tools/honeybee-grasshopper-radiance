@@ -41,12 +41,12 @@ The names of the grids will be the same as the rooms that they came from.
     Returns:
         grid: A SensorGrid object that can be used in a grid-based recipe.
         points: The points that are at the center of each grid cell.
-        mesh: Analysis mesh that can be passed to the 'Color Mesh' component.
+        mesh: Analysis mesh that can be passed to the 'Spatial Heatmap' component.
 """
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.4.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
