@@ -38,7 +38,7 @@ hour/timestep of the simulation.
 
 ghenv.Component.Name = 'HB Annual Peak Values'
 ghenv.Component.NickName = 'PeakValues'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -109,6 +109,10 @@ if all_required_inputs(ghenv.Component):
     values = []
     for grid_info in grids:
         ill_file = os.path.join(res_folder, '%s.ill' % grid_info['full_id'])
-        max_list = peak_values(ill_file, su_pattern)
+        dgp_file = os.path.join(res_folder, '%s.dgp' % grid_info['full_id'])
+        if os.path.isfile(dgp_file):
+            max_list = peak_values(dgp_file, su_pattern)
+        else:
+            max_list = peak_values(ill_file, su_pattern)
         values.append(max_list)
     values = list_to_data_tree(values)

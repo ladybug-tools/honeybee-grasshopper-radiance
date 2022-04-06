@@ -35,7 +35,7 @@ deconstructed for detailed analysis with native Grasshopper math components.
 
 ghenv.Component.Name = 'HB Annual Results to Data'
 ghenv.Component.NickName = 'AnnualToData'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -46,6 +46,7 @@ try:
     from ladybug.datatype.illuminance import Illuminance
     from ladybug.datatype.energyflux import Irradiance
     from ladybug.datatype.time import Time
+    from ladybug.datatype.fraction import Fraction
     from ladybug.analysisperiod import AnalysisPeriod
     from ladybug.header import Header
     from ladybug.datacollection import HourlyContinuousCollection
@@ -88,10 +89,12 @@ def file_to_data(ill_file, point_filter, su_pattern, header, timestep):
 
 def find_point_in_grid(s_pt, all_pts):
     """Find the index of a point in a list of list of grids."""
+    m_pts = []
     for i, grid_pts in enumerate(all_pts):
         for j, g_pt in enumerate(grid_pts):
             if g_pt.is_equivalent(s_pt, tolerance):
-                return i, j
+                m_pts.append((i, j))
+    return m_pts
 
 
 if all_required_inputs(ghenv.Component):
@@ -108,8 +111,9 @@ if all_required_inputs(ghenv.Component):
         assert len(all_pts) != 0, 'all_pts_ must be connected in order to use sel_pts_.'
         sel_pts = [to_point3d(pt) for pt in sel_pts_]
         for s_pt in sel_pts:
-            i, j = find_point_in_grid(s_pt, all_pts)
-            pt_filter[i].append(j)
+            m_pts = find_point_in_grid(s_pt, all_pts)
+            for i, j in m_pts:
+                pt_filter[i].append(j)
 
     # extract the timestep if it exists
     timestep, has_t_step = 1, False
@@ -130,11 +134,16 @@ if all_required_inputs(ghenv.Component):
         head = Header(Irradiance(), 'W/m2', aper)
     else:
         head = Header(Illuminance(), 'lux', aper)
+    dgp_head = Header(Fraction(), 'fraction', aper, metadata={'type': 'Daylight Glare Probability (DGP)'})
 
     # create the data collections from the .ill files
     data = []
     for grid_info, p_filt in zip(grids, pt_filter):
         ill_file = os.path.join(res_folder, '%s.ill' % grid_info['full_id'])
-        data_list = file_to_data(ill_file, p_filt, sun_up_hours, head, timestep)
+        dgp_file = os.path.join(res_folder, '%s.dgp' % grid_info['full_id'])
+        if os.path.isfile(dgp_file):
+            data_list = file_to_data(dgp_file, p_filt, sun_up_hours, dgp_head, timestep)
+        else:
+            data_list = file_to_data(ill_file, p_filt, sun_up_hours, head, timestep)
         data.append(data_list)
     data = list_to_data_tree(data)
