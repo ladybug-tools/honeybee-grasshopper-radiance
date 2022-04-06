@@ -39,7 +39,7 @@ hour/timestep of the simulation.
 
 ghenv.Component.Name = 'HB Annual Cumulative Values'
 ghenv.Component.NickName = 'CumulValues'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -110,6 +110,10 @@ if all_required_inputs(ghenv.Component):
     values = []
     for grid_info in grids:
         ill_file = os.path.join(res_folder, '%s.ill' % grid_info['full_id'])
-        cumul = cumulative_values(ill_file, su_pattern, timestep)
+        dgp_file = os.path.join(res_folder, '%s.dgp' % grid_info['full_id'])
+        if os.path.isfile(dgp_file):
+            cumul = cumulative_values(dgp_file, su_pattern, timestep)
+        else:
+            cumul = cumulative_values(ill_file, su_pattern, timestep)
         values.append(cumul)
     values = list_to_data_tree(values)

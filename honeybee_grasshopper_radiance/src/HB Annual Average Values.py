@@ -38,7 +38,7 @@ hour/timestep of the simulation.
 
 ghenv.Component.Name = 'HB Annual Average Values'
 ghenv.Component.NickName = 'AvgValues'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -115,6 +115,10 @@ if all_required_inputs(ghenv.Component):
     values = []
     for grid_info in grids:
         ill_file = os.path.join(res_folder, '%s.ill' % grid_info['full_id'])
-        avg = average_values(ill_file, su_pattern, full_len)
+        dgp_file = os.path.join(res_folder, '%s.dgp' % grid_info['full_id'])
+        if os.path.isfile(dgp_file):
+            avg = average_values(dgp_file, su_pattern, full_len)
+        else:
+            avg = average_values(ill_file, su_pattern, full_len)
         values.append(avg)
     values = list_to_data_tree(values)
