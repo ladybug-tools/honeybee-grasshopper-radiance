@@ -59,8 +59,8 @@ Calculate Annual Daylight Metrics from a result (.ill) files.
 """
 
 ghenv.Component.Name = "HB Annual Daylight Metrics"
-ghenv.Component.NickName = 'AnnualMetrics'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.NickName = 'DaylightMetrics'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -107,7 +107,10 @@ if all_required_inputs(ghenv.Component):
         schedule = _occ_sch_.values
     elif isinstance(_occ_sch_, str):
         if schedule_by_identifier is not None:
-            schedule = schedule_by_identifier(_occ_sch_).values()
+            try:
+                schedule = schedule_by_identifier(_occ_sch_).values()
+            except TypeError:  # it's probably a ScheduleFixedInterval
+                schedule = schedule_by_identifier(_occ_sch_).values
         else:
             raise ValueError('honeybee-energy must be installed to reference '
                              'occupancy schedules by identifier.')
