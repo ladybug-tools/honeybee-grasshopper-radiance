@@ -1,0 +1,78 @@
+{
+  "version": "1.4.0", 
+  "nickname": "GlareMetrics", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "GA", 
+        "description": "Glare autonomy results in percent. GA is the percentage of occupied hours\nthat each sensor is free of glare according to the DGP threshold.\nEach value is for a different sensor of the grid. These can be plugged\ninto the \"LB Spatial Heatmap\" component along with meshes of the sensor\ngrids to visualize results.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "sGA", 
+        "description": "Spatial glare autonomy as percentage of area for each analysis grid.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "pass_fail", 
+        "description": "A data tree of zeros and ones, which indicate whether a given senor\npasses the criteria for being free of glare (1) or fails the criteria (0).\nEach value is for a different sensor of the grid. These can be plugged\ninto the \"LB Spatial Heatmap\" component along with meshes of the\nsensor grids to visualize results.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_results", 
+      "description": "An list of annual Radiance result files from the \"HB Imageless Annual\nGlare\" component (containing the .dgp files and the sun-up-hours.txt).\nThis can also be just the path to the folder containing these result\nfiles.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_occ_sch_", 
+      "description": "An annual occupancy schedule as a Ladybug Data Collection or a HB-Energy\nschedule object. This can also be the identifier of a schedule in\nyour HB-Energy schedule library. Any value in this schedule that is\n0.1 or above will be considered occupied. If None, a schedule from\n9AM to 5PM on weekdays will be used.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_threshold_", 
+      "description": "Threshhold for daylight autonomy (DA) in lux (default: 300).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "grid_filter_", 
+      "description": "The name of a grid or a pattern to filter the grids. For instance,\nfirst_floor_* will simulate only the sensor grids that have an\nidentifier that starts with first_floor_. By default all the grids\nwill be processed.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "mesh_", 
+      "description": "An optional list of Meshes that align with the meshes used in the imageless\nannual glare recipe, which will be used to assign an area to each sensor.\nIf no mesh is connected here, it will be assumed that each sensor represents\nan equal area to all of the others.", 
+      "type": "Mesh", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_target_time_", 
+      "description": "A minimum threshold of occupied time (eg. 95% of the time),\nabove which a given sensor passes and contributes to the spatial glare\nautonomy. (Default: 95%).", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "4 :: Results", 
+  "code": "\nimport os\n\ntry:\n    from ladybug_{{cad}}.togeometry import to_mesh3d\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug.datacollection import BaseCollection\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance.postprocess.annualglare import glare_autonomy_from_folder\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:  # honeybee schedule library is not available\n    schedule_by_identifier = None\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, list_to_data_tree, \\\n        data_tree_to_list\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set default values for the thresholds and the grid filter\n    grid_filter_ = '*' if grid_filter_ is None else grid_filter_\n    _threshold_ = _threshold_ if _threshold_ else 0.4\n\n    # process the schedule\n    if _occ_sch_ is None:\n        schedule = None\n    elif isinstance(_occ_sch_, BaseCollection):\n        schedule = _occ_sch_.values\n    elif isinstance(_occ_sch_, str):\n        if schedule_by_identifier is not None:\n            schedule = schedule_by_identifier(_occ_sch_).values()\n        else:\n            raise ValueError('honeybee-energy must be installed to reference '\n                             'occupancy schedules by identifier.')\n    else:  # assume that it is a honeybee schedule object\n        try:\n            schedule = _occ_sch_.values()\n        except TypeError:  # it's probably a ScheduleFixedInterval\n            schedule = _occ_sch_.values\n    if schedule is not None:\n        bin_schedule = []\n        for val in schedule:\n            bin_val = 1 if val >= 0.1 else 0\n            bin_schedule.append(bin_val)\n        schedule = bin_schedule\n\n    # compute the annual metrics\n    res_folder = os.path.dirname(_results[0]) if os.path.isfile(_results[0]) \\\n        else _results[0]\n    GA = glare_autonomy_from_folder(\n        res_folder, schedule, _threshold_, grid_filter_)\n    GA = list_to_data_tree(GA)\n\n    # process the input values into a rokable format\n    ga_mtx = [item[-1] for item in data_tree_to_list(GA)]\n    _target_time_ = 95 if _target_time_ is None else _target_time_\n    lb_meshes = [to_mesh3d(mesh) for mesh in mesh_]\n\n    # determine whether each point passes or fails\n    pass_fail = [[int(val > _target_time_) for val in grid] for grid in ga_mtx]\n\n    # compute spatial glare autonomy from the pass/fail results\n    if len(lb_meshes) == 0:  # all sensors represent the same area\n        sGA = [sum(pf_list) / len(pf_list) for pf_list in pass_fail]\n    else:  # weight the sensors based on the area of mesh faces\n        sGA = []\n        for i, mesh in enumerate(lb_meshes):\n            m_area = mesh.area\n            weights = [fa / m_area for fa in mesh.face_areas]\n            sGA.append(sum(v * w for v, w in zip(pass_fail[i], weights)))\n\n    pass_fail = list_to_data_tree(pass_fail)  # convert matrix to data tree\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Annual Glare Metrics", 
+  "description": "Calculate Annual Glare Metrics from result (.dgp) files.\n_\n- Glare Autonmy is a metric describing the percentage of occupied\nhours that each sensor is below the glare threshold.\n- Spatial Glare Autonomy is a metric describing the percentage of the sensor grid\nthat is free glare according to the glare threshold and the target time. The sGA\nvalue is expressed as a percentage of area.\n-"
+}
