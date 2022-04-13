@@ -14,7 +14,7 @@ _
 hours that each sensor is below the glare threshold.
 - Spatial Glare Autonomy is a metric describing the percentage of the sensor grid
 that is free glare according to the glare threshold and the target time. The sGA
-value is expressed as a percentage of area.
+value is expressed as a percentage of the sensors in the analysis grid.
 
 -
     Args:
@@ -27,17 +27,11 @@ value is expressed as a percentage of area.
             your HB-Energy schedule library. Any value in this schedule that is
             0.1 or above will be considered occupied. If None, a schedule from
             9AM to 5PM on weekdays will be used.
-        _threshold_: Threshhold for daylight autonomy (DA) in lux (default: 300).
-        _min_max_: A list for min, max illuminacne thresholds for useful daylight illuminance
-            in lux. (Default: (100, 3000)).
+        _glare_thresh_: Threshold for glare autonomy (GA) in DGP (default: 0.4).
         grid_filter_: The name of a grid or a pattern to filter the grids. For instance,
             first_floor_* will simulate only the sensor grids that have an
             identifier that starts with first_floor_. By default all the grids
             will be processed.
-        mesh_: An optional list of Meshes that align with the meshes used in the imageless
-            annual glare recipe, which will be used to assign an area to each sensor.
-            If no mesh is connected here, it will be assumed that each sensor represents
-            an equal area to all of the others.
         _target_time_: A minimum threshold of occupied time (eg. 95% of the time), above
             which a given sensor passes and contributes to the spatial glare
             autonomy. (Default: 95%).
@@ -45,16 +39,20 @@ value is expressed as a percentage of area.
     Returns:
         report: Reports, errors, warnings, etc.
         GA: Glare autonomy results in percent. GA is the percentage of occupied hours
-            that each sensor is free of glare according to the DGP threshold.
+            that each sensor is free of glare according to the glare threshold.
             Each value is for a different sensor of the grid. These can be plugged
             into the "LB Spatial Heatmap" component along with meshes of the sensor
             grids to visualize results.
-        sGA: Spatial glare autonomy as percentage of area for each analysis grid.
-        pass_fail: A data tree of zeros and ones, which indicate whether a given senor
-            passes the criteria for being free of glare (1) or fails the criteria (0). 
-            Each value is for a different sensor of the grid. These can be plugged
-            into the "LB Spatial Heatmap" component along with meshes of the
-            sensor grids to visualize results.
+        sGA: Spatial glare autonomy as a percentage of the sensors for each analysis grid
+            that does not exceed the glare threshold for a specified fraction of
+            occupied hours, ie. the target time.
+        pass_fail: A data tree of zeros and ones, which indicate whether a given sensor
+            passes the criteria for being free of glare (1) or fails the criteria (0).
+            Being free of glare does not necessarily mean that the sensor is glare-free
+            for all hours, but that it is glare-free for a minimum percentage of
+            occupied hours defined by the target time. Each value is for a different
+            sensor of the grid. These can be plugged into the "LB Spatial Heatmap"
+            component along with meshes of the sensor grids to visualize results.
 """
 
 ghenv.Component.Name = "HB Annual Glare Metrics"
@@ -91,7 +89,7 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     # set default values for the thresholds and the grid filter
     grid_filter_ = '*' if grid_filter_ is None else grid_filter_
-    _threshold_ = _threshold_ if _threshold_ else 0.4
+    _glare_thresh_ = _glare_thresh_ if _glare_thresh_ else 0.4
 
     # process the schedule
     if _occ_sch_ is None:
@@ -123,7 +121,7 @@ if all_required_inputs(ghenv.Component):
         res_folder, schedule, _threshold_, grid_filter_)
     GA = list_to_data_tree(GA)
 
-    # process the input values into a rokable format
+    # process the input values into a readable format
     ga_mtx = [item[-1] for item in data_tree_to_list(GA)]
     _target_time_ = 95 if _target_time_ is None else _target_time_
 
