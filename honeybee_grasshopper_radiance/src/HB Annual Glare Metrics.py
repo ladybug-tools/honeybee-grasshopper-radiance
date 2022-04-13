@@ -10,9 +10,10 @@
 """
 Calculate Annual Glare Metrics from result (.dgp) files.
 _
-- Glare Autonmy is a metric describing the percentage of occupied
+Glare Autonmy is a metric describing the percentage of occupied
 hours that each sensor is below the glare threshold.
-- Spatial Glare Autonomy is a metric describing the percentage of the sensor grid
+_
+Spatial Glare Autonomy is a metric describing the percentage of the sensor grid
 that is free glare according to the glare threshold and the target time. The sGA
 value is expressed as a percentage of the sensors in the analysis grid.
 
@@ -57,7 +58,7 @@ value is expressed as a percentage of the sensors in the analysis grid.
 
 ghenv.Component.Name = "HB Annual Glare Metrics"
 ghenv.Component.NickName = 'GlareMetrics'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -98,7 +99,10 @@ if all_required_inputs(ghenv.Component):
         schedule = _occ_sch_.values
     elif isinstance(_occ_sch_, str):
         if schedule_by_identifier is not None:
-            schedule = schedule_by_identifier(_occ_sch_).values()
+            try:
+                schedule = schedule_by_identifier(_occ_sch_).values()
+            except TypeError:  # it's probably a ScheduleFixedInterval
+                schedule = schedule_by_identifier(_occ_sch_).values
         else:
             raise ValueError('honeybee-energy must be installed to reference '
                              'occupancy schedules by identifier.')
@@ -118,7 +122,7 @@ if all_required_inputs(ghenv.Component):
     res_folder = os.path.dirname(_results[0]) if os.path.isfile(_results[0]) \
         else _results[0]
     GA = glare_autonomy_from_folder(
-        res_folder, schedule, _threshold_, grid_filter_)
+        res_folder, schedule, _glare_thresh_, grid_filter_)
     GA = list_to_data_tree(GA)
 
     # process the input values into a readable format
@@ -130,5 +134,4 @@ if all_required_inputs(ghenv.Component):
 
     # compute spatial glare autonomy from the pass/fail results
     sGA = [sum(pf_list) / len(pf_list) for pf_list in pass_fail]
-
     pass_fail = list_to_data_tree(pass_fail)  # convert matrix to data tree
