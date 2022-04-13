@@ -38,8 +38,8 @@ value is expressed as a percentage of area.
             annual glare recipe, which will be used to assign an area to each sensor.
             If no mesh is connected here, it will be assumed that each sensor represents
             an equal area to all of the others.
-        _target_time_: A minimum threshold of occupied time (eg. 95% of the time),
-            above which a given sensor passes and contributes to the spatial glare
+        _target_time_: A minimum threshold of occupied time (eg. 95% of the time), above
+            which a given sensor passes and contributes to the spatial glare
             autonomy. (Default: 95%).
 
     Returns:
@@ -65,11 +65,6 @@ ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
 
 import os
-
-try:
-    from ladybug_rhino.togeometry import to_mesh3d
-except ImportError as e:
-    raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
 try:
     from ladybug.datacollection import BaseCollection
@@ -131,19 +126,11 @@ if all_required_inputs(ghenv.Component):
     # process the input values into a rokable format
     ga_mtx = [item[-1] for item in data_tree_to_list(GA)]
     _target_time_ = 95 if _target_time_ is None else _target_time_
-    lb_meshes = [to_mesh3d(mesh) for mesh in mesh_]
 
     # determine whether each point passes or fails
     pass_fail = [[int(val > _target_time_) for val in grid] for grid in ga_mtx]
 
     # compute spatial glare autonomy from the pass/fail results
-    if len(lb_meshes) == 0:  # all sensors represent the same area
-        sGA = [sum(pf_list) / len(pf_list) for pf_list in pass_fail]
-    else:  # weight the sensors based on the area of mesh faces
-        sGA = []
-        for i, mesh in enumerate(lb_meshes):
-            m_area = mesh.area
-            weights = [fa / m_area for fa in mesh.face_areas]
-            sGA.append(sum(v * w for v, w in zip(pass_fail[i], weights)))
+    sGA = [sum(pf_list) / len(pf_list) for pf_list in pass_fail]
 
     pass_fail = list_to_data_tree(pass_fail)  # convert matrix to data tree
