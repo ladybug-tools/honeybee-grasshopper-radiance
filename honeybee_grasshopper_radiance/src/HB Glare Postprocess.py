@@ -64,7 +64,7 @@ http://web.mit.edu/tito_/www/Projects/Glare/GlareRecommendationsForPractice.html
 
 ghenv.Component.Name = 'HB Glare Postprocess'
 ghenv.Component.NickName = 'Glare'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -72,6 +72,7 @@ ghenv.Component.AdditionalHelpFromDocStrings = '3'
 import os
 import subprocess
 import math
+import re
 
 try:  # import honeybee_radiance dependencies
     from honeybee_radiance.config import folders as rad_folders
@@ -151,9 +152,17 @@ def check_hdr_dimensions(hdr_path):
     stdout = process.communicate()
     img_dim = stdout[0]
 
+    def get_dimensions(img_dim):
+        dimensions = []
+        for d in ['+X', '-Y']:
+            regex = r'\%s\s+(\d+)' % d
+            matches = re.finditer(regex, img_dim, re.MULTILINE)
+            dim = next(matches).groups()[0]
+            dimensions.append(int(dim))
+        return dimensions
     # check the X and Y dimensions of the image
-    x = int(img_dim.split(' ')[-1].strip())
-    y = int(img_dim.split(' ')[-3].strip())
+    x, y = get_dimensions(img_dim)
+
     msg = 'Recommended _hdr image dimensions for glare analysis should be \n' \
         '{} {} x {} pixels. Got {} x {}.'
     if x < 800 or y < 800:
