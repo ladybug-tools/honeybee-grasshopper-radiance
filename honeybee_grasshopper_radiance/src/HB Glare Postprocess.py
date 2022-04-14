@@ -64,7 +64,7 @@ http://web.mit.edu/tito_/www/Projects/Glare/GlareRecommendationsForPractice.html
 
 ghenv.Component.Name = 'HB Glare Postprocess'
 ghenv.Component.NickName = 'Glare'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -152,8 +152,8 @@ def check_hdr_dimensions(hdr_path):
     img_dim = stdout[0]
 
     # check the X and Y dimensions of the image
-    x = int(img_dim.split(' ')[-1].strip())
-    y = int(img_dim.split(' ')[-3].strip())
+    x = int(img_dim.split('+X')[-1].split(' ')[1])
+    y = int(img_dim.split('-Y')[-1].split(' ')[1])
     msg = 'Recommended _hdr image dimensions for glare analysis should be \n' \
         '{} {} x {} pixels. Got {} x {}.'
     if x < 800 or y < 800:
