@@ -28,7 +28,7 @@ Visualize a sky as a High Dynamic Range (HDR) image file.
 
 ghenv.Component.Name = 'HB Visualize Sky'
 ghenv.Component.NickName = 'VizSky'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -42,6 +42,7 @@ except ImportError as e:
 
 try:  # import honeybee dependencies
     from honeybee.config import folders
+    from honeybee.typing import clean_rad_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -88,7 +89,7 @@ if all_required_inputs(ghenv.Component):
     sky_file, sky_oct = 'weather.sky', 'sky_visual.oct'
     write_to_file_by_name(sky_dir, sky_file, sky_content, mkdir=True)
     ghi_res, full_ghi_res = 'ghi.res', os.path.join(sky_dir, 'ghi.res')
-    init_hdr, final_hdr = 'sky_init.HDR', 'sky.HDR'
+    init_hdr, final_hdr = 'sky_init.HDR', '{}.HDR'.format(clean_rad_string(str(_sky)))
     hdr = os.path.join(sky_dir, final_hdr)
     if os.path.isfile(hdr):
         os.remove(hdr)
