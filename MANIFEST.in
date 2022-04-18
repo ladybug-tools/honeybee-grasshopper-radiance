@@ -1,3 +1,8 @@
 recursive-include honeybee_grasshopper_radiance/user_objects *.ghuser
 recursive-exclude honeybee_grasshopper_radiance/json *.json
 recursive-exclude honeybee_grasshopper_radiance/icon *.png
+recursive-exclude samples *
+recursive-exclude .github *
+exclude .gitignore
+exclude .releaserc.json
+exclude deploy.sh
