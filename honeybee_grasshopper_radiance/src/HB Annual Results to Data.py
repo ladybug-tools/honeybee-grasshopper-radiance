@@ -24,6 +24,12 @@ deconstructed for detailed analysis with native Grasshopper math components.
             is an input here, the all_pts_ must be connected.
         all_pts_: The data tree of all sensor points that were used in the simulation.
             This is required in order to look up the index of the sel_pts_ in
+            the results matrices.
+        sel_vecs_: An optional vector or list of vectors, which will be used to filter
+            the sensors for which data collections will be imported. If there
+            is an input here, the all_vecs_ must be connected.
+        all_vecs_: The data tree of all sensor directions that were used in the simulation.
+            This is required in order to look up the index of the sel_vecs_ in
             the results matrices. 
 
  Returns:
@@ -35,7 +41,7 @@ deconstructed for detailed analysis with native Grasshopper math components.
 
 ghenv.Component.Name = 'HB Annual Results to Data'
 ghenv.Component.NickName = 'AnnualToData'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.4.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -60,7 +66,7 @@ except ImportError as e:
 
 try:
     from ladybug_rhino.config import tolerance
-    from ladybug_rhino.togeometry import to_point3d
+    from ladybug_rhino.togeometry import to_point3d, to_vector3d
     from ladybug_rhino.grasshopper import all_required_inputs, list_to_data_tree, \
         data_tree_to_list
 except ImportError as e:
@@ -97,16 +103,29 @@ def find_point_in_grid(s_pt, all_pts):
     return m_pts
 
 
+def find_vec_in_grid(s_v, all_vecs, pt_filter):
+    """Find the index of a vector in a list of list of grids."""
+    m_vecs = []
+    for i, grid in enumerate(pt_filter):
+        for j in grid:
+            if all_vecs[i][j].is_equivalent(s_v, tolerance):
+                m_vecs.append((i, j))
+    return m_vecs
+
+
 if all_required_inputs(ghenv.Component):
     # get the relevant .ill files
     res_folder = os.path.dirname(_results[0]) if os.path.isfile(_results[0]) \
         else _results[0]
     grids, sun_up_hours = _process_input_folder(res_folder, '*')
 
-    # check the sel_pts and all_pts input
+    # set up the sensor filter
     pt_filter = [None for i in grids]
-    if len(sel_pts_) != 0:
+    if len(sel_pts_) != 0 or len(sel_vecs_) != 0:
         pt_filter = [[] for i in grids]
+
+    # check the sel_pts and all_pts input
+    if len(sel_pts_) != 0:
         all_pts = [[to_point3d(pt) for pt in dat[-1]] for dat in data_tree_to_list(all_pts_)]
         assert len(all_pts) != 0, 'all_pts_ must be connected in order to use sel_pts_.'
         sel_pts = [to_point3d(pt) for pt in sel_pts_]
@@ -114,6 +133,19 @@ if all_required_inputs(ghenv.Component):
             m_pts = find_point_in_grid(s_pt, all_pts)
             for i, j in m_pts:
                 pt_filter[i].append(j)
+
+    # check the sel_vecs and all_vecs input
+    if len(sel_vecs_) != 0:
+        new_pt_filter = [[] for i in grids]
+        all_vecs = [[to_vector3d(v) for v in dat[-1]] for dat in data_tree_to_list(all_vecs_)]
+        assert len(all_vecs) != 0, 'all_vecs_ must be connected in order to use sel_vecs_.'
+        sel_vecs = [to_vector3d(v) for v in sel_vecs_]
+        for s_v in sel_vecs:
+            m_vs = find_point_in_grid(s_v, all_vecs) if len(sel_pts_) == 0 else \
+                find_vec_in_grid(s_v, all_vecs, pt_filter)
+            for i, j in m_vs:
+                new_pt_filter[i].append(j)
+        pt_filter = new_pt_filter
 
     # extract the timestep if it exists
     timestep, has_t_step = 1, False
