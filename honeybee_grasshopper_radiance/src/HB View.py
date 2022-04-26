@@ -42,12 +42,12 @@ Create a Honeybee View for an image-based analysis.
             world coordinates. (Default: 60).
 
     Returns:
-        view: A Honeybee View object that can be used in an image-based recipe.
+        view: A Honeybee View object that can be used in an view-based recipe.
 """
 
 ghenv.Component.Name = 'HB View'
 ghenv.Component.NickName = 'View'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.4.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -63,6 +63,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:  # import ladybug_rhino dependencies
+    from ladybug_rhino.togeometry import to_point3d, to_vector3d
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
@@ -72,8 +73,10 @@ VIEW_TYPES = ('v', 'h', 'l', 'c', 'a', 's')
 
 if all_required_inputs(ghenv.Component):
     # process the points/vectors into tuples
-    _pos = (_position.X, _position.Y, _position.Z)
-    _dir = (_direction.X, _direction.Y, _direction.Z)
+    posit = to_point3d(_position)
+    direct = to_vector3d(_direction)
+    _pos = (posit.x, posit.y, posit.z)
+    _dir = (direct.x, direct.y, direct.z)
 
     # set the default values
     name = clean_and_id_rad_string('View') if _name_ is None else _name_
