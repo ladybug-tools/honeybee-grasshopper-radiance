@@ -34,12 +34,12 @@ Create a Honeybee View for an image-based analysis using a Rhino viewport.
             upon hitting the button.
 
     Returns:
-        view: A Honeybee View object that can be used in an image-based recipe.
+        view: A Honeybee View object that can be used in a view-based recipe.
 """
 
 ghenv.Component.Name = 'HB View from Viewport'
 ghenv.Component.NickName = 'Viewport'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.4.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

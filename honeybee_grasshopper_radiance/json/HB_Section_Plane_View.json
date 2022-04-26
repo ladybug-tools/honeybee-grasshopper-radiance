@@ -1,0 +1,36 @@
+{
+  "version": "1.4.0", 
+  "nickname": "SectionView", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "view", 
+        "description": "A Honeybee View object that can be used in a view-based recipe.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_view", 
+      "description": "A Honeybee Radiance View object to which a section plane should be applied.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_origin", 
+      "description": "An point to set the origin of the section plane in 3D space. Note\nthat the section plane is always perpenicular to the view direction\nfor perspective and parallel views.", 
+      "type": "Point3d", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:\n    from ladybug_geometry.geometry3d.pointvector import Point3D\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance.view import View\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.togeometry import to_point3d\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # process the input view and origin\n    if isinstance(_view, str):\n        view = View.from_string(_view)\n    else:\n        assert isinstance(_view, View), \\\n            'Expected Honeybee View. Got {}.'.format(type(_view))\n        view = _view.duplicate()\n    view_pt = Point3D(*_view.position)\n    origin = to_point3d(_origin)\n\n    # set the fore clip according to the distance\n    view.fore_clip = origin.distance_to_point(view_pt)\n    #view.position = (origin.x, origin.y, origin.z)\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Section Plane View", 
+  "description": "Apply a section plane to a Honeybee Radiance View.\n_\nThe plane will always be perpendicular to the view direction for perspective\nand parallel view types. For fisheye view types, the clipping plane is actually\na clipping sphere, centered on the view point.\n_\nObjects in front of this imaginary plane will not be visible. This may be useful\nfor seeing through walls (to get a longer perspective from an exterior view point)\nor for incremental rendering.\n-"
+}

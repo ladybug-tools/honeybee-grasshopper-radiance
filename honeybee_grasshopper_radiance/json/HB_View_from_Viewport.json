@@ -1,12 +1,12 @@
 {
-  "version": "1.4.1", 
+  "version": "1.4.2", 
   "nickname": "Viewport", 
   "outputs": [
     [
       {
         "access": "None", 
         "name": "view", 
-        "description": "A Honeybee View object that can be used in an image-based recipe.", 
+        "description": "A Honeybee View object that can be used in a view-based recipe.", 
         "type": null, 
         "default": null
       }
@@ -17,7 +17,7 @@
       "access": "item", 
       "name": "_name_", 
       "description": "Text to set the name for the modifier and to be incorporated into\na unique modifier identifier.", 
-      "type": "System.Object", 
+      "type": "string", 
       "default": null
     }, 
     {
