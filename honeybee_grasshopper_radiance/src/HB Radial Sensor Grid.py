@@ -40,7 +40,7 @@ directions, such as imageless glare studies.
 
 ghenv.Component.Name = 'HB Radial Sensor Grid'
 ghenv.Component.NickName = 'SensorGrid'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -83,7 +83,7 @@ if all_required_inputs(ghenv.Component):
     # create the sensor grid object
     id  = clean_rad_string(name) if '/' not in name else clean_rad_string(name.split('/')[0])
     grid = SensorGrid.from_positions_radial(
-        id, pts, dir_count=8, start_vector=st_vec, mesh_radius=mesh_radius)
+        id, pts, dir_count, start_vector=st_vec, mesh_radius=mesh_radius)
 
     # set the display name and get outputs
     if _name_ is not None:
