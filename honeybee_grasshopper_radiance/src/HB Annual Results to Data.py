@@ -41,7 +41,7 @@ deconstructed for detailed analysis with native Grasshopper math components.
 
 ghenv.Component.Name = 'HB Annual Results to Data'
 ghenv.Component.NickName = 'AnnualToData'
-ghenv.Component.Message = '1.4.2'
+ghenv.Component.Message = '1.4.3'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -73,23 +73,27 @@ except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
 
-def file_to_data(ill_file, point_filter, su_pattern, header, timestep):
+def file_to_data(ill_file, point_filter, su_pattern, header, timestep, grid_id):
     """Get a list of data collections for a given result file."""
     data_colls = []
+    new_header = header.duplicate()
+    new_header.metadata['sensor grid'] = grid_id
     with open(ill_file) as results:
         if point_filter is None:
             for pt_res in results:
                 base_values = [0] * 8760 * timestep
                 for val, hr in zip(pt_res.split(), su_pattern):
                     base_values[hr] = float(val)
-                data_colls.append(HourlyContinuousCollection(header, base_values))
+                data_colls.append(HourlyContinuousCollection(new_header, base_values))
         else:
             for i, pt_res in enumerate(results):
                 if i in point_filter:
+                    new_header = new_header.duplicate()
+                    new_header.metadata['sensor index'] = i
                     base_values = [0] * 8760 * timestep
                     for val, hr in zip(pt_res.split(), su_pattern):
                         base_values[hr] = float(val)
-                    data_colls.append(HourlyContinuousCollection(header, base_values))
+                    data_colls.append(HourlyContinuousCollection(new_header, base_values))
     return data_colls
 
 
@@ -171,11 +175,12 @@ if all_required_inputs(ghenv.Component):
     # create the data collections from the .ill files
     data = []
     for grid_info, p_filt in zip(grids, pt_filter):
-        ill_file = os.path.join(res_folder, '%s.ill' % grid_info['full_id'])
-        dgp_file = os.path.join(res_folder, '%s.dgp' % grid_info['full_id'])
+        grid_id = grid_info['full_id']
+        ill_file = os.path.join(res_folder, '%s.ill' % grid_id)
+        dgp_file = os.path.join(res_folder, '%s.dgp' % grid_id)
         if os.path.isfile(dgp_file):
-            data_list = file_to_data(dgp_file, p_filt, sun_up_hours, dgp_head, timestep)
+            data_list = file_to_data(dgp_file, p_filt, sun_up_hours, dgp_head, timestep, grid_id)
         else:
-            data_list = file_to_data(ill_file, p_filt, sun_up_hours, head, timestep)
+            data_list = file_to_data(ill_file, p_filt, sun_up_hours, head, timestep, grid_id)
         data.append(data_list)
     data = list_to_data_tree(data)
