@@ -46,7 +46,7 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '1.4.3'
+ghenv.Component.Message = '1.4.4'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -111,14 +111,23 @@ if all_required_inputs(ghenv.Component):
                 if x_axis:
                     lb_floors = [Face3D(f.boundary, Plane(f.normal, f[0], x_axis), f.holes)
                                  for f in lb_floors]
-                lb_meshes = [geo.mesh_grid(_grid_size, offset=_dist_floor_) for geo in lb_floors]
-                lb_mesh = lb_meshes[0] if len(lb_meshes) == 1 else Mesh3D.join_meshes(lb_meshes)
+                lb_meshes = []
+                for geo in lb_floors:
+                    try:
+                        lb_meshes.append(geo.mesh_grid(_grid_size, offset=_dist_floor_))
+                    except AssertionError:
+                        continue
+                if len(lb_meshes) == 0:
+                    lb_mesh = None
+                else:
+                    lb_mesh = lb_meshes[0] if len(lb_meshes) == 1 else \
+                        Mesh3D.join_meshes(lb_meshes)
             else:  # use Rhino's default meshing
                 floor_faces = [from_face3d(face) for face in lb_floors]
                 lb_mesh = to_joined_gridded_mesh3d(floor_faces, _grid_size, _dist_floor_)
 
             # remove points outside of the room volume if requested
-            if remove_out_:
+            if remove_out_ and lb_mesh is not None:
                 pattern = [room.geometry.is_point_inside(pt)
                            for pt in lb_mesh.face_centroids]
                 try:
