@@ -49,13 +49,14 @@ Convert a High Dynamic Range (HDR) image file into a falsecolor version of itsel
 
 ghenv.Component.Name = 'HB False Color'
 ghenv.Component.NickName = 'FalseColor'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.4.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 import os
 import subprocess
+import re
 
 try:  # import honeybee_radiance_command dependencies
     from honeybee_radiance_command.falsecolor import Falsecolor
@@ -123,6 +124,23 @@ def is_fisheye(hdr_path):
                     return True
             else:
                 return False
+
+def get_dimensions(img_dim):
+    """Get integers for the dimensions of an image from the pcomb stdout.
+
+    Args:
+        img_dim: Text string that is returned from the pcomb function
+
+    Returns:
+        Two integers for the dimensions of the HDR image
+    """
+    dimensions = []
+    for d in ['+X', '-Y']:
+        regex = r'\%s\s+(\d+)' % d
+        matches = re.finditer(regex, img_dim, re.MULTILINE)
+        dim = next(matches).groups()[0]
+        dimensions.append(int(dim))
+    return dimensions
 
 
 if all_required_inputs(ghenv.Component):
@@ -201,8 +219,7 @@ if all_required_inputs(ghenv.Component):
         process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=use_shell)
         stdout = process.communicate()
         img_dim = stdout[0]
-        x = int(img_dim.split(' ')[-1].strip())
-        y = int(img_dim.split(' ')[-3].strip())
+        x, y = get_dimensions(img_dim)
 
         # mask the image
         xw = legend_width_ if legend_width_ is not None else 100
