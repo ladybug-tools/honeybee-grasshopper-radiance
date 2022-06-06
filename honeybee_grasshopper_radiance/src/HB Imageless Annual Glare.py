@@ -35,6 +35,8 @@ of occupied time that a view is free of glare.
             are considered to induce glare. This value is used when calculating
             glare autonomy, which is the percent of hours in which the view is
             free of glare. (Default: 0.4 for disturbing or intolerable glare).
+        _luminance_fac_: Luminance factor in cd/m2. If the sky patch brightness
+            is above this factor it will act as a glare source. (Default: 2000).
         _schedule_: An annual occupancy schedule, either as a Ladybug Hourly Continuous
             Data Collection or a HB-Energy schedule object. This can also be the
             path to a CSV file with 8760 rows or the identifier of a schedule in
@@ -65,7 +67,7 @@ of occupied time that a view is free of glare.
 
 ghenv.Component.Name = 'HB Imageless Annual Glare'
 ghenv.Component.NickName = 'AnnualGlare'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -88,6 +90,7 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('wea', _wea)
     recipe.input_value_by_name('north', north_)
     recipe.input_value_by_name('glare-threshold', _glare_thresh_)
+    recipe.input_value_by_name('luminance-factor', _luminance_fac_)
     recipe.input_value_by_name('schedule', _schedule_)
     recipe.input_value_by_name('grid-filter', grid_filter_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
