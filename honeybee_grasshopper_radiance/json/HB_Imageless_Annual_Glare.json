@@ -1,5 +1,5 @@
 {
-  "version": "1.4.0", 
+  "version": "1.4.1", 
   "nickname": "AnnualGlare", 
   "outputs": [
     [
@@ -50,6 +50,13 @@
     }, 
     {
       "access": "item", 
+      "name": "_luminance_fac_", 
+      "description": "Luminance factor in cd/m2. If the sky patch brightness\nis above this factor it will act as a glare source. (Default: 2000).", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
       "name": "_schedule_", 
       "description": "An annual occupancy schedule, either as a Ladybug Hourly Continuous\nData Collection or a HB-Energy schedule object. This can also be the\npath to a CSV file with 8760 rows or the identifier of a schedule in\nthe honeybee-energy schedule library. Any value in this schedule\nthat is 0.1 or above will be considered occupied.", 
       "type": "System.Object", 
@@ -85,7 +92,7 @@
     }
   ], 
   "subcategory": "3 :: Recipes", 
-  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('imageless-annual-glare')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('glare-threshold', _glare_thresh_)\n    recipe.input_value_by_name('schedule', _schedule_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        GA = recipe_result(recipe.output_value_by_name('ga', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('imageless-annual-glare')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('glare-threshold', _glare_thresh_)\n    recipe.input_value_by_name('luminance-factor', _luminance_fac_)\n    recipe.input_value_by_name('schedule', _schedule_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        GA = recipe_result(recipe.output_value_by_name('ga', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
   "category": "HB-Radiance", 
   "name": "HB Imageless Annual Glare", 
   "description": "Run an annual glare study for a Honeybee model to compute hourly Daylight Glare\nProbability (DGP) for each sensor in a model's sensor grids.\n_\nThis recipe uses the image-less glare method developed by Nathaniel Jones to\nestimate glare at each sensor. More information on this method can be found here:\nhttps://github.com/nljones/Accelerad/wiki/The-Imageless-Method-for-Spatial-and-Annual-Glare-Analysis\n_\nThe resulting DGP is used to compute Glare Autonomy (GA), which is the percentage\nof occupied time that a view is free of glare.\n-"
