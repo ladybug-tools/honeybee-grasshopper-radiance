@@ -27,6 +27,10 @@ hour/timestep of the simulation.
             first_floor_* will simulate only the sensor grids that have an
             identifier that starts with first_floor_. By default all the grids
             will be processed.
+        coincident_: Boolean to indicate whether output values represent the the peak
+            value for each sensor throughout the entire analysis (False) or
+            they represent the highest overall value across each sensor grid
+            at a particular timestep (True). (Default: False).
 
     Returns:
         report: Reports, errors, warnings, etc.
@@ -38,7 +42,7 @@ hour/timestep of the simulation.
 
 ghenv.Component.Name = 'HB Annual Peak Values'
 ghenv.Component.NickName = 'PeakValues'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.4.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -73,18 +77,32 @@ def parse_sun_up_hours(sun_up_hours, hoys, timestep):
         return su_pattern
 
 
-def peak_values(ill_file, su_pattern):
+def peak_values(ill_file, su_pattern, coincident):
     """Compute average values for a given result file."""
     max_vals = []
     with open(ill_file) as results:
-        if su_pattern is None:  # no HOY filter on results
-            for pt_res in results:
-                values = [float(r) for r in pt_res.split()]
-                max_vals.append(max(values))
-        else: 
-            for pt_res in results:
-                values = [float(r) for r, is_hoy in zip(pt_res.split(), su_pattern) if is_hoy]
-                max_vals.append(max(values))
+        if coincident:
+            all_values = [[float(r) for r in pt_res.split()] for pt_res in results] \
+                if su_pattern is None else \
+                [[float(r) for r, is_hoy in zip(pt_res.split(), su_pattern) if is_hoy]
+                 for pt_res in results]
+            max_val, max_i = 0, 0
+            for i, t_step in enumerate(zip(*all_values)):
+                tot_val = sum(t_step)
+                if tot_val > max_val:
+                    max_val = tot_val
+                    max_i = i
+            for sensor in all_values:
+                max_vals.append(sensor[max_i])
+        else:
+            if su_pattern is None:  # no HOY filter on results
+                for pt_res in results:
+                    values = [float(r) for r in pt_res.split()]
+                    max_vals.append(max(values))
+            else:
+                for pt_res in results:
+                    values = [float(r) for r, is_hoy in zip(pt_res.split(), su_pattern) if is_hoy]
+                    max_vals.append(max(values))
     return max_vals
 
 
@@ -111,8 +129,8 @@ if all_required_inputs(ghenv.Component):
         ill_file = os.path.join(res_folder, '%s.ill' % grid_info['full_id'])
         dgp_file = os.path.join(res_folder, '%s.dgp' % grid_info['full_id'])
         if os.path.isfile(dgp_file):
-            max_list = peak_values(dgp_file, su_pattern)
+            max_list = peak_values(dgp_file, su_pattern, coincident_)
         else:
-            max_list = peak_values(ill_file, su_pattern)
+            max_list = peak_values(ill_file, su_pattern, coincident_)
         values.append(max_list)
     values = list_to_data_tree(values)
