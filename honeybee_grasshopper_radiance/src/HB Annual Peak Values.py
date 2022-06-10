@@ -34,6 +34,9 @@ hour/timestep of the simulation.
 
     Returns:
         report: Reports, errors, warnings, etc.
+        hoys: An integer for each sesnor grid that represents the hour of the year at
+            which the peak occurs. This will be None unless coincident_ is
+            set to True.
         values: Peak illuminance or irradiance valules for each sensor in lux or W/m2.
             Each value is for a different sensor of the grid. These can be plugged
             into the "LB Spatial Heatmap" component along with meshes of the sensor
@@ -42,7 +45,7 @@ hour/timestep of the simulation.
 
 ghenv.Component.Name = 'HB Annual Peak Values'
 ghenv.Component.NickName = 'PeakValues'
-ghenv.Component.Message = '1.4.2'
+ghenv.Component.Message = '1.4.3'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -79,7 +82,7 @@ def parse_sun_up_hours(sun_up_hours, hoys, timestep):
 
 def peak_values(ill_file, su_pattern, coincident):
     """Compute average values for a given result file."""
-    max_vals = []
+    max_vals, max_i = [], None
     with open(ill_file) as results:
         if coincident:
             all_values = [[float(r) for r in pt_res.split()] for pt_res in results] \
@@ -103,7 +106,7 @@ def peak_values(ill_file, su_pattern, coincident):
                 for pt_res in results:
                     values = [float(r) for r, is_hoy in zip(pt_res.split(), su_pattern) if is_hoy]
                     max_vals.append(max(values))
-    return max_vals
+    return max_vals, max_i
 
 
 if all_required_inputs(ghenv.Component):
@@ -124,13 +127,17 @@ if all_required_inputs(ghenv.Component):
     su_pattern = parse_sun_up_hours(sun_up_hours, _hoys_, timestep)
 
     # compute the average values
-    values = []
+    values, hoys = [], []
     for grid_info in grids:
         ill_file = os.path.join(res_folder, '%s.ill' % grid_info['full_id'])
         dgp_file = os.path.join(res_folder, '%s.dgp' % grid_info['full_id'])
         if os.path.isfile(dgp_file):
-            max_list = peak_values(dgp_file, su_pattern, coincident_)
+            max_list, max_i = peak_values(dgp_file, su_pattern, coincident_)
         else:
-            max_list = peak_values(ill_file, su_pattern, coincident_)
+            max_list, max_i = peak_values(ill_file, su_pattern, coincident_)
         values.append(max_list)
+        if max_i is not None:
+            hoys.append(sun_up_hours[max_i])
+        else:
+            hoys.append(max_i)
     values = list_to_data_tree(values)
