@@ -46,10 +46,12 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '1.4.4'
+ghenv.Component.Message = '1.4.5'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
+
+import math
 
 try:  # import the ladybug_geometry dependencies
     from ladybug_geometry.geometry3d.plane import Plane
@@ -141,9 +143,15 @@ if all_required_inputs(ghenv.Component):
                 pattern = []
                 for pt in lb_mesh.face_centroids:
                     for wg in wall_geos:
-                        if wg.plane.distance_to_point(pt) <= wall_offset_:
-                            pattern.append(False)
-                            break
+                        close_pt = wg.plane.closest_point(pt)
+                        p_dist = pt.distance_to_point(close_pt)
+                        if p_dist <= wall_offset_:
+                            close_pt_2d = wg.plane.xyz_to_xy(close_pt)
+                            g_dist = wg.polygon2d.distance_to_point(close_pt_2d)
+                            f_dist = math.sqrt(p_dist ** 2 + g_dist ** 2)
+                            if f_dist <= wall_offset_:
+                                pattern.append(False)
+                                break
                     else:
                         pattern.append(True)
                 try:
