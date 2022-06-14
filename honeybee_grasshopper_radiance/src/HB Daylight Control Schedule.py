@@ -67,7 +67,7 @@ illuminance setpoint everywhere in the room.
 
 ghenv.Component.Name = 'HB Daylight Control Schedule'
 ghenv.Component.NickName = 'DaylightSchedule'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

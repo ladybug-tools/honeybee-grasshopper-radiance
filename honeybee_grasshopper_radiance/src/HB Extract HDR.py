@@ -34,7 +34,7 @@ conversions between 180 FOV angular and hemispherical HDR images can be made.
 
 ghenv.Component.Name = 'HB Extract HDR'
 ghenv.Component.NickName = 'ExtractHDR'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

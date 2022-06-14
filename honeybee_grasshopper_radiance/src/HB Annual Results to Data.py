@@ -41,7 +41,7 @@ deconstructed for detailed analysis with native Grasshopper math components.
 
 ghenv.Component.Name = 'HB Annual Results to Data'
 ghenv.Component.NickName = 'AnnualToData'
-ghenv.Component.Message = '1.4.3'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

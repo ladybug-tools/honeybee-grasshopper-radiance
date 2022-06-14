@@ -70,7 +70,7 @@ solar loads over clear sky Weas that represent cooling design days.
 
 ghenv.Component.Name = 'HB Annual Irradiance'
 ghenv.Component.NickName = 'AnnualIrradiance'
-ghenv.Component.Message = '1.4.2'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

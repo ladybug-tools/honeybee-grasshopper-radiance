@@ -51,7 +51,7 @@ of that geometry.
 
 ghenv.Component.Name = 'HB Sky View'
 ghenv.Component.NickName = 'SkyView'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

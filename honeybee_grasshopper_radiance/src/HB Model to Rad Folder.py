@@ -32,7 +32,7 @@ studies off of a consistent set of geometry and modifiers.
 
 ghenv.Component.Name = 'HB Model to Rad Folder'
 ghenv.Component.NickName = 'ModelToRad'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

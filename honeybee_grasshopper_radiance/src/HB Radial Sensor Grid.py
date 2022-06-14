@@ -40,7 +40,7 @@ directions, such as imageless glare studies.
 
 ghenv.Component.Name = 'HB Radial Sensor Grid'
 ghenv.Component.NickName = 'SensorGrid'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

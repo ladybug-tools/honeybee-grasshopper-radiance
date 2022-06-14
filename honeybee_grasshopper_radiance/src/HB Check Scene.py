@@ -60,7 +60,7 @@ of view-based simulations, the "HB Point-in-time View-based" recipe should be us
 
 ghenv.Component.Name = 'HB Check Scene'
 ghenv.Component.NickName = 'CheckScene'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '6'

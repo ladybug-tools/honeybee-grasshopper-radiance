@@ -33,7 +33,7 @@ Create a point-in-time standard Radiance CIE sky.
 
 ghenv.Component.Name = 'HB CIE Standard Sky'
 ghenv.Component.NickName = 'CIESky'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
