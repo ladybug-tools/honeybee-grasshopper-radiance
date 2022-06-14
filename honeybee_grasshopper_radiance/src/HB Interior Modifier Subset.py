@@ -36,7 +36,7 @@ ModifierSet object.
 
 ghenv.Component.Name = 'HB Interior Modifier Subset'
 ghenv.Component.NickName = 'InteriorSubset'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

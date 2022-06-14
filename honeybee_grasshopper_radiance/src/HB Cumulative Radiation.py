@@ -59,7 +59,7 @@ Irradiance" recipe.
 
 ghenv.Component.Name = 'HB Cumulative Radiation'
 ghenv.Component.NickName = 'CumulativeRadiation'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

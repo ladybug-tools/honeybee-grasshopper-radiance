@@ -36,7 +36,7 @@ recipe components.
 
 ghenv.Component.Name = 'HB Ambient Resolution'
 ghenv.Component.NickName = 'AR'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

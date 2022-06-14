@@ -1,11 +1,11 @@
 {
-  "version": "1.4.3", 
+  "version": "1.5.0", 
   "nickname": "PeakValues", 
   "outputs": [
     [
       {
         "access": "None", 
-        "name": "a", 
+        "name": "hoys", 
         "description": "An integer for each sesnor grid that represents the hour of the year at\nwhich the peak occurs. This will be None unless coincident_ is\nset to True.", 
         "type": null, 
         "default": null
