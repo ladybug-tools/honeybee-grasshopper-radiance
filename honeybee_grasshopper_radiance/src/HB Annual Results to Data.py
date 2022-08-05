@@ -41,12 +41,14 @@ deconstructed for detailed analysis with native Grasshopper math components.
 
 ghenv.Component.Name = 'HB Annual Results to Data'
 ghenv.Component.NickName = 'AnnualToData'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 import os
+import json
+import subprocess
 
 try:
     from ladybug.datatype.illuminance import Illuminance
@@ -56,8 +58,14 @@ try:
     from ladybug.analysisperiod import AnalysisPeriod
     from ladybug.header import Header
     from ladybug.datacollection import HourlyContinuousCollection
+    from ladybug.futil import write_to_file
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
+
+try:
+    from honeybee.config import folders
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
     from honeybee_radiance.postprocess.annualdaylight import _process_input_folder
@@ -151,36 +159,60 @@ if all_required_inputs(ghenv.Component):
                 new_pt_filter[i].append(j)
         pt_filter = new_pt_filter
 
-    # extract the timestep if it exists
-    timestep, has_t_step = 1, False
-    tstep_file = os.path.join(res_folder, 'timestep.txt')
-    if os.path.isfile(tstep_file):  # it's an annual irradiance simulation
-        with open(tstep_file) as tf:
-            timestep = int(tf.readline())
-        has_t_step = True
+    # check to see if results use the newer numpy arrays
+    if os.path.isdir(os.path.join(res_folder, '__static_apertures__')):
+        cmds = [folders.python_exe_path, '-m', 'honeybee_radiance_postprocess',
+                'post-process', 'annual-to-data', res_folder]
+        if pt_filter[0] is not None:
+            sen_dict = {g['full_id']: s_ind for g, s_ind in zip(grids, pt_filter)}
+            si_file = os.path.join(res_folder, 'sensor_indices.json')
+            write_to_file(si_file, json.dumps(sen_dict))
+            cmds.extend(['--sensor-index', si_file])
+        use_shell = True if os.name == 'nt' else False
+        process = subprocess.Popen(
+            cmds, cwd=res_folder, shell=use_shell,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()  # wait for the process to finish
+        if stderr != '':
+            print(stderr)
+            raise ValueError('Failed to compute data collections.')
+        data_dicts = json.loads(stdout)
+        data = [[HourlyContinuousCollection.from_dict(d) for d in data]
+                for data in data_dicts]
+        data = data[0]
+        data = list_to_data_tree(data)
 
-    # parse the sun-up-hours
-    sun_up_hours = [int(h * timestep) for h in sun_up_hours]
-
-    # create the header that will be used for all of the data collections
-    aper = AnalysisPeriod(timestep=timestep)
-    if 'direct_sun_hours' in res_folder:
-        head = Header(Time(), 'hr', aper)
-    elif has_t_step:
-        head = Header(Irradiance(), 'W/m2', aper)
     else:
-        head = Header(Illuminance(), 'lux', aper)
-    dgp_head = Header(Fraction(), 'fraction', aper, metadata={'type': 'Daylight Glare Probability (DGP)'})
+        # extract the timestep if it exists
+        timestep, has_t_step = 1, False
+        tstep_file = os.path.join(res_folder, 'timestep.txt')
+        if os.path.isfile(tstep_file):  # it's an annual irradiance simulation
+            with open(tstep_file) as tf:
+                timestep = int(tf.readline())
+            has_t_step = True
 
-    # create the data collections from the .ill files
-    data = []
-    for grid_info, p_filt in zip(grids, pt_filter):
-        grid_id = grid_info['full_id']
-        ill_file = os.path.join(res_folder, '%s.ill' % grid_id)
-        dgp_file = os.path.join(res_folder, '%s.dgp' % grid_id)
-        if os.path.isfile(dgp_file):
-            data_list = file_to_data(dgp_file, p_filt, sun_up_hours, dgp_head, timestep, grid_id)
+        # parse the sun-up-hours
+        sun_up_hours = [int(h * timestep) for h in sun_up_hours]
+
+        # create the header that will be used for all of the data collections
+        aper = AnalysisPeriod(timestep=timestep)
+        if 'direct_sun_hours' in res_folder:
+            head = Header(Time(), 'hr', aper)
+        elif has_t_step:
+            head = Header(Irradiance(), 'W/m2', aper)
         else:
-            data_list = file_to_data(ill_file, p_filt, sun_up_hours, head, timestep, grid_id)
-        data.append(data_list)
-    data = list_to_data_tree(data)
+            head = Header(Illuminance(), 'lux', aper)
+        dgp_head = Header(Fraction(), 'fraction', aper, metadata={'type': 'Daylight Glare Probability (DGP)'})
+
+        # create the data collections from the .ill files
+        data = []
+        for grid_info, p_filt in zip(grids, pt_filter):
+            grid_id = grid_info['full_id']
+            ill_file = os.path.join(res_folder, '%s.ill' % grid_id)
+            dgp_file = os.path.join(res_folder, '%s.dgp' % grid_id)
+            if os.path.isfile(dgp_file):
+                data_list = file_to_data(dgp_file, p_filt, sun_up_hours, dgp_head, timestep, grid_id)
+            else:
+                data_list = file_to_data(ill_file, p_filt, sun_up_hours, head, timestep, grid_id)
+            data.append(data_list)
+        data = list_to_data_tree(data)
