@@ -60,17 +60,24 @@ Calculate Annual Daylight Metrics from a result (.ill) files.
 
 ghenv.Component.Name = "HB Annual Daylight Metrics"
 ghenv.Component.NickName = 'DaylightMetrics'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
 
 import os
+import subprocess
 
 try:
     from ladybug.datacollection import BaseCollection
+    from ladybug.futil import write_to_file
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
+
+try:
+    from honeybee.config import folders
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
     from honeybee_radiance.postprocess.annualdaylight import metrics_from_folder
@@ -81,6 +88,12 @@ try:
     from honeybee_energy.lib.schedules import schedule_by_identifier
 except ImportError as e:  # honeybee schedule library is not available
     schedule_by_identifier = None
+
+try:
+    from pollination_handlers.outputs.daylight import read_da_from_folder, \
+        read_cda_from_folder, read_udi_from_folder
+except ImportError as e:
+    raise ImportError('\nFailed to import pollination_handlers:\n\t{}'.format(e))
 
 try:
     from ladybug_rhino.grasshopper import all_required_inputs, list_to_data_tree
@@ -129,10 +142,38 @@ if all_required_inputs(ghenv.Component):
     # compute the annual metrics
     res_folder = os.path.dirname(_results[0]) if os.path.isfile(_results[0]) \
         else _results[0]
-    DA, cDA, UDI_low, UDI, UDI_up = metrics_from_folder(
-        res_folder, schedule, _threshold_, min_t, max_t, grid_filter_)
-    DA = list_to_data_tree(DA)
-    cDA = list_to_data_tree(cDA)
-    UDI = list_to_data_tree(UDI)
-    UDI_low = list_to_data_tree(UDI_low)
-    UDI_up = list_to_data_tree(UDI_up)
+    if os.path.isdir(os.path.join(res_folder, '__static_apertures__')):
+        cmds = [
+            folders.python_exe_path, '-m', 'honeybee_radiance_postprocess',
+            'post-process', 'annual-daylight', res_folder, '-sf', 'metrics',
+            '-t', str(_threshold_), '-lt', str(min_t), '-ut', str(max_t)
+        ]
+        if grid_filter_ != '*':
+            cmds.extend(['--grids-filter', grid_filter_])
+        if schedule is not None:
+            sch_str = '\n'.join(str(h) for h in schedule)
+            sch_file = os.path.join(res_folder, 'schedule.txt')
+            write_to_file(sch_file, sch_str)
+            cmds.extend(['--schedule', sch_file])
+        use_shell = True if os.name == 'nt' else False
+        process = subprocess.Popen(
+            cmds, cwd=res_folder, shell=use_shell,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout = process.communicate()  # wait for the process to finish
+        if stdout[-1] != '':
+            print(stdout[-1])
+            raise ValueError('Failed to compute annual daylight metrics.')
+        metric_dir = os.path.join(res_folder, 'metrics')
+        DA = list_to_data_tree(read_da_from_folder(os.path.join(metric_dir, 'da')))
+        cDA = list_to_data_tree(read_cda_from_folder(os.path.join(metric_dir, 'cda')))
+        UDI = list_to_data_tree(read_udi_from_folder(os.path.join(metric_dir, 'udi')))
+        UDI_low = list_to_data_tree(read_udi_from_folder(os.path.join(metric_dir, 'udi_lower')))
+        UDI_up = list_to_data_tree(read_udi_from_folder(os.path.join(metric_dir, 'udi_upper')))
+    else:
+        DA, cDA, UDI_low, UDI, UDI_up = metrics_from_folder(
+            res_folder, schedule, _threshold_, min_t, max_t, grid_filter_)
+        DA = list_to_data_tree(DA)
+        cDA = list_to_data_tree(cDA)
+        UDI = list_to_data_tree(UDI)
+        UDI_low = list_to_data_tree(UDI_low)
+        UDI_up = list_to_data_tree(UDI_up)
