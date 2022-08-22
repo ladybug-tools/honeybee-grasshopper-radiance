@@ -67,17 +67,25 @@ illuminance setpoint everywhere in the room.
 
 ghenv.Component.Name = 'HB Daylight Control Schedule'
 ghenv.Component.NickName = 'DaylightSchedule'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
 
 import os
+import json
+import subprocess
 
 try:
     from ladybug.datacollection import BaseCollection
+    from ladybug.futil import write_to_file
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
+
+try:
+    from honeybee.config import folders
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
     from honeybee_radiance.postprocess.electriclight import daylight_control_schedules
@@ -95,6 +103,20 @@ try:
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+
+
+def load_schedules_from_folder(folder):
+    """Load schedule values from a folder."""
+    info = os.path.join(folder, 'grids_info.json')
+    with open(info) as data_f:
+        data = json.load(data_f)
+    sch_vals, sch_ids = [], []
+    for grid in data:
+        res_file = os.path.join(folder, '{}.txt'.format(grid['full_id']))
+        with open(res_file) as res_f:
+            sch_vals.append([float(v) for v in res_f])
+            sch_ids.append('{} Daylight Control'.format(grid['full_id']))
+    return sch_vals, sch_ids
 
 
 if all_required_inputs(ghenv.Component):
@@ -116,12 +138,42 @@ if all_required_inputs(ghenv.Component):
             schedule = _base_schedule_.values()
         except TypeError:  # it's probably a ScheduleFixedInterval
             schedule = _base_schedule_.values
-
     # get the relevant .ill files
     res_folder = os.path.dirname(_results[0]) if os.path.isfile(_results[0]) \
         else _results[0]
-    sch_vals, sch_ids = daylight_control_schedules(
-        res_folder, schedule, _ill_setpoint_, _min_power_in_, _min_light_out_, off_at_min_)
+
+    # check to see if results use the newer numpy arrays
+    if os.path.isdir(os.path.join(res_folder, '__static_apertures__')):
+        cmds = [
+            folders.python_exe_path, '-m', 'honeybee_radiance_postprocess',
+            'schedule', 'control-schedules', res_folder,
+            '--ill-setpoint', str(_ill_setpoint_),
+            '--min-power-in', str(_min_power_in_),
+            '--min-light-out', str(_min_light_out_),
+            '--sub-folder', 'schedules'
+        ]
+        if _base_schedule_ is not None:
+            sch_str = '\n'.join(str(h) for h in schedule)
+            sch_file = os.path.join(res_folder, 'schedule.txt')
+            write_to_file(sch_file, sch_str)
+            cmds.extend(['--base-schedule-file', sch_file])
+        if off_at_min_:
+            cmds.append('--off-at-min')
+        use_shell = True if os.name == 'nt' else False
+        process = subprocess.Popen(
+            cmds, cwd=res_folder, shell=use_shell,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout = process.communicate()  # wait for the process to finish
+        if stdout[-1] != '':
+            print(stdout[-1])
+            raise ValueError('Failed to compute control schedule.')
+        cntrl_dir = os.path.join(res_folder, 'schedules', 'control_schedules')
+        if os.path.isdir(cntrl_dir):
+            sch_vals, sch_ids = load_schedules_from_folder(cntrl_dir)
+
+    else:
+        sch_vals, sch_ids = daylight_control_schedules(
+            res_folder, schedule, _ill_setpoint_, _min_power_in_, _min_light_out_, off_at_min_)
 
     # create the schedule by combining the base schedule with the dimming fraction
     type_limit = schedule_type_limit_by_identifier('Fractional')
