@@ -19,11 +19,10 @@ deconstructed for detailed analysis with native Grasshopper math components.
             component (containing the .ill files and the sun-up-hours.txt).
             This can also be just the path to the folder containing these
             result files.
-        sel_pts_: An optional point or list of points, which will be used to filter
-            the sensors for which data collections will be imported. If there
-            is an input here, the all_pts_ must be connected.
-        all_pts_: The data tree of all sensor points that were used in the simulation.
-            This is required in order to look up the index of the sel_pts_ in
+        _sel_pts: A point or list of points, which will be used to filter the sensors
+            for which data collections will be imported.
+        _all_pts: The data tree of all sensor points that were used in the simulation.
+            This is required in order to look up the index of the _sel_pts in
             the results matrices.
         sel_vecs_: An optional vector or list of vectors, which will be used to filter
             the sensors for which data collections will be imported. If there
@@ -41,7 +40,7 @@ deconstructed for detailed analysis with native Grasshopper math components.
 
 ghenv.Component.Name = 'HB Annual Results to Data'
 ghenv.Component.NickName = 'AnnualToData'
-ghenv.Component.Message = '1.5.2'
+ghenv.Component.Message = '1.5.3'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -133,14 +132,14 @@ if all_required_inputs(ghenv.Component):
 
     # set up the sensor filter
     pt_filter = [None for i in grids]
-    if len(sel_pts_) != 0 or len(sel_vecs_) != 0:
+    if len(_sel_pts) != 0 or len(sel_vecs_) != 0:
         pt_filter = [[] for i in grids]
 
     # check the sel_pts and all_pts input
-    if len(sel_pts_) != 0:
-        all_pts = [[to_point3d(pt) for pt in dat[-1]] for dat in data_tree_to_list(all_pts_)]
-        assert len(all_pts) != 0, 'all_pts_ must be connected in order to use sel_pts_.'
-        sel_pts = [to_point3d(pt) for pt in sel_pts_]
+    if len(_sel_pts) != 0:
+        all_pts = [[to_point3d(pt) for pt in dat[-1]] for dat in data_tree_to_list(_all_pts)]
+        assert len(all_pts) != 0, '_all_pts must be connected in order to use _sel_pts.'
+        sel_pts = [to_point3d(pt) for pt in _sel_pts]
         for s_pt in sel_pts:
             m_pts = find_point_in_grid(s_pt, all_pts)
             for i, j in m_pts:
@@ -153,7 +152,7 @@ if all_required_inputs(ghenv.Component):
         assert len(all_vecs) != 0, 'all_vecs_ must be connected in order to use sel_vecs_.'
         sel_vecs = [to_vector3d(v) for v in sel_vecs_]
         for s_v in sel_vecs:
-            m_vs = find_point_in_grid(s_v, all_vecs) if len(sel_pts_) == 0 else \
+            m_vs = find_point_in_grid(s_v, all_vecs) if len(_sel_pts) == 0 else \
                 find_vec_in_grid(s_v, all_vecs, pt_filter)
             for i, j in m_vs:
                 new_pt_filter[i].append(j)
