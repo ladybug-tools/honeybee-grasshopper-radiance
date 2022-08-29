@@ -41,7 +41,7 @@ deconstructed for detailed analysis with native Grasshopper math components.
 
 ghenv.Component.Name = 'HB Annual Results to Data'
 ghenv.Component.NickName = 'AnnualToData'
-ghenv.Component.Message = '1.5.1'
+ghenv.Component.Message = '1.5.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -179,7 +179,6 @@ if all_required_inputs(ghenv.Component):
         data_dicts = json.loads(stdout)
         data = [[HourlyContinuousCollection.from_dict(d) for d in data]
                 for data in data_dicts]
-        data = data[0]
         data = list_to_data_tree(data)
 
     else:
