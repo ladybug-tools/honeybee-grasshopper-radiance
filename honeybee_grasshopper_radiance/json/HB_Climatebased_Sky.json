@@ -1,5 +1,5 @@
 {
-  "version": "1.5.0", 
+  "version": "1.5.1", 
   "nickname": "ClimateBased", 
   "outputs": [
     [
@@ -50,7 +50,7 @@
     }
   ], 
   "subcategory": "2 :: Light Sources", 
-  "code": "\ntry:\n    from ladybug_geometry.geometry2d.pointvector import Vector2D\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_geometry:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance.lightsource.sky import ClimateBased\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\n    from ladybug_{{cad}}.togeometry import to_vector2d\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\nimport math\n\n\nif all_required_inputs(ghenv.Component):\n    # process the north input\n    north_ = north_ or 0\n    try:  # it's a vector\n        north_ = math.degrees(to_vector2d(north_).angle_clockwise(Vector2D(0, 1)))\n    except AttributeError:  # north angle instead of vector\n        north_ = float(north_)\n\n    # set default values\n    _month_ = _month_ or 6\n    _day_ = _day_ or 21\n    _hour_ = _hour_ or 12\n\n    # ensure the sun position is aligned with the Wea timestep\n    if _wea.timestep == 1 and int(_hour_) == _hour_:\n        _hour_ += 0.5\n\n    # create the sky object\n    sky = ClimateBased.from_wea(_wea, _month_, _day_, _hour_, north_)", 
+  "code": "\ntry:\n    from ladybug_geometry.geometry2d.pointvector import Vector2D\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_geometry:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance.lightsource.sky import ClimateBased\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\n    from ladybug_{{cad}}.togeometry import to_vector2d\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\nimport math\n\n\nif all_required_inputs(ghenv.Component):\n    # process the north input\n    north_ = north_ or 0\n    try:  # it's a vector\n        north_ = math.degrees(to_vector2d(north_).angle_clockwise(Vector2D(0, 1)))\n    except AttributeError:  # north angle instead of vector\n        north_ = float(north_)\n\n    # set default values\n    _month_ = _month_ or 6\n    _day_ = _day_ or 21\n    _hour_ = 12 if _hour_ is None else _hour_\n\n    # ensure the sun position is aligned with the Wea timestep\n    if _wea.timestep == 1 and int(_hour_) == _hour_:\n        _hour_ += 0.5\n\n    # create the sky object\n    sky = ClimateBased.from_wea(_wea, _month_, _day_, _hour_, north_)", 
   "category": "HB-Radiance", 
   "name": "HB Climatebased Sky", 
   "description": "Create a point-in-time climate-based sky from a Wea.\n-"

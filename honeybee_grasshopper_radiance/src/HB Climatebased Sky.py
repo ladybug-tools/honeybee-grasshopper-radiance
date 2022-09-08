@@ -26,7 +26,7 @@ Create a point-in-time climate-based sky from a Wea.
 
 ghenv.Component.Name = 'HB Climatebased Sky'
 ghenv.Component.NickName = 'ClimateBased'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -61,7 +61,7 @@ if all_required_inputs(ghenv.Component):
     # set default values
     _month_ = _month_ or 6
     _day_ = _day_ or 21
-    _hour_ = _hour_ or 12
+    _hour_ = 12 if _hour_ is None else _hour_
 
     # ensure the sun position is aligned with the Wea timestep
     if _wea.timestep == 1 and int(_hour_) == _hour_:
