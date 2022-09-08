@@ -28,7 +28,7 @@ Create a Custom sky from direct and diffuse irradiance.
 
 ghenv.Component.Name = 'HB Custom Sky'
 ghenv.Component.NickName = 'CustomSky'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -63,7 +63,7 @@ if all_required_inputs(ghenv.Component):
     # set default values if they are not set
     _month_ = _month_ or 6
     _day_ = _day_ or 21
-    _hour_ = _hour_ or 12
+    _hour_ = 12 if _hour_ is None else _hour_
 
     # create the sky object
     sky = ClimateBased.from_location(
