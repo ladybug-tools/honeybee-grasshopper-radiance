@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2022, Ladybug Tools.
+# Copyright (c) 2023, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -26,7 +26,7 @@ Create a point-in-time climate-based sky from a Wea.
 
 ghenv.Component.Name = 'HB Climatebased Sky'
 ghenv.Component.NickName = 'ClimateBased'
-ghenv.Component.Message = '1.5.1'
+ghenv.Component.Message = '1.6.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
