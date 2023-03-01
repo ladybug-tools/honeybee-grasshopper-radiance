@@ -1,0 +1,71 @@
+{
+  "version": "1.6.0", 
+  "nickname": "GridApertures", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "grid", 
+        "description": "A SensorGrid object that can be used in a grid-based recipe.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "points", 
+        "description": "The points that are at the center of each grid cell.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "mesh", 
+        "description": "Analysis mesh that can be passed to the 'Spatial Heatmap' component.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_hb_objs", 
+      "description": "A list of honeybee Faces or Rooms for which sensor grids will be\ngenerated. This can also be an entire Honeybee Model.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_grid_size", 
+      "description": "Number for the size of the grid cells.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_offset_", 
+      "description": "Number for the distance to move points from the base geometry.\nPositive numbers indicate an offset towards the exterior while\nnegative numbers indicate an offset towards the interior, essentially\nmodeling the value of trasnmitted sun through the glass. The default\nis 0.1 meters.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_ap_type_", 
+      "description": "Text or an integer to specify the type of aperture that will be used to\ngenerate grids. Choose from the following. (Default: All).\n* 1 - Window\n* 2 - Skylight\n* 3 - All", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "quad_only_", 
+      "description": "Boolean to note whether meshing should be done using Rhino's\ndefaults (False), which fills the entire aperture geometry to the edges\nwith both quad and tringulated faces, or a mesh with only quad\nfaces should be generated. (Default: False).", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import the ladybug_geometry dependencies\n    from ladybug_geometry.geometry3d.mesh import Mesh3D\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_geometry:\\n\\t{}'.format(e))\n\ntry:  # import the core honeybee dependencies\n    from honeybee.model import Model\n    from honeybee.room import Room\n    from honeybee.face import Face\n    from honeybee.aperture import Aperture\n    from honeybee.boundarycondition import Outdoors\n    from honeybee.facetype import Floor, Wall, RoofCeiling\n    from honeybee.typing import clean_rad_string, clean_and_id_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.sensorgrid import SensorGrid\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.config import conversion_to_meters\n    from ladybug_{{cad}}.togeometry import to_joined_gridded_mesh3d\n    from ladybug_{{cad}}.fromgeometry import from_mesh3d, from_point3d, from_face3d\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nAPERTURE_TYPES = {\n    '1': Wall,\n    '2': RoofCeiling,\n    '3': (Wall, RoofCeiling, Floor),\n    'Window': Wall,\n    'Skylight': RoofCeiling,\n    'All': (Wall, RoofCeiling, Floor)\n}\n\n\nif all_required_inputs(ghenv.Component):\n    # set defaults for any blank inputs\n    _offset_ = 0.1 / conversion_to_meters() if _offset_ is None else _offset_\n    ft = APERTURE_TYPES[_ap_type_.title()] if _ap_type_ is not None \\\n        else (Wall, RoofCeiling, Floor)\n\n    # collect all of the relevant apertures\n    apertures = []\n    for obj in _hb_objs:\n        if isinstance(obj, (Model, Room)):\n            for face in obj.faces:\n                if isinstance(face.boundary_condition, Outdoors) and isinstance(face.type, ft):\n                    apertures.extend(face.apertures)\n        elif isinstance(obj, Face):\n            if isinstance(obj.boundary_condition, Outdoors) and isinstance(obj.type, ft):\n                apertures.extend(obj.apertures)\n        elif isinstance(obj, Aperture):\n            if obj.has_parent:\n                face = obj.parent\n                if isinstance(face.boundary_condition, Outdoors) and isinstance(face.type, ft):\n                    apertures.append(obj)\n            else:\n                apertures.append(obj)\n        else:\n            raise TypeError(\n                'Expected Honeybee Aperture, Face, Room or Model. Got {}.'.format(type(obj)))\n\n    # greneate the meshes and grids from the faces\n    if len(apertures) != 0:\n        # create the gridded ladybug Mesh3D\n        f_geos = [ap.geometry for ap in apertures]\n        if quad_only_:  # use Ladybug's built-in meshing methods\n            lb_meshes = []\n            for geo in f_geos:\n                try:\n                    lb_meshes.append(geo.mesh_grid(_grid_size, offset=_offset_))\n                except AssertionError:\n                    continue\n            if len(lb_meshes) == 0:\n                lb_mesh = None\n            else:\n                lb_mesh = lb_meshes[0] if len(lb_meshes) == 1 else \\\n                    Mesh3D.join_meshes(lb_meshes)\n        else:  # use {{Cad}}'s default meshing\n            rh_faces = [from_face3d(face) for face in f_geos]\n            lb_mesh = to_joined_gridded_mesh3d(rh_faces, _grid_size, _offset_)\n\n        if lb_mesh is not None:\n            # extract positions and directions from the mesh\n            mesh = from_mesh3d(lb_mesh)\n            points = [from_point3d(pt) for pt in lb_mesh.face_centroids]\n            base_poss = [(pt.x, pt.y, pt.z) for pt in lb_mesh.face_centroids]\n            base_dirs = [(vec.x, vec.y, vec.z) for vec in lb_mesh.face_normals]\n\n            # create the sensor grid\n            f_nm = 'Windows'\n            if isinstance(ft, tuple):\n                f_nm = 'Apertures' \n            elif ft is RoofCeiling:\n                f_nm = 'Skylights'\n            g_name = clean_rad_string('{}_Exterior{}'.format(_hb_objs[0].display_name, f_nm)) \\\n                if len(_hb_objs) == 1 else clean_and_id_rad_string('Exterior{}'.format(f_nm))\n            grid = SensorGrid.from_position_and_direction(g_name, base_poss, base_dirs)\n            grid.mesh = lb_mesh\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Sensor Grid from Apertures", 
+  "description": "Generate SensorGrid objects from exterior Apertures.\n_\nThese SensorGrids can be used in any grid-based recipe and are particularly useful\nfor irradiance studies that evaluate solar gain of buildings, such as peak solar\nirradiance studies.\n-"
+}

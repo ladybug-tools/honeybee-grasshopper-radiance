@@ -1,5 +1,5 @@
 {
-  "version": "1.6.0", 
+  "version": "1.6.1", 
   "nickname": "GridRooms", 
   "outputs": [
     [
@@ -51,7 +51,7 @@
     {
       "access": "item", 
       "name": "quad_only_", 
-      "description": "Boolean to note whether meshing should be done using Rhino's\ndefaults (False), which fills the entire _geometry to the edges\nwith both quad and tringulated faces, or a mesh with only quad\nfaces should be generated.\n_\nFOR ADVANCED USERS: This input can also be a vector object that will\nbe used to set the orientation of the quad-only grid. Note that,\nif a vector is input here that is not aligned with the plane of\nthe room's floors, an error will be raised.", 
+      "description": "Boolean to note whether meshing should be done using Rhino's\ndefaults (False), which fills the entire floor geometry to the edges\nwith both quad and tringulated faces, or a mesh with only quad\nfaces should be generated.\n_\nFOR ADVANCED USERS: This input can also be a vector object that will\nbe used to set the orientation of the quad-only grid. Note that,\nif a vector is input here that is not aligned with the plane of\nthe room's floors, an error will be raised.", 
       "type": "System.Object", 
       "default": null
     }, 
