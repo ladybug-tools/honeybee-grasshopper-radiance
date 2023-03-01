@@ -1,0 +1,78 @@
+{
+  "version": "1.6.0", 
+  "nickname": "GridFaces", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "grid", 
+        "description": "A SensorGrid object that can be used in a grid-based recipe.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "points", 
+        "description": "The points that are at the center of each grid cell.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "mesh", 
+        "description": "Analysis mesh that can be passed to the 'Spatial Heatmap' component.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_hb_objs", 
+      "description": "A list of honeybee Faces or Rooms for which sensor grids will be\ngenerated. This can also be an entire Honeybee Model.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_grid_size", 
+      "description": "Number for the size of the grid cells.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_offset_", 
+      "description": "Number for the distance to move points from the base geometry.\nThe default is 0.1 meters.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_face_type_", 
+      "description": "Text or an integer to specify the type of face that will be used to\ngenerate grids. Note that only Faces with Outdoors boundary conditions\nwill be used, meaning that most Floors will typically be\nexcluded unless they represent the underside of a cantilever.\nChoose from the following. (Default: Wall).\n* 1 - Wall\n* 2 - Roof\n* 3 - Floor\n* 4 - All", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "punched_", 
+      "description": "Boolean to note whether the punched_geometry of the faces\nshould be used (True) with the areas of sub-faces removed from the grid\nor the full geometry should be used (False). (Default:False).", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "quad_only_", 
+      "description": "Boolean to note whether meshing should be done using Rhino's\ndefaults (False), which fills the entire face geometry to the edges\nwith both quad and tringulated faces, or a mesh with only quad\nfaces should be generated. (Default: False).", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import the ladybug_geometry dependencies\n    from ladybug_geometry.geometry3d.mesh import Mesh3D\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_geometry:\\n\\t{}'.format(e))\n\ntry:  # import the core honeybee dependencies\n    from honeybee.model import Model\n    from honeybee.room import Room\n    from honeybee.face import Face\n    from honeybee.boundarycondition import Outdoors\n    from honeybee.facetype import Floor, Wall, RoofCeiling\n    from honeybee.typing import clean_rad_string, clean_and_id_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.sensorgrid import SensorGrid\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.config import conversion_to_meters\n    from ladybug_{{cad}}.togeometry import to_joined_gridded_mesh3d\n    from ladybug_{{cad}}.fromgeometry import from_mesh3d, from_point3d, from_face3d\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nFACE_TYPES = {\n    '1': Wall,\n    '2': RoofCeiling,\n    '3': Floor,\n    '4': (Wall, RoofCeiling, Floor),\n    'Wall': Wall,\n    'Roof': RoofCeiling,\n    'RoofCeiling': RoofCeiling,\n    'Floor': Floor,\n    'All': (Wall, RoofCeiling, Floor)\n}\n\n\nif all_required_inputs(ghenv.Component):\n    # set defaults for any blank inputs\n    _offset_ = 0.1 / conversion_to_meters() if _offset_ is None else _offset_\n    ft = FACE_TYPES[_face_type_.title()] if _face_type_ is not None else Wall\n\n    # collect all of the relevant faces\n    faces = []\n    for obj in _hb_objs:\n        if isinstance(obj, (Model, Room)):\n            for face in obj.faces:\n                if isinstance(face.boundary_condition, Outdoors) and isinstance(face.type, ft):\n                    faces.append(face)\n        elif isinstance(obj, Face):\n            if isinstance(obj.boundary_condition, Outdoors) and isinstance(obj.type, ft):\n                faces.append(obj)\n        else:\n            raise TypeError('Expected Honeybee Face, Room or Model. Got {}.'.format(type(obj)))\n\n    # greneate the meshes and grids from the faces\n    if len(faces) != 0:\n        # create the gridded ladybug Mesh3D\n        f_geos = [face.punched_geometry for face in faces] if punched_ else \\\n            [face.geometry for face in faces]\n        if quad_only_:  # use Ladybug's built-in meshing methods\n            lb_meshes = []\n            for geo in f_geos:\n                try:\n                    lb_meshes.append(geo.mesh_grid(_grid_size, offset=_offset_))\n                except AssertionError:\n                    continue\n            if len(lb_meshes) == 0:\n                lb_mesh = None\n            else:\n                lb_mesh = lb_meshes[0] if len(lb_meshes) == 1 else \\\n                    Mesh3D.join_meshes(lb_meshes)\n        else:  # use {{Cad}}'s default meshing\n            rh_faces = [from_face3d(face) for face in f_geos]\n            lb_mesh = to_joined_gridded_mesh3d(rh_faces, _grid_size, _offset_)\n\n        if lb_mesh is not None:\n            # extract positions and directions from the mesh\n            mesh = from_mesh3d(lb_mesh)\n            points = [from_point3d(pt) for pt in lb_mesh.face_centroids]\n            base_poss = [(pt.x, pt.y, pt.z) for pt in lb_mesh.face_centroids]\n            base_dirs = [(vec.x, vec.y, vec.z) for vec in lb_mesh.face_normals]\n\n            # create the sensor grid\n            f_nm = 'Faces' if isinstance(ft, tuple) else ft.__name__\n            g_name = clean_rad_string('{}_Exterior{}'.format(_hb_objs[0].display_name, f_nm)) \\\n                if len(_hb_objs) == 1 else clean_and_id_rad_string('Exterior{}'.format(f_nm))\n            grid = SensorGrid.from_position_and_direction(g_name, base_poss, base_dirs)\n            grid.mesh = lb_mesh\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Sensor Grid from Faces", 
+  "description": "Generate SensorGrid objects from exterior Faces (Walls, Roofs, and Floors).\n_\nThese SensorGrids can be used in any grid-based recipe and are particularly useful\nfor radiation studies of roofs for photovoltaic potential or solar gain studies\nof walls.\n-"
+}

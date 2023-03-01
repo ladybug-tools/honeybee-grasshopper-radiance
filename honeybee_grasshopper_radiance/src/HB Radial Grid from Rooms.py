@@ -46,10 +46,10 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Radial Grid from Rooms'
 ghenv.Component.NickName = 'RadialGridRooms'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
-ghenv.Component.AdditionalHelpFromDocStrings = '0'
+ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 try:  # import the ladybug_geometry dependencies
     from ladybug_geometry.geometry3d.pointvector import Vector3D, Point3D

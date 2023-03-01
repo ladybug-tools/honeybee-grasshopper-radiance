@@ -22,7 +22,7 @@ The names of the grids will be the same as the rooms that they came from.
         _dist_floor_: Number for the distance to move points from the floors of
             the input rooms. The default is 0.8 meters.
         quad_only_: Boolean to note whether meshing should be done using Rhino's
-            defaults (False), which fills the entire _geometry to the edges
+            defaults (False), which fills the entire floor geometry to the edges
             with both quad and tringulated faces, or a mesh with only quad
             faces should be generated.
             _
@@ -46,7 +46,7 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
