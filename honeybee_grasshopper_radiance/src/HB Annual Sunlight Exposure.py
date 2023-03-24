@@ -9,6 +9,10 @@
 
 """
 Calculate Annual Sunlight Exposure from a results folder.
+_
+Note: This component will only output a LEED compliant ASE if you've run the
+simulation with all operable shading devices retracted. If you are using
+results with operable shading devices, then this output is NOT LEED compliant.
 
 -
     Args:
