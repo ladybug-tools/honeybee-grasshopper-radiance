@@ -23,6 +23,9 @@ hour/timestep of the simulation.
             for which results will be computed. These HOYs can be obtained from the
             "LB Calculate HOY" or the "LB Analysis Period" components. If None, all
             hours of the results will be used.
+        median_: Set to True to get the median values instead of the average. The median
+            values can only be calculated for a results folder from the
+            "HB Annual Daylight" component. (Default: False).
         grid_filter_: The name of a grid or a pattern to filter the grids. For instance,
             first_floor_* will simulate only the sensor grids that have an
             identifier that starts with first_floor_. By default all the grids
@@ -38,7 +41,7 @@ hour/timestep of the simulation.
 
 ghenv.Component.Name = 'HB Annual Average Values'
 ghenv.Component.NickName = 'AvgValues'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -111,14 +114,18 @@ def average_values(ill_file, su_pattern, full_len):
 
 if all_required_inputs(ghenv.Component):
     # set up the default values
+    median_ = False if median_ is None else median_
     grid_filter_ = '*' if grid_filter_ is None else grid_filter_
     res_folder = os.path.dirname(_results[0]) if os.path.isfile(_results[0]) \
         else _results[0]
 
     # check to see if results use the newer numpy arrays
-    if os.path.isdir(os.path.join(res_folder, '__static_apertures__')):
+    if os.path.isdir(os.path.join(res_folder, '__static_apertures__')) or \
+        os.path.isfile(os.path.join(res_folder, 'grid_states.json')):
+        res_type = 'average' if median_ is False else 'median'
         cmds = [folders.python_exe_path, '-m', 'honeybee_radiance_postprocess',
-                'post-process', 'average-values', res_folder, '-sf', 'metrics']
+                'post-process', '{}-values'.format(res_type), res_folder, '-sf',
+                'metrics']
         if len(_hoys_) != 0:
             hoys_str = '\n'.join(str(h) for h in _hoys_)
             hoys_file = os.path.join(res_folder, 'hoys.txt')
@@ -133,13 +140,17 @@ if all_required_inputs(ghenv.Component):
         stdout = process.communicate()  # wait for the process to finish
         if stdout[-1] != '':
             print(stdout[-1])
-            raise ValueError('Failed to compute average values.')
-        avg_dir = os.path.join(res_folder, 'metrics', 'average_values')
-        if os.path.isdir(avg_dir):
-            values = read_sensor_grid_result(avg_dir, 'average','full_id', False)
+            raise ValueError('Failed to compute {} values.'.format(res_type))
+        res_dir = os.path.join(res_folder, 'metrics', '{}_values'.format(res_type))
+        if os.path.isdir(res_dir):
+            values = read_sensor_grid_result(res_dir, res_type,'full_id', False)
             values = list_to_data_tree(values)
 
     else:
+        if median_:
+            raise ValueError('The median values can only be calculated for a '
+                             'results folder from the "HB Annual Daylight" '
+                             'component.')
         # extract the timestep if it exists
         timestep = 1
         tstep_file = os.path.join(res_folder, 'timestep.txt')
