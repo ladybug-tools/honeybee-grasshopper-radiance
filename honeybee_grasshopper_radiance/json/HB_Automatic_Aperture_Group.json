@@ -1,0 +1,64 @@
+{
+  "version": "1.6.0", 
+  "nickname": "AutoGroup", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "model", 
+        "description": "A Honeybee Model object where all Apertures with Outdoors\nboundary condition have been assigned a dynamic group identifier.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "A Honeybee Model for which Apertures will be grouped automatically.\nNote that this model must have Apertures with Outdoors boundary\ncondition assigned to it.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_room_based_", 
+      "description": "A boolean to note whether the Apertures should be grouped on a\nroom basis. If grouped on a room basis Apertures from different\nroom cannot be in the same group. (Default: True).", 
+      "type": "bool", 
+      "default": "true"
+    }, 
+    {
+      "access": "item", 
+      "name": "_view_factor_", 
+      "description": "A boolean to note whether the Apertures should be grouped by\ncalculating view factors for the Apertures to a discretized sky or\nsimply by the normal orientation of the Apertures. (Default: False).", 
+      "type": "bool", 
+      "default": "false"
+    }, 
+    {
+      "access": "item", 
+      "name": "_size_", 
+      "description": "Aperture grid size for view factor calculation. A lower number\nwill give a finer grid and more accurate results but the calculation\ntime will increase. This option is only used if _view_factor_ is set\nto True. (Default: 0.2).", 
+      "type": "double", 
+      "default": "0.2"
+    }, 
+    {
+      "access": "item", 
+      "name": "vert_tolerance_", 
+      "description": "A float value for vertical tolerance between two Apertures.\nIf the vertical distance between two Apertures is larger than this\ntolerance the Apertures cannot be grouped. If no value is given the\nvertical grouping will be skipped. (Default: None).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_run", 
+      "description": "Set to True to run the automatic Aperture grouping.", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\nimport os\nimport json\n\ntry:  # import honeybee_radiance dependencies\n    from ladybug.futil import write_to_file_by_name\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.model import Model\n    from honeybee.boundarycondition import Outdoors\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import honeybee_radiance_command dependencies\n    from honeybee_radiance_command.oconv import Oconv\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance_command:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance.config import folders as rad_folders\n    from honeybee_radiance.cli.multiphase import _aperture_view_factor, \\\n        _aperture_view_factor_postprocess, cluster_view_factor, \\\n        cluster_orientation, cluster_output\n    from honeybee_radiance.lightsource.sky.skydome import SkyDome\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    assert isinstance(_model, Model), \\\n        'Input _model must be a Model. Got {}'.format(type(_model))\n    # duplicate model\n    model = _model.duplicate()\n\n    # set defaults\n    room_based = True if _room_based_ is None else _room_based_\n    view_factor = False if _view_factor_ is None else _view_factor_\n    size = 0.2 if _size_ is None else _size_\n    vertical_tolerance = None if vert_tolerance_ is None else vert_tolerance_\n\n    # create directory\n    folder_dir = os.path.join(folders.default_simulation_folder, 'aperture_groups')\n    if not os.path.isdir(folder_dir):\n        os.makedirs(folder_dir)\n\n    apertures = []\n    room_apertures = {}\n    # get all room-based apertures with Outdoors boundary condition\n    for room in model.rooms:\n        for face in room.faces:\n            for ap in face.apertures:\n                if isinstance(ap.boundary_condition, Outdoors):\n                    apertures.append(ap)\n                    if not room.identifier in room_apertures:\n                        room_apertures[room.identifier] = {}\n                    if not 'apertures' in room_apertures[room.identifier]:\n                        room_apertures[room.identifier]['apertures'] = \\\n                            [ap]\n                    else:\n                        room_apertures[room.identifier]['apertures'].append(ap)\n                    if not 'display_name' in room_apertures[room.identifier]:\n                        room_apertures[room.identifier]['display_name'] = \\\n                            room.display_name\n    assert len(apertures) != 0, \\\n        'Found no apertures. There should at least be one aperture ' \\\n        'in your model.'\n\n    if view_factor:\n        # write octree\n        model_content, modifier_content = model.to.rad(model, minimal=True)\n        scene_file, mat_file = 'scene.rad', 'scene.mat'\n        write_to_file_by_name(folder_dir, scene_file, model_content)\n        write_to_file_by_name(folder_dir, mat_file, modifier_content)\n        \n        octree = 'scene.oct'\n        oconv = Oconv(inputs=[mat_file, scene_file], output=octree)\n        oconv.options.f = True\n        \n        # run Oconv command\n        env = None\n        if rad_folders.env != {}:\n            env = rad_folders.env\n        env = dict(os.environ, **env) if env else None\n        oconv.run(env, cwd=folder_dir)\n        \n        rflux_sky = SkyDome()\n        rflux_sky = rflux_sky.to_file(folder_dir, name='rflux_sky.sky')\n        \n        # calculate view factor\n        mtx_file, ap_dict = _aperture_view_factor(\n            folder_dir, apertures, size=size, ambient_division=1000,\n            receiver=rflux_sky, octree=octree, calc_folder=folder_dir\n        )\n        rmse = _aperture_view_factor_postprocess(\n            mtx_file, ap_dict, room_apertures, room_based\n        )\n\n    # cluster apertures into groups\n    if view_factor:\n        ap_groups = cluster_view_factor(\n            rmse, room_apertures, 0.001, room_based, vertical_tolerance)\n    else:\n        ap_groups = cluster_orientation(\n            room_apertures, apertures, room_based, vertical_tolerance\n        )\n\n    # process clusters\n    group_names, group_dict = \\\n        cluster_output(ap_groups, room_apertures, room_based)\n\n    # write aperture groups to JSON file\n    dyn_gr = os.path.join(folder_dir, 'aperture_groups.json')\n    with open(dyn_gr, 'w') as fp:\n        json.dump(group_names, fp, indent=2)\n\n    # write dynamic group identifiers to JSON file\n    dyn_gr_ids = os.path.join(folder_dir, 'dynamic_group_identifiers.json')\n    with open(dyn_gr_ids, 'w') as fp:\n        json.dump(group_dict, fp, indent=2)\n\n    # assign dynamic group identifiers for each aperture\n    for room in model.rooms:\n        for face in room.faces:\n            for ap in face.apertures:\n                if isinstance(ap.boundary_condition, Outdoors):\n                    dyn_group_id = group_dict[ap.identifier]\n                    ap.properties.radiance.dynamic_group_identifier = \\\n                        dyn_group_id\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Automatic Aperture Group", 
+  "description": "Calculate Aperture groups for exterior Apertures.\n_\nThe Apertures are grouped by orientation unless _view_factor_ is set to True.\n_\nIf grouping based on view factor the component calculates view factor from\nApertures to sky patches (rfluxmtx). Each Aperture is represented by a sensor\ngrid, and the view factor for the whole Aperture is the average of the grid. The\nRMSE of the view factor to each sky patch is calculated between all Apertures.\nAgglomerative hierarchical clustering (with complete-linkage method) is used to\ngroup the Apertures by using a distance matrix of the RMSE values.\nThe view factor approach is Radiance-based (and slower) and will likely group\nApertures more accurately considering the context geometry of the Honeybee\nModel.\n-"
+}
