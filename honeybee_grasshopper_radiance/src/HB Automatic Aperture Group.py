@@ -51,7 +51,7 @@ Model.
 
 ghenv.Component.Name = 'HB Automatic Aperture Group'
 ghenv.Component.NickName = 'AutoGroup'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

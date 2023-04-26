@@ -1,5 +1,5 @@
 {
-  "version": "1.6.0", 
+  "version": "1.6.1", 
   "nickname": "AutoGroup", 
   "outputs": [
     [
@@ -25,21 +25,21 @@
       "name": "_room_based_", 
       "description": "A boolean to note whether the Apertures should be grouped on a\nroom basis. If grouped on a room basis Apertures from different\nroom cannot be in the same group. (Default: True).", 
       "type": "bool", 
-      "default": "true"
+      "default": null
     }, 
     {
       "access": "item", 
       "name": "_view_factor_", 
       "description": "A boolean to note whether the Apertures should be grouped by\ncalculating view factors for the Apertures to a discretized sky or\nsimply by the normal orientation of the Apertures. (Default: False).", 
       "type": "bool", 
-      "default": "false"
+      "default": null
     }, 
     {
       "access": "item", 
       "name": "_size_", 
       "description": "Aperture grid size for view factor calculation. A lower number\nwill give a finer grid and more accurate results but the calculation\ntime will increase. This option is only used if _view_factor_ is set\nto True. (Default: 0.2).", 
       "type": "double", 
-      "default": "0.2"
+      "default": null
     }, 
     {
       "access": "item", 
