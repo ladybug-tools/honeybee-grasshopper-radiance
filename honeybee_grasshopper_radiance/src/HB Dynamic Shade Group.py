@@ -40,10 +40,10 @@ shades continue to change.
 
 ghenv.Component.Name = 'HB Dynamic Shade Group'
 ghenv.Component.NickName = 'ShadeGroup'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
-ghenv.Component.AdditionalHelpFromDocStrings = '2'
+ghenv.Component.AdditionalHelpFromDocStrings = '0'
 
 import uuid
 
