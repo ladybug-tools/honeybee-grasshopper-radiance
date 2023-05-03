@@ -51,7 +51,7 @@ Model.
 
 ghenv.Component.Name = 'HB Automatic Aperture Group'
 ghenv.Component.NickName = 'AutoGroup'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.6.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -163,7 +163,7 @@ if all_required_inputs(ghenv.Component) and _run:
     # cluster apertures into groups
     if view_factor:
         ap_groups = cluster_view_factor(
-            rmse, room_apertures, 0.001, room_based, vertical_tolerance)
+            rmse, room_apertures, apertures, 0.001, room_based, vertical_tolerance)
     else:
         ap_groups = cluster_orientation(
             room_apertures, apertures, room_based, vertical_tolerance
