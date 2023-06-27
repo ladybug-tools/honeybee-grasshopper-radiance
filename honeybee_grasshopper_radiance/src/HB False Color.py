@@ -29,6 +29,9 @@ Convert a High Dynamic Range (HDR) image file into a falsecolor version of itsel
             The default is either 1 or 179 depending on whether the image is for
             radiance or irradiance to luminance or illuminance, respectively.
         contour_lines_: Set to True ro render the image with colored contour lines.
+        logarithmic_: Number of decades to use with a logarithmic legend scale.
+            Decades are the number of intervals of 10 below the maximum scale. If
+            unspecified, a linear scale is used.
         extrema_: Set to True to cause extrema points to be printed on the brightest
             and darkest pixels of the input picture.
         mask_: A boolen to note whether pixels with a value of zero should be masked in
@@ -49,7 +52,7 @@ Convert a High Dynamic Range (HDR) image file into a falsecolor version of itsel
 
 ghenv.Component.Name = 'HB False Color'
 ghenv.Component.NickName = 'FalseColor'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -185,6 +188,8 @@ if all_required_inputs(ghenv.Component):
         falsecolor.options.p = input_image
     if extrema_:
         falsecolor.options.e = True
+    if logarithmic_:
+        falsecolor.options.log = logarithmic_
     if legend_height_ is not None:
         falsecolor.options.lh = legend_height_
     if legend_width_ is not None:
