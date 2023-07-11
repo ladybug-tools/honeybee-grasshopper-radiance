@@ -60,7 +60,7 @@ of view-based simulations, the "HB Point-in-time View-based" recipe should be us
 
 ghenv.Component.Name = 'HB Check Scene'
 ghenv.Component.NickName = 'CheckScene'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '6'
@@ -146,7 +146,8 @@ if all_required_inputs(ghenv.Component) and _run:
     elif isinstance(_sky_, str):  # convert the sky string into a sky object
         _sky_ = string_to_sky(_sky_)
     to_rad_int = 1 if _metric_ in ('irradiance', 'radiance') else 0
-    sky_content = _sky_.to_radiance(1) if isinstance(_sky_, ClimateBased) else _sky_.to_radiance()
+    sky_content = _sky_.to_radiance(to_rad_int) if isinstance(_sky_, ClimateBased) \
+        else _sky_.to_radiance()
 
     # process the _hb_objs into a Model and then a Radiance string
     models = [obj for obj in _hb_objs if isinstance(obj, Model)]
@@ -158,8 +159,9 @@ if all_required_inputs(ghenv.Component) and _run:
 
     # set up the paths for the various files used in translation
     scene_dir = os.path.join(folders.default_simulation_folder, 'scene_visualiztion')
-    sky_file, scene_file, mat_file, view_file = \
-        'weather.sky', 'scene.rad', 'scene.mat', 'view.vf'
+    sky_file, scene_file, mat_file = \
+        'weather.sky', 'scene.rad', 'scene.mat'
+    view_file = 'view_{}.vf'.format(_metric_)
     write_to_file_by_name(scene_dir, sky_file, sky_content, mkdir=True)
     write_to_file_by_name(scene_dir, scene_file, model_content)
     write_to_file_by_name(scene_dir, mat_file, modifier_content)
