@@ -34,13 +34,14 @@ conversions between 180 FOV angular and hemispherical HDR images can be made.
 
 ghenv.Component.Name = 'HB Extract HDR'
 ghenv.Component.NickName = 'ExtractHDR'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
 
 import os
 import subprocess
+import re
 
 try:  # import honeybee_radiance_command dependencies
     from honeybee_radiance_command.pinterp import Pinterp
@@ -138,10 +139,18 @@ def check_resolution(hdr_path, resolution, view, hdr_view):
     process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=use_shell)
     stdout = process.communicate()
     img_dim = stdout[0]
-    
+
+    def get_dimensions(img_dim):
+        dimensions = []
+        for d in ['+X', '-Y']:
+            regex = r'\%s\s+(\d+)' % d
+            matches = re.finditer(regex, img_dim, re.MULTILINE)
+            dim = next(matches).groups()[0]
+            dimensions.append(int(dim))
+        return dimensions
     # check the X and Y dimensions of the image
-    hdr_x = int(img_dim.split(' ')[-1].strip())
-    hdr_y = int(img_dim.split(' ')[-3].strip())
+    hdr_x, hdr_y = get_dimensions(img_dim)
+ 
     if hdr_x == hdr_y: 
         hdr_resolution = hdr_x = hdr_y
     else:
