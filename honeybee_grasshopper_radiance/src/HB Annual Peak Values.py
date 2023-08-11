@@ -45,7 +45,7 @@ hour/timestep of the simulation.
 
 ghenv.Component.Name = 'HB Annual Peak Values'
 ghenv.Component.NickName = 'PeakValues'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -156,6 +156,12 @@ if all_required_inputs(ghenv.Component):
         if os.path.isdir(avg_dir):
             values = read_sensor_grid_result(avg_dir, 'peak','full_id', False)
             values = list_to_data_tree(values)
+            with open(os.path.join(avg_dir, 'max_hoys.txt'), 'r') as max_hoys:
+                hoys = [line.rstrip() for line in max_hoys.readlines()]
+            if coincident_:
+                hoys = map(int, hoys)
+            else:
+                hoys = [None] * len(hoys)
 
     else:
         # extract the timestep if it exists
