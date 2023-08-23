@@ -21,6 +21,9 @@ Create a Custom sky from direct and diffuse irradiance.
         _month_: An integer between 1 and 12 for the month of the year (default: 6).
         _day_: An integer between 1 and 31 for the day of the month (default: 21).
         _hour_: A number between 0 and 23.999 for the hour of the day (default: 12).
+        colored_: Boolean to note whether the sky will be rendered in full
+            color (True) or it will simple be a grey sky with the same average
+            value as the colored sky (False). (Default: False).
 
     Returns:
         sky: Honeybee sky. You can use this sky to create a daylight recipe.
@@ -28,7 +31,7 @@ Create a Custom sky from direct and diffuse irradiance.
 
 ghenv.Component.Name = 'HB Custom Sky'
 ghenv.Component.NickName = 'CustomSky'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -67,4 +70,5 @@ if all_required_inputs(ghenv.Component):
 
     # create the sky object
     sky = ClimateBased.from_location(
-        _location, _month_, _day_, _hour_, _dir_rad, _diff_rad, north_)
+        _location, _month_, _day_, _hour_, _dir_rad, _diff_rad, north_,
+        is_colored=colored_)
