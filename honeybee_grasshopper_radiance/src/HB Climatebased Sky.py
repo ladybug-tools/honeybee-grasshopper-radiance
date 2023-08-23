@@ -19,6 +19,9 @@ Create a point-in-time climate-based sky from a Wea.
         _month_: An integer between 1 and 12 for the month of the year (default: 6).
         _day_: An integer between 1 and 31 for the day of the month (default: 21).
         _hour_: A number between 0 and 23.999.. for the hour of the day (default: 12).
+        colored_: Boolean to note whether the sky will be rendered in full
+            color (True) or it will simple be a grey sky with the same average
+            value as the colored sky (False). (Default: False).
 
     Returns:
         sky: A Honeybee sky that can be used to create a point-in-time recipe.
@@ -26,7 +29,7 @@ Create a point-in-time climate-based sky from a Wea.
 
 ghenv.Component.Name = 'HB Climatebased Sky'
 ghenv.Component.NickName = 'ClimateBased'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -68,4 +71,5 @@ if all_required_inputs(ghenv.Component):
         _hour_ += 0.5
 
     # create the sky object
-    sky = ClimateBased.from_wea(_wea, _month_, _day_, _hour_, north_)
+    sky = ClimateBased.from_wea(
+        _wea, _month_, _day_, _hour_, north_, is_colored=colored_)
