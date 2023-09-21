@@ -51,7 +51,7 @@ of that geometry.
 
 ghenv.Component.Name = 'HB Sky View'
 ghenv.Component.NickName = 'SkyView'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -76,7 +76,8 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
 
     # run the recipe
-    project_folder = recipe.run(run_settings_, radiance_check=True)
+    silent = True if _run > 1 else False
+    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)
 
     # load the results
     try:
