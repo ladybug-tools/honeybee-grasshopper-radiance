@@ -1,5 +1,5 @@
 {
-  "version": "1.6.0", 
+  "version": "1.6.1", 
   "nickname": "SkyView", 
   "outputs": [
     [
@@ -52,12 +52,12 @@
       "access": "item", 
       "name": "_run", 
       "description": "Set to True to run the recipe and get results.", 
-      "type": "bool", 
+      "type": "int", 
       "default": null
     }
   ], 
   "subcategory": "3 :: Recipes", 
-  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('sky-view')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('cloudy-sky', cloudy_sky_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    project_folder = recipe.run(run_settings_, radiance_check=True)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('sky-view')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('cloudy-sky', cloudy_sky_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
   "category": "HB-Radiance", 
   "name": "HB Sky View", 
   "description": "Run a Sky View (SV) study for a Honeybee model.\n_\nSky View is defined as the percent of the sky dome seen by a surface. These can\nbe computed either using a uniform (default) sky or a cloudy sky.\n_\nNote that computing cloudy Sky View for a vertically-oriented geometry (horizontal\nsensor direction) will yield Vertical Sky Component (VSC) as described by the UK\nBuilding Research Establishment (BRE). VSC is defined as the ratio of cloudy sky\nilluminance falling on a vertical wall to the simultaneous horizontal illuminance\nunder an unobstructed sky [Littlefair, 1991].\n_\nAlso note that this recipe still respects the transparency of objects, reducing\nthe percentage of the sky visible through a certain geometry by the transmittance\nof that geometry.\n-"
