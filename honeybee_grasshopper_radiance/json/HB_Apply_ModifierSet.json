@@ -1,5 +1,5 @@
 {
-  "version": "1.6.0", 
+  "version": "1.6.1", 
   "nickname": "ApplyModSet", 
   "outputs": [
     [
@@ -16,7 +16,7 @@
     {
       "access": "list", 
       "name": "_rooms", 
-      "description": "Honeybee Rooms to which the input _mod_set should be assigned.", 
+      "description": "Honeybee Rooms to which the input _mod_set should be assigned.\nThis can also be a Honeybee Model for which all Rooms\nwill be assigned the ModifierSet.", 
       "type": "System.Object", 
       "default": null
     }, 
@@ -29,7 +29,7 @@
     }
   ], 
   "subcategory": "1 :: Modifiers", 
-  "code": "\n\ntry:  # import the honeybee-radiance extension\n    from honeybee_radiance.lib.modifiersets import modifier_set_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import the ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects\n    rooms = [obj.duplicate() for obj in _rooms]\n\n    # process the input modifier set if it's a string\n    if isinstance(_mod_set, str):\n        _mod_set = modifier_set_by_identifier(_mod_set)\n\n    # assign the modifier set\n    for rm in rooms:\n        rm.properties.radiance.modifier_set = _mod_set\n", 
+  "code": "\ntry:  # import the honeybee extension\n    from honeybee.model import Model\n    from honeybee.room import Room\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-radiance extension\n    from honeybee_radiance.lib.modifiersets import modifier_set_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import the ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects\n    rooms = [obj.duplicate() for obj in _rooms]\n\n    # extract any rooms from the input Models\n    hb_objs = []\n    for hb_obj in rooms:\n        if isinstance(hb_obj, Model):\n            hb_objs.extend(hb_obj.rooms)\n        elif isinstance(hb_obj, Room):\n            hb_objs.append(hb_obj)\n        else:\n            raise ValueError(\n                'Expected Honeybee Room or Model. Got {}.'.format(type(hb_obj)))\n\n    # process the input modifier set if it's a string\n    if isinstance(_mod_set, str):\n        _mod_set = modifier_set_by_identifier(_mod_set)\n\n    # assign the modifier set\n    for rm in hb_objs:\n        rm.properties.radiance.modifier_set = _mod_set\n", 
   "category": "HB-Radiance", 
   "name": "HB Apply ModifierSet", 
   "description": "Apply ModifierSet to Honeybee Rooms.\n-"
