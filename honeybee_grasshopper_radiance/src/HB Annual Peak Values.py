@@ -45,7 +45,7 @@ hour/timestep of the simulation.
 
 ghenv.Component.Name = 'HB Annual Peak Values'
 ghenv.Component.NickName = 'PeakValues'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.6.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -174,7 +174,8 @@ if all_required_inputs(ghenv.Component):
         # parse the sun-up-hours
         grids, sun_up_hours = _process_input_folder(res_folder, grid_filter_)
         su_pattern = parse_sun_up_hours(sun_up_hours, _hoys_, timestep)
-    
+        filt_suh = [suh for suh in sun_up_hours if int(suh) in _hoys_] \
+            if len(_hoys_) != 0 else sun_up_hours
         # compute the average values
         values, hoys = [], []
         for grid_info in grids:
@@ -186,7 +187,7 @@ if all_required_inputs(ghenv.Component):
                 max_list, max_i = peak_values(ill_file, su_pattern, coincident_)
             values.append(max_list)
             if max_i is not None:
-                hoys.append(sun_up_hours[max_i])
+                hoys.append(filt_suh[max_i])
             else:
                 hoys.append(max_i)
         values = list_to_data_tree(values)
