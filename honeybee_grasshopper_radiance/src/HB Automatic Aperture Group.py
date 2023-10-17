@@ -45,13 +45,13 @@ Model.
         _run: Set to True to run the automatic Aperture grouping.
 
     Returns:
-        model: A Honeybee Model object where all Apertures with Outdoors
+        model: The input Honeybee Model object where all Apertures with Outdoors
             boundary condition have been assigned a dynamic group identifier.
 """
 
 ghenv.Component.Name = 'HB Automatic Aperture Group'
 ghenv.Component.NickName = 'AutoGroup'
-ghenv.Component.Message = '1.6.2'
+ghenv.Component.Message = '1.6.3'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -78,8 +78,8 @@ except ImportError as e:
 
 try:
     from honeybee_radiance.config import folders as rad_folders
-    from honeybee_radiance.cli.multiphase import _aperture_view_factor, \
-        _aperture_view_factor_postprocess, cluster_view_factor, \
+    from honeybee_radiance.dynamic.multiphase import aperture_view_factor, \
+        aperture_view_factor_postprocess, cluster_view_factor, \
         cluster_orientation, cluster_output
     from honeybee_radiance.lightsource.sky.skydome import SkyDome
 except ImportError as e:
@@ -152,11 +152,11 @@ if all_required_inputs(ghenv.Component) and _run:
         rflux_sky = rflux_sky.to_file(folder_dir, name='rflux_sky.sky')
         
         # calculate view factor
-        mtx_file, ap_dict = _aperture_view_factor(
+        mtx_file, ap_dict = aperture_view_factor(
             folder_dir, apertures, size=size, ambient_division=1000,
             receiver=rflux_sky, octree=octree, calc_folder=folder_dir
         )
-        rmse = _aperture_view_factor_postprocess(
+        rmse = aperture_view_factor_postprocess(
             mtx_file, ap_dict, room_apertures, room_based
         )
 
