@@ -42,6 +42,11 @@ Model.
             If the vertical distance between two Apertures is larger than this
             tolerance the Apertures cannot be grouped. If no value is given the
             vertical grouping will be skipped. (Default: None).
+        states_: An optional list of Honeybee State objects to be applied to all the generated groups.
+            These states should be ordered based on how they will be switched on.
+            The first state is the default state and, typically, higher states
+            are more shaded. If the objects in the group have no states, the
+            modifiers already assigned the apertures will be used for all states.
         _run: Set to True to run the automatic Aperture grouping.
 
     Returns:
@@ -51,7 +56,7 @@ Model.
 
 ghenv.Component.Name = 'HB Automatic Aperture Group'
 ghenv.Component.NickName = 'AutoGroup'
-ghenv.Component.Message = '1.6.3'
+ghenv.Component.Message = '1.6.4'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -184,6 +189,7 @@ if all_required_inputs(ghenv.Component) and _run:
         json.dump(group_dict, fp, indent=2)
 
     # assign dynamic group identifiers for each aperture
+    group_ap_dict = {}
     for room in model.rooms:
         for face in room.faces:
             for ap in face.apertures:
@@ -191,3 +197,22 @@ if all_required_inputs(ghenv.Component) and _run:
                     dyn_group_id = group_dict[ap.identifier]
                     ap.properties.radiance.dynamic_group_identifier = \
                         dyn_group_id
+                    try:
+                        group_ap_dict[dyn_group_id].append(ap)
+                    except KeyError:
+                        group_ap_dict[dyn_group_id] = [ap]
+
+    # assign any states if they are connected
+    if len(states_) != 0:
+        for group_aps in group_ap_dict.values():
+            # assign states (including shades) to the first aperture
+            group_aps[0].properties.radiance.states = [state.duplicate() for state in states_]
+            # remove shades from following apertures to ensure they aren't double-counted
+            states_wo_shades = []
+            for state in states_:
+                new_state = state.duplicate()
+                new_state.remove_shades()
+                states_wo_shades.append(new_state)
+            for ap in group_aps[1:]:
+                ap.properties.radiance.states = \
+                    [state.duplicate() for state in states_wo_shades]

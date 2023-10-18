@@ -16,6 +16,11 @@ Calculate Annual Daylight Metrics from a result (.ill) files.
             component (containing the .ill files and the sun-up-hours.txt).
             This can also be just the path to the folder containing these
             result files.
+        dyn_sch_: Optional dynamic Aperture Group Schedules from the "HB Aperture Group
+            Schedule" component, which will be used to customize the behavior
+            of any dyanmic aperture geometry in the output metrics. If unsupplied,
+            all dynamic aperture groups will be in their default state in for
+            the output metrics.
         _occ_sch_: An annual occupancy schedule as a Ladybug Data Collection or a HB-Energy
             schedule object. This can also be the identifier of a schedule in
             your HB-Energy schedule library. Any value in this schedule that is
@@ -60,7 +65,7 @@ Calculate Annual Daylight Metrics from a result (.ill) files.
 
 ghenv.Component.Name = "HB Annual Daylight Metrics"
 ghenv.Component.NickName = 'DaylightMetrics'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -85,6 +90,11 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
 
 try:
+    from honeybee_radiance_postprocess.dynamic import DynamicSchedule
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
+
+try:
     from honeybee_energy.lib.schedules import schedule_by_identifier
 except ImportError as e:  # honeybee schedule library is not available
     schedule_by_identifier = None
@@ -96,7 +106,8 @@ except ImportError as e:
     raise ImportError('\nFailed to import pollination_handlers:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs, list_to_data_tree
+    from ladybug_rhino.grasshopper import all_required_inputs, list_to_data_tree,   \
+        give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -142,7 +153,8 @@ if all_required_inputs(ghenv.Component):
     # compute the annual metrics
     res_folder = os.path.dirname(_results[0]) if os.path.isfile(_results[0]) \
         else _results[0]
-    if os.path.isdir(os.path.join(res_folder, '__static_apertures__')):
+    if os.path.isdir(os.path.join(res_folder, '__static_apertures__')) or \
+            os.path.isfile(os.path.join(res_folder, 'grid_states.json')):
         cmds = [
             folders.python_exe_path, '-m', 'honeybee_radiance_postprocess',
             'post-process', 'annual-daylight', res_folder, '-sf', 'metrics',
@@ -150,6 +162,11 @@ if all_required_inputs(ghenv.Component):
         ]
         if grid_filter_ != '*':
             cmds.extend(['--grids-filter', grid_filter_])
+        if len(dyn_sch_) != 0:
+            dyn_sch = dyn_sch_[0] if isinstance(dyn_sch_[0], DynamicSchedule) else \
+                DynamicSchedule.from_group_schedules(dyn_sch_)
+            dyn_sch_file = dyn_sch.to_json(folder=res_folder)
+            cmds.extend(['--states', dyn_sch_file])
         if schedule is not None:
             sch_str = '\n'.join(str(h) for h in schedule)
             sch_file = os.path.join(res_folder, 'schedule.txt')
@@ -170,6 +187,11 @@ if all_required_inputs(ghenv.Component):
         UDI_low = list_to_data_tree(read_udi_from_folder(os.path.join(metric_dir, 'udi_lower')))
         UDI_up = list_to_data_tree(read_udi_from_folder(os.path.join(metric_dir, 'udi_upper')))
     else:
+        if len(dyn_sch_) != 0:
+            msg = 'Dynamic Schedules are currently only supported for Annual Daylight ' \
+                'simulations.\nThe input schedules will be ignored.'
+            print(msg)
+            give_warning(ghenv.Component, msg)
         DA, cDA, UDI_low, UDI, UDI_up = metrics_from_folder(
             res_folder, schedule, _threshold_, min_t, max_t, grid_filter_)
         DA = list_to_data_tree(DA)

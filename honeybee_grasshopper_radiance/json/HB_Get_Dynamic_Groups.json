@@ -1,0 +1,36 @@
+{
+  "version": "1.6.0", 
+  "nickname": "GetDyn", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "group_ids", 
+        "description": "The identifiers of the dynamic groups assigned to the Model.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "group_aps", 
+        "description": "A data tree of Dynamic Apertures in the Model. Each branch of the\ntree represents a different Dynamic Aperture Group and corresponds to\nthe group_ids above. The data tree can be exploded with the native\nGrasshopper \"Explod Tree\" component to assign schedules to each\nDynamic Group for postprocessing.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "A Honeybee Model for which dynamic groups will be output.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import core honeybee dependencies\n    from honeybee.model import Model\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, list_to_data_tree\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    assert isinstance(_model, Model), \\\n        'Expected Honeybee Model. Got {}.'.format(type(_model))\n    # get the dynamic group objects\n    groups = _model.properties.radiance.dynamic_subface_groups\n    groups.sort(key=lambda x: x.identifier)\n\n    # get the group attributes\n    group_ids, group_aps = [], []\n    for group in groups:\n        group_ids.append([group.identifier])\n        group_aps.append(group.dynamic_objects)\n    group_ids = list_to_data_tree(group_ids)\n    group_aps = list_to_data_tree(group_aps)\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Get Dynamic Groups", 
+  "description": "Get all of the Dynamic Radiance Groups assigned to a Model.\n-"
+}
