@@ -31,6 +31,11 @@ illuminance setpoint everywhere in the room.
             component (containing the .ill files and the sun-up-hours.txt).
             This can also be just the path to the folder containing these
             result files.
+        dyn_sch_: Optional dynamic Aperture Group Schedules from the "HB Aperture Group
+            Schedule" component, which will be used to customize the behavior
+            of any dyanmic aperture geometry in the output metrics. If unsupplied,
+            all dynamic aperture groups will be in their default state in for
+            the output metrics.
         _base_schedule_: A lighting schedule representing the usage of lights without
             any daylight controls. The values of this schedule will be multiplied
             by the hourly dimming fraction to yield the output lighting schedules.
@@ -67,7 +72,7 @@ illuminance setpoint everywhere in the room.
 
 ghenv.Component.Name = 'HB Daylight Control Schedule'
 ghenv.Component.NickName = 'DaylightSchedule'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -93,6 +98,11 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
 
 try:
+    from honeybee_radiance_postprocess.dynamic import DynamicSchedule
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
+
+try:
     from honeybee_energy.lib.schedules import schedule_by_identifier
     from honeybee_energy.lib.scheduletypelimits import schedule_type_limit_by_identifier
     from honeybee_energy.schedule.fixedinterval import ScheduleFixedInterval
@@ -100,7 +110,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -143,7 +153,8 @@ if all_required_inputs(ghenv.Component):
         else _results[0]
 
     # check to see if results use the newer numpy arrays
-    if os.path.isdir(os.path.join(res_folder, '__static_apertures__')):
+    if os.path.isdir(os.path.join(res_folder, '__static_apertures__')) or \
+            os.path.isfile(os.path.join(res_folder, 'grid_states.json')):
         cmds = [
             folders.python_exe_path, '-m', 'honeybee_radiance_postprocess',
             'schedule', 'control-schedules', res_folder,
@@ -159,6 +170,17 @@ if all_required_inputs(ghenv.Component):
             cmds.extend(['--base-schedule-file', sch_file])
         if off_at_min_:
             cmds.append('--off-at-min')
+        if len(dyn_sch_) != 0:
+            if os.path.isfile(os.path.join(res_folder, 'grid_states.json')):
+                dyn_sch = dyn_sch_[0] if isinstance(dyn_sch_[0], DynamicSchedule) else \
+                    DynamicSchedule.from_group_schedules(dyn_sch_)
+                dyn_sch_file = dyn_sch.to_json(folder=res_folder)
+                cmds.extend(['--states', dyn_sch_file])
+            else:
+                msg = 'No dynamic aperture groups were found in the Model.\n' \
+                    'The input dynamic schedules will be ignored.'
+                print(msg)
+                give_warning(ghenv.Component, msg)
         use_shell = True if os.name == 'nt' else False
         process = subprocess.Popen(
             cmds, cwd=res_folder, shell=use_shell,
@@ -172,6 +194,11 @@ if all_required_inputs(ghenv.Component):
             sch_vals, sch_ids = load_schedules_from_folder(cntrl_dir)
 
     else:
+        if len(dyn_sch_) != 0:
+            msg = 'Dynamic Schedules are currently only supported for Annual Daylight ' \
+                'simulations.\nThe input schedules will be ignored.'
+            print(msg)
+            give_warning(ghenv.Component, msg)
         sch_vals, sch_ids = daylight_control_schedules(
             res_folder, schedule, _ill_setpoint_, _min_power_in_, _min_light_out_, off_at_min_)
 

@@ -19,6 +19,11 @@ hour/timestep of the simulation.
             or the "HB Annual Irradiance" component (containing the .ill files and
             the sun-up-hours.txt). This can also be just the path to the folder
             containing these result files.
+        dyn_sch_: Optional dynamic Aperture Group Schedules from the "HB Aperture Group
+            Schedule" component, which will be used to customize the behavior
+            of any dyanmic aperture geometry in the output metrics. If unsupplied,
+            all dynamic aperture groups will be in their default state in for
+            the output metrics.
         _hoys_: An optional numbers or list of numbers to select the hours of the year (HOYs)
             for which results will be computed. These HOYs can be obtained from the
             "LB Calculate HOY" or the "LB Analysis Period" components. If None, all
@@ -41,7 +46,7 @@ hour/timestep of the simulation.
 
 ghenv.Component.Name = 'HB Annual Average Values'
 ghenv.Component.NickName = 'AvgValues'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.6.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -65,12 +70,18 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
 
 try:
+    from honeybee_radiance_postprocess.dynamic import DynamicSchedule
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
+
+try:
     from pollination_handlers.outputs.helper import read_sensor_grid_result
 except ImportError as e:
     raise ImportError('\nFailed to import pollination_handlers:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs, list_to_data_tree
+    from ladybug_rhino.grasshopper import all_required_inputs, list_to_data_tree, \
+        give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -133,6 +144,17 @@ if all_required_inputs(ghenv.Component):
             cmds.extend(['--hoys-file', hoys_file])
         if grid_filter_ != '*':
             cmds.extend(['--grids-filter', grid_filter_])
+        if len(dyn_sch_) != 0:
+            if os.path.isfile(os.path.join(res_folder, 'grid_states.json')):
+                dyn_sch = dyn_sch_[0] if isinstance(dyn_sch_[0], DynamicSchedule) else \
+                    DynamicSchedule.from_group_schedules(dyn_sch_)
+                dyn_sch_file = dyn_sch.to_json(folder=res_folder)
+                cmds.extend(['--states', dyn_sch_file])
+            else:
+                msg = 'No dynamic aperture groups were found in the Model.\n' \
+                    'The input dynamic schedules will be ignored.'
+                print(msg)
+                give_warning(ghenv.Component, msg)
         use_shell = True if os.name == 'nt' else False
         process = subprocess.Popen(
             cmds, cwd=res_folder, shell=use_shell,
@@ -147,6 +169,11 @@ if all_required_inputs(ghenv.Component):
             values = list_to_data_tree(values)
 
     else:
+        if len(dyn_sch_) != 0:
+            msg = 'Dynamic Schedules are currently only supported for Annual Daylight ' \
+                'simulations.\nThe input schedules will be ignored.'
+            print(msg)
+            give_warning(ghenv.Component, msg)
         if median_:
             raise ValueError('The median values can only be calculated for a '
                              'results folder from the "HB Annual Daylight" '

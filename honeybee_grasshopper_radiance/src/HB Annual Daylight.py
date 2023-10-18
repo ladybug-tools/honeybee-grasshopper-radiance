@@ -11,13 +11,16 @@
 Run an annual daylight study for a Honeybee model to compute hourly illuminance
 for each sensor in a model's sensor grids.
 _
-By default, this recipe uses a standard 2-phase method for simulation, which
-determines the relationship between each sensor and sky patch and then multiplies
-the value of each sky patch at each hour by the relationship coefficient.
+By default, this recipe uses an enhanced 2-phase method, which accurately models
+direct sun by tracing rays from each sensor to the solar position at each hour
+of the calculation. This makes the result suitable for computing Annual Sun
+Exposure (ASE) and for modeling the effects of dynamic shades and apertures.
 _
-When the enhanced_ option is selected, this recipe uses an enhanced 2-phase method,
-which accurately models direct sun by tracing rays from each sensor to the solar
-position at each hour of the calculation.
+When the enhanced_ option is set to False, a standard 2-phase method for simulation,
+which is much faster because it simply determines the relationship between each
+sensor and sky patch and then multiplies the value of each sky patch at each
+hour by the relationship coefficient. However, this means that the direct sun
+is spread out across a few sky patches, making it unsuitable for ASE.
 _
 The resulting illuminance is used to compute the following metrics:
 _
@@ -60,7 +63,10 @@ _
             tracing. (Default: -ab 2 -ad 5000 -lw 2e-05).
         enhanced_: Boolean to note whether an enhanced version of the 2-phase ray tracing
             simulation should be used, which will more accurately account for
-            direct sun at each time step. (Default:False).
+            direct sun at each time step. If False, only a 2-phase daylight
+            coefficient calculation with sky patches will be used, which is
+            much faster but spreads the direct sun out across a few sky
+            patches, making it unsuitable for ASE. (Default: True).
         run_settings_: Settings from the "HB Recipe Settings" component that specify
             how the recipe should be run. This can also be a text string of
             recipe settings.
@@ -103,7 +109,7 @@ _
 
 ghenv.Component.Name = 'HB Annual Daylight'
 ghenv.Component.NickName = 'AnnualDaylight'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.6.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -121,7 +127,8 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component) and _run:
     # create the recipe and set the input arguments
-    recipe = Recipe('annual-daylight-enhanced') if enhanced_ else Recipe('annual-daylight')
+    recipe = Recipe('annual-daylight') if enhanced_ is False else \
+        Recipe('annual-daylight-enhanced')
     recipe.input_value_by_name('model', _model)
     recipe.input_value_by_name('wea', _wea)
     recipe.input_value_by_name('north', north_)
