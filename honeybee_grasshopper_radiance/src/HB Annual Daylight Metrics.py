@@ -65,7 +65,7 @@ Calculate Annual Daylight Metrics from a result (.ill) files.
 
 ghenv.Component.Name = "HB Annual Daylight Metrics"
 ghenv.Component.NickName = 'DaylightMetrics'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.6.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -163,10 +163,16 @@ if all_required_inputs(ghenv.Component):
         if grid_filter_ != '*':
             cmds.extend(['--grids-filter', grid_filter_])
         if len(dyn_sch_) != 0:
-            dyn_sch = dyn_sch_[0] if isinstance(dyn_sch_[0], DynamicSchedule) else \
-                DynamicSchedule.from_group_schedules(dyn_sch_)
-            dyn_sch_file = dyn_sch.to_json(folder=res_folder)
-            cmds.extend(['--states', dyn_sch_file])
+            if os.path.isfile(os.path.join(res_folder, 'grid_states.json')):
+                dyn_sch = dyn_sch_[0] if isinstance(dyn_sch_[0], DynamicSchedule) else \
+                    DynamicSchedule.from_group_schedules(dyn_sch_)
+                dyn_sch_file = dyn_sch.to_json(folder=res_folder)
+                cmds.extend(['--states', dyn_sch_file])
+            else:
+                msg = 'No dynamic aperture groups were found in the Model.\n' \
+                    'The input dynamic schedules will be ignored.'
+                print(msg)
+                give_warning(ghenv.Component, msg)
         if schedule is not None:
             sch_str = '\n'.join(str(h) for h in schedule)
             sch_file = os.path.join(res_folder, 'schedule.txt')

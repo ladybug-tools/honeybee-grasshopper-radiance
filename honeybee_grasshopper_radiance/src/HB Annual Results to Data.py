@@ -19,6 +19,11 @@ deconstructed for detailed analysis with native Grasshopper math components.
             component (containing the .ill files and the sun-up-hours.txt).
             This can also be just the path to the folder containing these
             result files.
+        dyn_sch_: Optional dynamic Aperture Group Schedules from the "HB Aperture Group
+            Schedule" component, which will be used to customize the behavior
+            of any dyanmic aperture geometry in the output metrics. If unsupplied,
+            all dynamic aperture groups will be in their default state in for
+            the output metrics.
         _sel_pts: A point or list of points, which will be used to filter the sensors
             for which data collections will be imported.
         _all_pts: The data tree of all sensor points that were used in the simulation.
@@ -40,7 +45,7 @@ deconstructed for detailed analysis with native Grasshopper math components.
 
 ghenv.Component.Name = 'HB Annual Results to Data'
 ghenv.Component.NickName = 'AnnualToData'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -72,10 +77,15 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
 
 try:
+    from honeybee_radiance_postprocess.dynamic import DynamicSchedule
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
+
+try:
     from ladybug_rhino.config import tolerance
     from ladybug_rhino.togeometry import to_point3d, to_vector3d
     from ladybug_rhino.grasshopper import all_required_inputs, list_to_data_tree, \
-        data_tree_to_list
+        data_tree_to_list, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -159,7 +169,8 @@ if all_required_inputs(ghenv.Component):
         pt_filter = new_pt_filter
 
     # check to see if results use the newer numpy arrays
-    if os.path.isdir(os.path.join(res_folder, '__static_apertures__')):
+    if os.path.isdir(os.path.join(res_folder, '__static_apertures__'))  or \
+            os.path.isfile(os.path.join(res_folder, 'grid_states.json')):
         cmds = [folders.python_exe_path, '-m', 'honeybee_radiance_postprocess',
                 'post-process', 'annual-to-data', res_folder]
         if pt_filter[0] is not None:
@@ -167,6 +178,17 @@ if all_required_inputs(ghenv.Component):
             si_file = os.path.join(res_folder, 'sensor_indices.json')
             write_to_file(si_file, json.dumps(sen_dict))
             cmds.extend(['--sensor-index', si_file])
+        if len(dyn_sch_) != 0:
+            if os.path.isfile(os.path.join(res_folder, 'grid_states.json')):
+                dyn_sch = dyn_sch_[0] if isinstance(dyn_sch_[0], DynamicSchedule) else \
+                    DynamicSchedule.from_group_schedules(dyn_sch_)
+                dyn_sch_file = dyn_sch.to_json(folder=res_folder)
+                cmds.extend(['--states', dyn_sch_file])
+            else:
+                msg = 'No dynamic aperture groups were found in the Model.\n' \
+                    'The input dynamic schedules will be ignored.'
+                print(msg)
+                give_warning(ghenv.Component, msg)
         use_shell = True if os.name == 'nt' else False
         process = subprocess.Popen(
             cmds, cwd=res_folder, shell=use_shell,
@@ -181,6 +203,12 @@ if all_required_inputs(ghenv.Component):
         data = list_to_data_tree(data)
 
     else:
+        if len(dyn_sch_) != 0:
+            msg = 'Dynamic Schedules are currently only supported for Annual Daylight ' \
+                'simulations.\nThe input schedules will be ignored.'
+            print(msg)
+            give_warning(ghenv.Component, msg)
+
         # extract the timestep if it exists
         timestep, has_t_step = 1, False
         tstep_file = os.path.join(res_folder, 'timestep.txt')
