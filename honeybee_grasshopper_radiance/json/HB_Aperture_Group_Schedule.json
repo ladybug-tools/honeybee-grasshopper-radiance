@@ -1,0 +1,36 @@
+{
+  "version": "1.6.0", 
+  "nickname": "GroupSch", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "dyn_sch", 
+        "description": "A dynamic schedule object for the input aperture group, which can be plugged\ninto any of the Results components with a syn_sch input.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_group_aps", 
+      "description": "Honeybee Apertures that are a part of the same dynamic group and will\nbe assigned the same schedule for postprocessing. Typically, this is\nthe output of the \"HB Dynamic Aperture Group\" component but it can\nalso be the output of the \"HB Get Dynamic Groups\" component, which\nreturns all of the dynamic groups on a particular Model.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_schedule", 
+      "description": "A list of 8760 integers refering to the index of the aperture group state\nto be used at each hour of the simulation. This can also be a single integer\nfor a static state to be used for the entire period of the simulation\nor a pattern of integers that is less than 8760 in length and will be\nrepeated until the 8760 is reached. Note that 0 refers to the first\nstate, 1 refers to the second state, and so on. -1 can be used to\ncompletely discout the aperture from the simulation for a given hour.", 
+      "type": "int", 
+      "default": null
+    }
+  ], 
+  "subcategory": "4 :: Results", 
+  "code": "\ntry:\n    from honeybee.aperture import Aperture\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance_postprocess.dynamic import ApertureGroupSchedule\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    dyn_sch = []\n    dyn_ids = set()\n    for ap in _group_aps:\n        assert isinstance(ap, Aperture), 'Expected Aperture. Got {}.'.format(type(ap))\n        dyn_grp_id = ap.properties.radiance.dynamic_group_identifier\n        if dyn_grp_id is None:\n            raise ValueError(\n                'Input Aperture \"{}\" is not a part of a dynamic group.'.format(ap.display_name))\n        if dyn_grp_id not in dyn_ids:\n            dyn_ids.add(dyn_grp_id)\n            _ap_group_sch = ApertureGroupSchedule(dyn_grp_id, _schedule)\n            dyn_sch.append(_ap_group_sch)\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Aperture Group Schedule", 
+  "description": "Create a Dynamic Aperture Group Schedule, which can be used to process any dynamic\naperture geometry that was run in an annual simulation.\n-"
+}
