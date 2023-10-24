@@ -14,10 +14,12 @@ Create a metal radiance modifier from a single reflectance.
     Args:
         _name_: Text to set the name for the modifier and to be incorporated into
             a unique modifier identifier.
-        _reflect: A number between 0 and 1 for the metal reflectance.
-            This reflectance will be the same for the red, green and blue channels.
-        _spec_: A number between 0 and 1 for the fraction of specularity. Specularity
-            of metals is usually 0.9 or greater. (Default: 0.9)
+        _diff: A number between 0 and 1 for the absolute diffuse metal reflectance.
+            This reflectance will be the same for the red, green and blue
+            channels. (Default: 0)
+        _spec_: A number between 0 and 1 for the absolute specular reflectance of the modifier.
+            Note that the sum of this value and the diffuse _reflect should be less
+            than one. Specularity of metals is usually 0.9 or greater. (Default: 0.9)
         _rough_: Roughness is specified as the rms slope of surface facets. A value
             of 0 corresponds to a perfectly smooth surface, and a value of 1 would be
             a very rough surface. Roughness values greater than 0.2 are not very
@@ -53,12 +55,14 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component):
     # set the default modifier properties
+    _diff_ = 0 if _diff_ is None else _diff_
     _spec_ = 0.9 if _spec_ is None else _spec_
     _rough_ = 0.0 if _rough_ is None else _rough_
     name = clean_and_id_rad_string('MetalMaterial') if _name_ is None else \
         clean_rad_string(_name_)
 
     # create the modifier
-    modifier = Metal.from_single_reflectance(name, _reflect, _spec_, _rough_)
+    modifier = Metal.from_reflected_specularity(
+        name, _diff_, _diff_, _diff_, _spec_, _rough_)
     if _name_ is not None:
         modifier.display_name = _name_
