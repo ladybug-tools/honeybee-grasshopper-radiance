@@ -33,7 +33,7 @@ orientation, provided that a list of Modifiers are input to the _mod.
 
 ghenv.Component.Name = 'HB Apply Face Modifier'
 ghenv.Component.NickName = 'ApplyFaceMod'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '6'

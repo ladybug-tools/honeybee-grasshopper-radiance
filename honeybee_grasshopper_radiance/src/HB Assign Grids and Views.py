@@ -32,7 +32,7 @@ grids or views to any that already exist.
 
 ghenv.Component.Name = 'HB Assign Grids and Views'
 ghenv.Component.NickName = 'AssignGridsViews'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'
