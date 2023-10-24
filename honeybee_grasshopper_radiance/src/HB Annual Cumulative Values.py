@@ -44,7 +44,7 @@ hour/timestep of the simulation.
 
 ghenv.Component.Name = 'HB Annual Cumulative Values'
 ghenv.Component.NickName = 'CumulValues'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

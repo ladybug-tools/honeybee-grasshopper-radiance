@@ -58,7 +58,7 @@ value is expressed as a percentage of the sensors in the analysis grid.
 
 ghenv.Component.Name = "HB Annual Glare Metrics"
 ghenv.Component.NickName = 'GlareMetrics'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

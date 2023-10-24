@@ -27,7 +27,7 @@ ModifierSet object.
 
 ghenv.Component.Name = 'HB Exterior Modifier Subset'
 ghenv.Component.NickName = 'ExteriorSubset'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

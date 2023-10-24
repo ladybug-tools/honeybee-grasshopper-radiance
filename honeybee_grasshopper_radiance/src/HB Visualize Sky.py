@@ -28,7 +28,7 @@ Visualize a sky as a High Dynamic Range (HDR) image file.
 
 ghenv.Component.Name = 'HB Visualize Sky'
 ghenv.Component.NickName = 'VizSky'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

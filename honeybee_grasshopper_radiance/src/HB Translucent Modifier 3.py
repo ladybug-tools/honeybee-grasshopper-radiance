@@ -40,7 +40,7 @@ and any energy not transmitted or reflected is assumed to be absorbed.
 
 ghenv.Component.Name = 'HB Translucent Modifier 3'
 ghenv.Component.NickName = 'TransMod3'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

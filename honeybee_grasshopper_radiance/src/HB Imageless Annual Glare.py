@@ -67,7 +67,7 @@ of occupied time that a view is free of glare.
 
 ghenv.Component.Name = 'HB Imageless Annual Glare'
 ghenv.Component.NickName = 'AnnualGlare'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

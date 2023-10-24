@@ -42,7 +42,7 @@ http://radiance-online.org/community/workshops/2011-berkeley-ca/presentations/da
 
 ghenv.Component.Name = 'HB Radiance Parameter'
 ghenv.Component.NickName = 'RadPar'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '6'

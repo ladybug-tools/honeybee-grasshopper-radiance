@@ -42,7 +42,7 @@ Deconstruct a modifier set into its constituient exterior modifiers.
 
 ghenv.Component.Name = 'HB Deconstruct ModifierSet'
 ghenv.Component.NickName = 'DecnstrModSet'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'

@@ -46,7 +46,7 @@ of walls.
 
 ghenv.Component.Name = 'HB Sensor Grid from Faces'
 ghenv.Component.NickName = 'GridFaces'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

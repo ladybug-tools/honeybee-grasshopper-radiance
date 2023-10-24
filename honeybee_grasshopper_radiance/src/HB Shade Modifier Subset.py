@@ -24,7 +24,7 @@ Create a list of modifiers that can be used to edit or create a ModifierSet obje
 
 ghenv.Component.Name = 'HB Shade Modifier Subset'
 ghenv.Component.NickName = 'ShadeSubset'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

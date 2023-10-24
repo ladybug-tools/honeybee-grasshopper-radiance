@@ -33,7 +33,7 @@ aperture geometry that was run in an annual simulation.
 
 ghenv.Component.Name = 'HB Aperture Group Schedule'
 ghenv.Component.NickName = 'GroupSch'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
