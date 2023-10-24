@@ -141,8 +141,14 @@ def get_dimensions(img_dim):
     for d in ['+X', '-Y']:
         regex = r'\%s\s+(\d+)' % d
         matches = re.finditer(regex, img_dim, re.MULTILINE)
-        dim = next(matches).groups()[0]
+        try:
+            dim = next(matches).groups()[0]
+            dimensions.append(int(dim))
+        except Exception:
+            pass
+    if len(dimensions) == 1:  # it is likely a sky-generated image
         dimensions.append(int(dim))
+
     return dimensions
 
 
