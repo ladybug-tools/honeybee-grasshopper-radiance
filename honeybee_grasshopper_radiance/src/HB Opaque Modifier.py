@@ -14,10 +14,12 @@ Create an opaque radiance modifier from a single reflectance.
     Args:
         _name_: Text to set the name for the modifier and to be incorporated into
             a unique modifier identifier.
-        _reflect: A number between 0 and 1 for the opaque modifier reflectance.
+        _reflect: A number between 0 and 1 for the absolute diffuse reflectance of the modifier.
             This reflectance will be the same for the red, green and blue channels.
-        _spec_: A number between 0 and 1 for the fraction of specularity. Specularity
-            fractions greater than 0.1 are not common in non-metallic materials (Default: 0).
+        _spec_: A number between 0 and 1 for the absolute specular reflectance of the modifier.
+            Note that the sum of this value and the diffuse _reflect should be less than one.
+            Specular reflectances greater than 0.1 are rare for non-metallic
+            materials. (Default: 0).
         _rough_: Roughness is specified as the rms slope of surface facets. A value
             of 0 corresponds to a perfectly smooth surface, and a value of 1 would be
             a very rough surface. Roughness values greater than 0.2 are not very
@@ -59,6 +61,7 @@ if all_required_inputs(ghenv.Component):
         clean_rad_string(_name_)
 
     # create the modifier
-    modifier = Plastic.from_single_reflectance(name, _reflect, _spec_, _rough_)
+    modifier = Plastic.from_reflected_specularity(
+        name, _reflect, _reflect, _reflect, _spec_, _rough_)
     if _name_ is not None:
         modifier.display_name = _name_
