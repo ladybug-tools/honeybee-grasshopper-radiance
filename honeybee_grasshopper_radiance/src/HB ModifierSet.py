@@ -43,7 +43,7 @@ all default modifiers on the Room.
 
 ghenv.Component.Name = 'HB ModifierSet'
 ghenv.Component.NickName = 'ModifierSet'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -60,68 +60,68 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
 
 try:  # import ladybug_rhino dependencies
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import turn_off_old_tag
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
 
 
-if all_required_inputs(ghenv.Component):
-    # get the base modifier set
-    name = clean_and_id_rad_string('ModifierSet') if _name_ is None else \
-        clean_rad_string(_name_)
-    if base_mod_set_ is None:
-        mod_set = ModifierSet(name)
-    else:
-        if isinstance(base_mod_set_, str):
-            base_mod_set_ = modifier_set_by_identifier(base_mod_set_)
-        mod_set = base_mod_set_.duplicate()
-        mod_set.identifier = name
-        if _name_ is not None:
-            mod_set.display_name = _name_
+# get the base modifier set
+name = clean_and_id_rad_string('ModifierSet') if _name_ is None else \
+    clean_rad_string(_name_)
+if base_mod_set_ is None:
+    mod_set = ModifierSet(name)
+else:
+    if isinstance(base_mod_set_, str):
+        base_mod_set_ = modifier_set_by_identifier(base_mod_set_)
+    mod_set = base_mod_set_.duplicate()
+    mod_set.identifier = name
+    if _name_ is not None:
+        mod_set.display_name = _name_
 
-    # go through each input modifier subset and assign it to the set
-    if len(_exterior_subset_) != 0:
-        assert len(_exterior_subset_) == 3, 'Input _exterior_subset_ is not valid.'
-        if _exterior_subset_[0] is not None:
-            mod_set.wall_set.exterior_modifier = _exterior_subset_[0]
-        if _exterior_subset_[1] is not None:
-            mod_set.roof_ceiling_set.exterior_modifier = _exterior_subset_[1]
-        if _exterior_subset_[2] is not None:
-            mod_set.floor_set.exterior_modifier = _exterior_subset_[2]
+# go through each input modifier subset and assign it to the set
+if len(_exterior_subset_) != 0:
+    assert len(_exterior_subset_) == 3, 'Input _exterior_subset_ is not valid.'
+    if _exterior_subset_[0] is not None:
+        mod_set.wall_set.exterior_modifier = _exterior_subset_[0]
+    if _exterior_subset_[1] is not None:
+        mod_set.roof_ceiling_set.exterior_modifier = _exterior_subset_[1]
+    if _exterior_subset_[2] is not None:
+        mod_set.floor_set.exterior_modifier = _exterior_subset_[2]
 
-    if len(_interior_subset_) != 0:
-        assert len(_interior_subset_) == 6, 'Input _interior_subset_ is not valid.'
-        if _interior_subset_[0] is not None:
-            mod_set.wall_set.interior_modifier = _interior_subset_[0]
-        if _interior_subset_[1] is not None:
-            mod_set.roof_ceiling_set.interior_modifier = _interior_subset_[1]
-        if _interior_subset_[2] is not None:
-            mod_set.floor_set.interior_modifier = _interior_subset_[2]
-        if _interior_subset_[3] is not None:
-            mod_set.aperture_set.interior_modifier = _interior_subset_[3]
-        if _interior_subset_[4] is not None:
-            mod_set.door_set.interior_modifier = _interior_subset_[4]
-        if _interior_subset_[5] is not None:
-            mod_set.door_set.interior_glass_modifier = _interior_subset_[5]
+if len(_interior_subset_) != 0:
+    assert len(_interior_subset_) == 6, 'Input _interior_subset_ is not valid.'
+    if _interior_subset_[0] is not None:
+        mod_set.wall_set.interior_modifier = _interior_subset_[0]
+    if _interior_subset_[1] is not None:
+        mod_set.roof_ceiling_set.interior_modifier = _interior_subset_[1]
+    if _interior_subset_[2] is not None:
+        mod_set.floor_set.interior_modifier = _interior_subset_[2]
+    if _interior_subset_[3] is not None:
+        mod_set.aperture_set.interior_modifier = _interior_subset_[3]
+    if _interior_subset_[4] is not None:
+        mod_set.door_set.interior_modifier = _interior_subset_[4]
+    if _interior_subset_[5] is not None:
+        mod_set.door_set.interior_glass_modifier = _interior_subset_[5]
 
-    if len(_subface_subset_) != 0:
-        assert len(_subface_subset_) == 6, 'Input _subface_subset_ is not valid.'
-        if _subface_subset_[0] is not None:
-            mod_set.aperture_set.window_modifier = _subface_subset_[0]
-        if _subface_subset_[1] is not None:
-            mod_set.aperture_set.skylight_modifier = _subface_subset_[1]
-        if _subface_subset_[2] is not None:
-            mod_set.aperture_set.operable_modifier = _subface_subset_[2]
-        if _subface_subset_[3] is not None:
-            mod_set.door_set.exterior_modifier = _subface_subset_[3]
-        if _subface_subset_[4] is not None:
-            mod_set.door_set.overhead_modifier = _subface_subset_[4]
-        if _subface_subset_[5] is not None:
-            mod_set.door_set.exterior_glass_modifier = _subface_subset_[5]
+if len(_subface_subset_) != 0:
+    assert len(_subface_subset_) == 6, 'Input _subface_subset_ is not valid.'
+    if _subface_subset_[0] is not None:
+        mod_set.aperture_set.window_modifier = _subface_subset_[0]
+    if _subface_subset_[1] is not None:
+        mod_set.aperture_set.skylight_modifier = _subface_subset_[1]
+    if _subface_subset_[2] is not None:
+        mod_set.aperture_set.operable_modifier = _subface_subset_[2]
+    if _subface_subset_[3] is not None:
+        mod_set.door_set.exterior_modifier = _subface_subset_[3]
+    if _subface_subset_[4] is not None:
+        mod_set.door_set.overhead_modifier = _subface_subset_[4]
+    if _subface_subset_[5] is not None:
+        mod_set.door_set.exterior_glass_modifier = _subface_subset_[5]
 
-    if len(_shade_subset_) != 0:
-        assert len(_shade_subset_) == 2, 'Input _shade_subset_ is not valid.'
-        if _shade_subset_[0] is not None:
-            mod_set.shade_set.exterior_modifier = _shade_subset_[0]
-        if _shade_subset_[1] is not None:
-            mod_set.shade_set.interior_modifier = _shade_subset_[1]
+if len(_shade_subset_) != 0:
+    assert len(_shade_subset_) == 2, 'Input _shade_subset_ is not valid.'
+    if _shade_subset_[0] is not None:
+        mod_set.shade_set.exterior_modifier = _shade_subset_[0]
+    if _shade_subset_[1] is not None:
+        mod_set.shade_set.interior_modifier = _shade_subset_[1]

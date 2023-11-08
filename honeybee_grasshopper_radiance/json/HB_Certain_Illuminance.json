@@ -1,29 +1,29 @@
 {
-  "version": "1.7.0", 
-  "nickname": "CertainIllum", 
+  "description": "Create a uniform sky that yields a certain illuminance.\n-", 
   "outputs": [
     [
       {
-        "access": "None", 
+        "type": null, 
         "name": "sky", 
         "description": "A honeybee sky that can be used to create a point-in-time recipe.", 
-        "type": null, 
+        "access": "None", 
         "default": null
       }
     ]
   ], 
+  "code": "\ntry:\n    from honeybee_radiance.lightsource.sky import CertainIrradiance\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n_value_ = 10000 if _value_ is None else _value_\nsky = CertainIrradiance.from_illuminance(_value_)\n", 
+  "name": "HB Certain Illuminance", 
+  "version": "1.7.1", 
+  "category": "HB-Radiance", 
+  "subcategory": "2 :: Light Sources", 
+  "nickname": "CertainIllum", 
   "inputs": [
     {
-      "access": "item", 
+      "type": "double", 
       "name": "_value_", 
       "description": "Desired value for sky horizontal illuminance in lux. (Default: 10000).", 
-      "type": "double", 
+      "access": "item", 
       "default": null
     }
-  ], 
-  "subcategory": "2 :: Light Sources", 
-  "code": "\ntry:\n    from honeybee_radiance.lightsource.sky import CertainIrradiance\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\n\n_value_ = 10000 if _value_ is None else _value_\nsky = CertainIrradiance.from_illuminance(_value_)\n", 
-  "category": "HB-Radiance", 
-  "name": "HB Certain Illuminance", 
-  "description": "Create a uniform sky that yields a certain illuminance.\n-"
+  ]
 }

@@ -25,7 +25,7 @@ Create a State object representing a single dynamic group state.
 
 ghenv.Component.Name = 'HB Dynamic State'
 ghenv.Component.NickName = 'State'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -34,5 +34,11 @@ try:
     from honeybee_radiance.dynamic import RadianceSubFaceState
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
+
+try:
+    from ladybug_rhino.grasshopper import turn_off_old_tag
+except ImportError as e:
+    raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
 
 state = RadianceSubFaceState(modifier_, [geo.duplicate() for geo in shades_])

@@ -20,7 +20,7 @@ Create a uniform sky that yields a certain illuminance.
 
 ghenv.Component.Name = 'HB Certain Illuminance'
 ghenv.Component.NickName = 'CertainIllum'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -29,6 +29,12 @@ try:
     from honeybee_radiance.lightsource.sky import CertainIrradiance
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
+
+try:
+    from ladybug_rhino.grasshopper import turn_off_old_tag
+except ImportError as e:
+    raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
 
 
 _value_ = 10000 if _value_ is None else _value_
