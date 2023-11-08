@@ -36,14 +36,14 @@ results with operable shading devices, then this output is NOT LEED compliant.
     Returns:
         report: Reports, errors, warnings, etc.
         ASE: Annual sunlight exposure as a percentage for each sensor grid.
-        hrs_above_thresh: The number of hours above the threshold for each sensor point.
+        hrs_above: The number of hours above the threshold for each sensor point.
             These can be plugged into the "LB Spatial Heatmap" component along with
             meshes of the sensor grids to visualize results.
 """
 
 ghenv.Component.Name = "HB Annual Sunlight Exposure"
 ghenv.Component.NickName = 'ASE'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -128,8 +128,10 @@ if all_required_inputs(ghenv.Component):
             write_to_file(sch_file, sch_str)
             cmds.extend(['--schedule', sch_file])
         use_shell = True if os.name == 'nt' else False
+        custom_env = os.environ.copy()
+        custom_env['PYTHONHOME'] = ''
         process = subprocess.Popen(
-            cmds, cwd=res_folder, shell=use_shell,
+            cmds, cwd=res_folder, shell=use_shell, env=custom_env,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout = process.communicate()  # wait for the process to finish
         if stdout[-1] != '':
@@ -137,6 +139,9 @@ if all_required_inputs(ghenv.Component):
             raise ValueError('Failed to compute annual sunlight exposure.')
         metric_dir = os.path.join(res_folder, 'metrics')
         ASE = read_ase_from_folder(os.path.join(metric_dir, 'ase'))
-        hrs_above_thresh = list_to_data_tree(read_hours_from_folder(os.path.join(metric_dir, 'hours_above')))
+        hrs_above = list_to_data_tree(read_hours_from_folder(os.path.join(metric_dir, 'hours_above')))
     else:
-        raise ValueError('Invalid results folder!')
+        raise ValueError(
+            'Invalid results folder!\n'
+            'Make sure an enhanced daylight simulation was run'
+        )
