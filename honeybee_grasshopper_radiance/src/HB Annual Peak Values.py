@@ -50,7 +50,7 @@ hour/timestep of the simulation.
 
 ghenv.Component.Name = 'HB Annual Peak Values'
 ghenv.Component.NickName = 'PeakValues'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -168,8 +168,10 @@ if all_required_inputs(ghenv.Component):
                 print(msg)
                 give_warning(ghenv.Component, msg)
         use_shell = True if os.name == 'nt' else False
+        custom_env = os.environ.copy()
+        custom_env['PYTHONHOME'] = ''
         process = subprocess.Popen(
-            cmds, cwd=res_folder, shell=use_shell,
+            cmds, cwd=res_folder, shell=use_shell, env=custom_env,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout = process.communicate()  # wait for the process to finish
         if stdout[-1] != '':

@@ -1,92 +1,92 @@
 {
-  "version": "1.7.0", 
-  "nickname": "DaylightMetrics", 
+  "name": "HB Annual Daylight Metrics", 
+  "subcategory": "4 :: Results", 
+  "version": "1.7.1", 
+  "description": "Calculate Annual Daylight Metrics from a result (.ill) files.\n-", 
+  "code": "\nimport os\nimport subprocess\n\ntry:\n    from ladybug.datacollection import BaseCollection\n    from ladybug.futil import write_to_file\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance.postprocess.annualdaylight import metrics_from_folder\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance_postprocess.dynamic import DynamicSchedule\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:  # honeybee schedule library is not available\n    schedule_by_identifier = None\n\ntry:\n    from pollination_handlers.outputs.daylight import read_da_from_folder, \\\n        read_cda_from_folder, read_udi_from_folder\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import pollination_handlers:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, list_to_data_tree,   \\\n        give_warning\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set default values for the thresholds and the grid filter\n    grid_filter_ = '*' if grid_filter_ is None else grid_filter_\n    _threshold_ = _threshold_ if _threshold_ else 300\n    if len(_min_max_) != 0:\n        assert len(_min_max_), 'Expected two values for _min_max_.'\n        min_t = _min_max_[0]\n        max_t = _min_max_[1]\n    else:\n        min_t = 100\n        max_t = 3000\n\n    # process the schedule\n    if _occ_sch_ is None:\n        schedule = None\n    elif isinstance(_occ_sch_, BaseCollection):\n        schedule = _occ_sch_.values\n    elif isinstance(_occ_sch_, str):\n        if schedule_by_identifier is not None:\n            try:\n                schedule = schedule_by_identifier(_occ_sch_).values()\n            except TypeError:  # it's probably a ScheduleFixedInterval\n                schedule = schedule_by_identifier(_occ_sch_).values\n        else:\n            raise ValueError('honeybee-energy must be installed to reference '\n                             'occupancy schedules by identifier.')\n    else:  # assume that it is a honeybee schedule object\n        try:\n            schedule = _occ_sch_.values()\n        except TypeError:  # it's probably a ScheduleFixedInterval\n            schedule = _occ_sch_.values\n    if schedule is not None:\n        bin_schedule = []\n        for val in schedule:\n            bin_val = 1 if val >= 0.1 else 0\n            bin_schedule.append(bin_val)\n        schedule = bin_schedule\n\n    # compute the annual metrics\n    res_folder = os.path.dirname(_results[0]) if os.path.isfile(_results[0]) \\\n        else _results[0]\n    if os.path.isdir(os.path.join(res_folder, '__static_apertures__')) or \\\n            os.path.isfile(os.path.join(res_folder, 'grid_states.json')):\n        cmds = [\n            folders.python_exe_path, '-m', 'honeybee_radiance_postprocess',\n            'post-process', 'annual-daylight', res_folder, '-sf', 'metrics',\n            '-t', str(_threshold_), '-lt', str(min_t), '-ut', str(max_t)\n        ]\n        if grid_filter_ != '*':\n            cmds.extend(['--grids-filter', grid_filter_])\n        if len(dyn_sch_) != 0:\n            if os.path.isfile(os.path.join(res_folder, 'grid_states.json')):\n                dyn_sch = dyn_sch_[0] if isinstance(dyn_sch_[0], DynamicSchedule) else \\\n                    DynamicSchedule.from_group_schedules(dyn_sch_)\n                dyn_sch_file = dyn_sch.to_json(folder=res_folder)\n                cmds.extend(['--states', dyn_sch_file])\n            else:\n                msg = 'No dynamic aperture groups were found in the Model.\\n' \\\n                    'The input dynamic schedules will be ignored.'\n                print(msg)\n                give_warning(ghenv.Component, msg)\n        if schedule is not None:\n            sch_str = '\\n'.join(str(h) for h in schedule)\n            sch_file = os.path.join(res_folder, 'schedule.txt')\n            write_to_file(sch_file, sch_str)\n            cmds.extend(['--schedule', sch_file])\n        use_shell = True if os.name == 'nt' else False\n        custom_env = os.environ.copy()\n        custom_env['PYTHONHOME'] = ''\n        process = subprocess.Popen(\n            cmds, cwd=res_folder, shell=use_shell, env=custom_env,\n            stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n        stdout = process.communicate()  # wait for the process to finish\n        if stdout[-1] != '':\n            print(stdout[-1])\n            raise ValueError('Failed to compute annual daylight metrics.')\n        metric_dir = os.path.join(res_folder, 'metrics')\n        DA = list_to_data_tree(read_da_from_folder(os.path.join(metric_dir, 'da')))\n        cDA = list_to_data_tree(read_cda_from_folder(os.path.join(metric_dir, 'cda')))\n        UDI = list_to_data_tree(read_udi_from_folder(os.path.join(metric_dir, 'udi')))\n        UDI_low = list_to_data_tree(read_udi_from_folder(os.path.join(metric_dir, 'udi_lower')))\n        UDI_up = list_to_data_tree(read_udi_from_folder(os.path.join(metric_dir, 'udi_upper')))\n    else:\n        if len(dyn_sch_) != 0:\n            msg = 'Dynamic Schedules are currently only supported for Annual Daylight ' \\\n                'simulations.\\nThe input schedules will be ignored.'\n            print(msg)\n            give_warning(ghenv.Component, msg)\n        DA, cDA, UDI_low, UDI, UDI_up = metrics_from_folder(\n            res_folder, schedule, _threshold_, min_t, max_t, grid_filter_)\n        DA = list_to_data_tree(DA)\n        cDA = list_to_data_tree(cDA)\n        UDI = list_to_data_tree(UDI)\n        UDI_low = list_to_data_tree(UDI_low)\n        UDI_up = list_to_data_tree(UDI_up)\n", 
   "outputs": [
     [
       {
-        "access": "None", 
         "name": "DA", 
+        "access": "None", 
+        "type": null, 
         "description": "Daylight autonomy results in percent. DA is the percentage of occupied hours\nthat each sensor recieves equal or more than the illuminance threshold.\nEach value is for a different sensor of the grid. These can be plugged\ninto the \"LB Spatial Heatmap\" component along with meshes of the sensor\ngrids to visualize results. These can also be connected to the \"HB\nSpatial Daylight Autonomy\" component to compute spatial daylight\nautonomy for each grid.", 
-        "type": null, 
         "default": null
       }, 
       {
-        "access": "None", 
         "name": "cDA", 
+        "access": "None", 
+        "type": null, 
         "description": "Continuous daylight autonomy results in percent. cDA is similar to DA except\nthat values below the illuminance threshold can still count partially\ntowards the final percentage. Each value is for a different\nsensor of the grid. These can be plugged into the \"LB Spatial Heatmap\"\ncomponent along with meshes of the sensor grids to visualize results.", 
-        "type": null, 
         "default": null
       }, 
       {
-        "access": "None", 
         "name": "UDI", 
+        "access": "None", 
+        "type": null, 
         "description": "Useful daylight illuminance results in percent. UDI is the percentage of time\nthat illuminace falls between minimum and maximum thresholds. Each value\nis for a different sensor of the grid. These can be plugged into the\n\"LB Spatial Heatmap\" component along with meshes of the sensor grids\nto visualize results.", 
-        "type": null, 
         "default": null
       }, 
       {
-        "access": "None", 
         "name": "UDI_low", 
-        "description": "Results for the percent of time that is below the lower threshold\nof useful daylight illuminance in percent. Each value is for a different\nsensor of the grid. These can be plugged into the \"LB Spatial Heatmap\"\ncomponent along with meshes of the sensor grids to visualize results.", 
+        "access": "None", 
         "type": null, 
+        "description": "Results for the percent of time that is below the lower threshold\nof useful daylight illuminance in percent. Each value is for a different\nsensor of the grid. These can be plugged into the \"LB Spatial Heatmap\"\ncomponent along with meshes of the sensor grids to visualize results.", 
         "default": null
       }, 
       {
-        "access": "None", 
         "name": "UDI_up", 
-        "description": "Results for the percent of time that is above the upper threshold\nof useful daylight illuminance in percent. Each value is for a different\nsensor of the grid. These can be plugged into the \"LB Spatial Heatmap\"\ncomponent along with meshes of the sensor grids to visualize results.", 
+        "access": "None", 
         "type": null, 
+        "description": "Results for the percent of time that is above the upper threshold\nof useful daylight illuminance in percent. Each value is for a different\nsensor of the grid. These can be plugged into the \"LB Spatial Heatmap\"\ncomponent along with meshes of the sensor grids to visualize results.", 
         "default": null
       }
     ]
   ], 
+  "category": "HB-Radiance", 
+  "nickname": "DaylightMetrics", 
   "inputs": [
     {
-      "access": "list", 
       "name": "_results", 
+      "access": "list", 
+      "type": "string", 
       "description": "An list of annual Radiance result files from the \"HB Annual Daylight\"\ncomponent (containing the .ill files and the sun-up-hours.txt).\nThis can also be just the path to the folder containing these\nresult files.", 
-      "type": "string", 
       "default": null
     }, 
     {
-      "access": "list", 
       "name": "dyn_sch_", 
-      "description": "Optional dynamic Aperture Group Schedules from the \"HB Aperture Group\nSchedule\" component, which will be used to customize the behavior\nof any dyanmic aperture geometry in the output metrics. If unsupplied,\nall dynamic aperture groups will be in their default state in for\nthe output metrics.", 
-      "type": "System.Object", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
-      "name": "_occ_sch_", 
-      "description": "An annual occupancy schedule as a Ladybug Data Collection or a HB-Energy\nschedule object. This can also be the identifier of a schedule in\nyour HB-Energy schedule library. Any value in this schedule that is\n0.1 or above will be considered occupied. If None, a schedule from\n9AM to 5PM on weekdays will be used.", 
-      "type": "System.Object", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
-      "name": "_threshold_", 
-      "description": "Threshhold for daylight autonomy (DA) in lux (default: 300).", 
-      "type": "int", 
-      "default": null
-    }, 
-    {
       "access": "list", 
-      "name": "_min_max_", 
-      "description": "A list for min, max illuminacne thresholds for useful daylight illuminance\nin lux. (Default: (100, 3000)).", 
-      "type": "int", 
+      "type": "System.Object", 
+      "description": "Optional dynamic Aperture Group Schedules from the \"HB Aperture Group\nSchedule\" component, which will be used to customize the behavior\nof any dyanmic aperture geometry in the output metrics. If unsupplied,\nall dynamic aperture groups will be in their default state in for\nthe output metrics.", 
       "default": null
     }, 
     {
+      "name": "_occ_sch_", 
       "access": "item", 
+      "type": "System.Object", 
+      "description": "An annual occupancy schedule as a Ladybug Data Collection or a HB-Energy\nschedule object. This can also be the identifier of a schedule in\nyour HB-Energy schedule library. Any value in this schedule that is\n0.1 or above will be considered occupied. If None, a schedule from\n9AM to 5PM on weekdays will be used.", 
+      "default": null
+    }, 
+    {
+      "name": "_threshold_", 
+      "access": "item", 
+      "type": "int", 
+      "description": "Threshhold for daylight autonomy (DA) in lux (default: 300).", 
+      "default": null
+    }, 
+    {
+      "name": "_min_max_", 
+      "access": "list", 
+      "type": "int", 
+      "description": "A list for min, max illuminacne thresholds for useful daylight illuminance\nin lux. (Default: (100, 3000)).", 
+      "default": null
+    }, 
+    {
       "name": "grid_filter_", 
-      "description": "The name of a grid or a pattern to filter the grids. For instance,\nfirst_floor_* will simulate only the sensor grids that have an\nidentifier that starts with first_floor_. By default all the grids\nwill be processed.", 
+      "access": "item", 
       "type": "string", 
+      "description": "The name of a grid or a pattern to filter the grids. For instance,\nfirst_floor_* will simulate only the sensor grids that have an\nidentifier that starts with first_floor_. By default all the grids\nwill be processed.", 
       "default": null
     }
-  ], 
-  "subcategory": "4 :: Results", 
-  "code": "\nimport os\nimport subprocess\n\ntry:\n    from ladybug.datacollection import BaseCollection\n    from ladybug.futil import write_to_file\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance.postprocess.annualdaylight import metrics_from_folder\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance_postprocess.dynamic import DynamicSchedule\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:  # honeybee schedule library is not available\n    schedule_by_identifier = None\n\ntry:\n    from pollination_handlers.outputs.daylight import read_da_from_folder, \\\n        read_cda_from_folder, read_udi_from_folder\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import pollination_handlers:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, list_to_data_tree,   \\\n        give_warning\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set default values for the thresholds and the grid filter\n    grid_filter_ = '*' if grid_filter_ is None else grid_filter_\n    _threshold_ = _threshold_ if _threshold_ else 300\n    if len(_min_max_) != 0:\n        assert len(_min_max_), 'Expected two values for _min_max_.'\n        min_t = _min_max_[0]\n        max_t = _min_max_[1]\n    else:\n        min_t = 100\n        max_t = 3000\n\n    # process the schedule\n    if _occ_sch_ is None:\n        schedule = None\n    elif isinstance(_occ_sch_, BaseCollection):\n        schedule = _occ_sch_.values\n    elif isinstance(_occ_sch_, str):\n        if schedule_by_identifier is not None:\n            try:\n                schedule = schedule_by_identifier(_occ_sch_).values()\n            except TypeError:  # it's probably a ScheduleFixedInterval\n                schedule = schedule_by_identifier(_occ_sch_).values\n        else:\n            raise ValueError('honeybee-energy must be installed to reference '\n                             'occupancy schedules by identifier.')\n    else:  # assume that it is a honeybee schedule object\n        try:\n            schedule = _occ_sch_.values()\n        except TypeError:  # it's probably a ScheduleFixedInterval\n            schedule = _occ_sch_.values\n    if schedule is not None:\n        bin_schedule = []\n        for val in schedule:\n            bin_val = 1 if val >= 0.1 else 0\n            bin_schedule.append(bin_val)\n        schedule = bin_schedule\n\n    # compute the annual metrics\n    res_folder = os.path.dirname(_results[0]) if os.path.isfile(_results[0]) \\\n        else _results[0]\n    if os.path.isdir(os.path.join(res_folder, '__static_apertures__')) or \\\n            os.path.isfile(os.path.join(res_folder, 'grid_states.json')):\n        cmds = [\n            folders.python_exe_path, '-m', 'honeybee_radiance_postprocess',\n            'post-process', 'annual-daylight', res_folder, '-sf', 'metrics',\n            '-t', str(_threshold_), '-lt', str(min_t), '-ut', str(max_t)\n        ]\n        if grid_filter_ != '*':\n            cmds.extend(['--grids-filter', grid_filter_])\n        if len(dyn_sch_) != 0:\n            if os.path.isfile(os.path.join(res_folder, 'grid_states.json')):\n                dyn_sch = dyn_sch_[0] if isinstance(dyn_sch_[0], DynamicSchedule) else \\\n                    DynamicSchedule.from_group_schedules(dyn_sch_)\n                dyn_sch_file = dyn_sch.to_json(folder=res_folder)\n                cmds.extend(['--states', dyn_sch_file])\n            else:\n                msg = 'No dynamic aperture groups were found in the Model.\\n' \\\n                    'The input dynamic schedules will be ignored.'\n                print(msg)\n                give_warning(ghenv.Component, msg)\n        if schedule is not None:\n            sch_str = '\\n'.join(str(h) for h in schedule)\n            sch_file = os.path.join(res_folder, 'schedule.txt')\n            write_to_file(sch_file, sch_str)\n            cmds.extend(['--schedule', sch_file])\n        use_shell = True if os.name == 'nt' else False\n        process = subprocess.Popen(\n            cmds, cwd=res_folder, shell=use_shell,\n            stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n        stdout = process.communicate()  # wait for the process to finish\n        if stdout[-1] != '':\n            print(stdout[-1])\n            raise ValueError('Failed to compute annual daylight metrics.')\n        metric_dir = os.path.join(res_folder, 'metrics')\n        DA = list_to_data_tree(read_da_from_folder(os.path.join(metric_dir, 'da')))\n        cDA = list_to_data_tree(read_cda_from_folder(os.path.join(metric_dir, 'cda')))\n        UDI = list_to_data_tree(read_udi_from_folder(os.path.join(metric_dir, 'udi')))\n        UDI_low = list_to_data_tree(read_udi_from_folder(os.path.join(metric_dir, 'udi_lower')))\n        UDI_up = list_to_data_tree(read_udi_from_folder(os.path.join(metric_dir, 'udi_upper')))\n    else:\n        if len(dyn_sch_) != 0:\n            msg = 'Dynamic Schedules are currently only supported for Annual Daylight ' \\\n                'simulations.\\nThe input schedules will be ignored.'\n            print(msg)\n            give_warning(ghenv.Component, msg)\n        DA, cDA, UDI_low, UDI, UDI_up = metrics_from_folder(\n            res_folder, schedule, _threshold_, min_t, max_t, grid_filter_)\n        DA = list_to_data_tree(DA)\n        cDA = list_to_data_tree(cDA)\n        UDI = list_to_data_tree(UDI)\n        UDI_low = list_to_data_tree(UDI_low)\n        UDI_up = list_to_data_tree(UDI_up)\n", 
-  "category": "HB-Radiance", 
-  "name": "HB Annual Daylight Metrics", 
-  "description": "Calculate Annual Daylight Metrics from a result (.ill) files.\n-"
+  ]
 }
