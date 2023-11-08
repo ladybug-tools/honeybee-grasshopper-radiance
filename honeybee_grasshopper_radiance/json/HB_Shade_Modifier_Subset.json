@@ -1,36 +1,36 @@
 {
-  "version": "1.7.0", 
-  "nickname": "ShadeSubset", 
+  "description": "Create a list of modifiers that can be used to edit or create a ModifierSet object.\n-", 
   "outputs": [
     [
       {
-        "access": "None", 
+        "type": null, 
         "name": "shade_set", 
         "description": "A list of shade modifiers that can be used to edit or create\na ModifierSet object.", 
-        "type": null, 
+        "access": "None", 
         "default": null
       }
     ]
   ], 
+  "code": "\ntry:  # import honeybee_radiance dependencies\n    from honeybee_radiance.modifier import Modifier\n    from honeybee_radiance.lib.modifiers import modifier_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\ndef check_mod(mod, input_name):\n    \"\"\"Get an Modifier from the library if it's a string.\"\"\"\n    if isinstance(mod, str):\n        return modifier_by_identifier(mod)\n    else:\n        assert isinstance(mod, Modifier), \\\n            'Expected Modifier for {}. Got {}'.format(input_name, type(mod))\n    return mod\n\n\n# go through each input modifier\nif _exterior_shade_ is not None:\n    _exterior_shade_ = check_mod(_exterior_shade_, '_exterior_shade_')\nif _interior_shade_ is not None:\n    _interior_shade_ = check_mod(_interior_shade_, '_interior_shade_')\n\n# return the final list from the component\nshade_set = [_exterior_shade_, _interior_shade_]\n", 
+  "name": "HB Shade Modifier Subset", 
+  "version": "1.7.1", 
+  "category": "HB-Radiance", 
+  "subcategory": "1 :: Modifiers", 
+  "nickname": "ShadeSubset", 
   "inputs": [
     {
-      "access": "item", 
+      "type": "System.Object", 
       "name": "_exterior_shade_", 
       "description": "A modifier object for exterior shades (or text for\nthe identifier of the modifier within the library).", 
-      "type": "System.Object", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "System.Object", 
       "name": "_interior_shade_", 
       "description": "A modifier object for interior shades (or text for\nthe identifier of the modifier within the library).", 
-      "type": "System.Object", 
+      "access": "item", 
       "default": null
     }
-  ], 
-  "subcategory": "1 :: Modifiers", 
-  "code": "\ntry:  # import honeybee_radiance dependencies\n    from honeybee_radiance.modifier import Modifier\n    from honeybee_radiance.lib.modifiers import modifier_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\n\ndef check_mod(mod, input_name):\n    \"\"\"Get an Modifier from the library if it's a string.\"\"\"\n    if isinstance(mod, str):\n        return modifier_by_identifier(mod)\n    else:\n        assert isinstance(mod, Modifier), \\\n            'Expected Modifier for {}. Got {}'.format(input_name, type(mod))\n    return mod\n\n\n# go through each input modifier\nif _exterior_shade_ is not None:\n    _exterior_shade_ = check_mod(_exterior_shade_, '_exterior_shade_')\nif _interior_shade_ is not None:\n    _interior_shade_ = check_mod(_interior_shade_, '_interior_shade_')\n\n# return the final list from the component\nshade_set = [_exterior_shade_, _interior_shade_]\n", 
-  "category": "HB-Radiance", 
-  "name": "HB Shade Modifier Subset", 
-  "description": "Create a list of modifiers that can be used to edit or create a ModifierSet object.\n-"
+  ]
 }

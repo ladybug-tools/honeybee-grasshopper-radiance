@@ -24,7 +24,7 @@ Create a list of modifiers that can be used to edit or create a ModifierSet obje
 
 ghenv.Component.Name = 'HB Shade Modifier Subset'
 ghenv.Component.NickName = 'ShadeSubset'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -34,6 +34,12 @@ try:  # import honeybee_radiance dependencies
     from honeybee_radiance.lib.modifiers import modifier_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
+
+try:
+    from ladybug_rhino.grasshopper import turn_off_old_tag
+except ImportError as e:
+    raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
 
 
 def check_mod(mod, input_name):

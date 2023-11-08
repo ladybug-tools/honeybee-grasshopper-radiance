@@ -29,7 +29,7 @@ Search for available Mofidiers within the honeybee standards library.
 
 ghenv.Component.Name = 'HB Search Mofidiers'
 ghenv.Component.NickName = 'SearchMods'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -43,6 +43,12 @@ try:  # import the honeybee-radiance dependencies
     from honeybee_radiance.lib.modifiers import MODIFIERS
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
+
+try:
+    from ladybug_rhino.grasshopper import turn_off_old_tag
+except ImportError as e:
+    raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
 
 
 if len(keywords_) == 0:

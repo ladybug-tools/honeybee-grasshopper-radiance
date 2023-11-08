@@ -1,36 +1,36 @@
 {
-  "version": "1.7.0", 
-  "nickname": "State", 
+  "description": "Create a State object representing a single dynamic group state.\n-", 
   "outputs": [
     [
       {
-        "access": "None", 
+        "type": null, 
         "name": "state", 
         "description": "A Honeybee State object representing a single dynamic group state.\nThis can be assigned to apertures or shades using the \"HB Dynamic\nAperture Group\" componet or the \"HB Dynamic Shade Group\" component.", 
-        "type": null, 
+        "access": "None", 
         "default": null
       }
     ]
   ], 
+  "code": "\ntry:\n    from honeybee_radiance.dynamic import RadianceSubFaceState\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\nstate = RadianceSubFaceState(modifier_, [geo.duplicate() for geo in shades_])\n", 
+  "name": "HB Dynamic State", 
+  "version": "1.7.1", 
+  "category": "HB-Radiance", 
+  "subcategory": "0 :: Basic Properties", 
+  "nickname": "State", 
   "inputs": [
     {
-      "access": "item", 
+      "type": "System.Object", 
       "name": "modifier_", 
       "description": "A Honeybee Radiance Modifier object to be applied to this state's\nparent in this state. This is used to swap out the modifier in\nmulti-phase studies. If None, it will be the parent's default modifier.", 
-      "type": "System.Object", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "list", 
+      "type": "System.Object", 
       "name": "shades_", 
       "description": "An optional array of StateGeometry objects to be included\nwith this state.", 
-      "type": "System.Object", 
+      "access": "list", 
       "default": null
     }
-  ], 
-  "subcategory": "0 :: Basic Properties", 
-  "code": "\ntry:\n    from honeybee_radiance.dynamic import RadianceSubFaceState\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\nstate = RadianceSubFaceState(modifier_, [geo.duplicate() for geo in shades_])\n", 
-  "category": "HB-Radiance", 
-  "name": "HB Dynamic State", 
-  "description": "Create a State object representing a single dynamic group state.\n-"
+  ]
 }
