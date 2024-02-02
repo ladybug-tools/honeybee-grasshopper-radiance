@@ -27,9 +27,9 @@ Search for available Mofidiers within the honeybee standards library.
             standards library (filtered by keywords_ if they are input).
 """
 
-ghenv.Component.Name = 'HB Search Mofidiers'
+ghenv.Component.Name = 'HB Search Modifiers'
 ghenv.Component.NickName = 'SearchMods'
-ghenv.Component.Message = '1.7.1'
+ghenv.Component.Message = '1.7.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
