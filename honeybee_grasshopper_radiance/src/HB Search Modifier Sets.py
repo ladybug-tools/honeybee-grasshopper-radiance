@@ -27,9 +27,9 @@ Search for available Mofidier Sets within the honeybee standards library.
             standards library (filtered by keywords_ if they are input).
 """
 
-ghenv.Component.Name = 'HB Search Mofidier Sets'
+ghenv.Component.Name = 'HB Search Modifier Sets'
 ghenv.Component.NickName = 'SearchModSets'
-ghenv.Component.Message = '1.7.1'
+ghenv.Component.Message = '1.7.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

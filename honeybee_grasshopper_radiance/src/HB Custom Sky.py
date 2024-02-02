@@ -31,7 +31,7 @@ Create a Custom sky from direct and diffuse irradiance.
 
 ghenv.Component.Name = 'HB Custom Sky'
 ghenv.Component.NickName = 'CustomSky'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
