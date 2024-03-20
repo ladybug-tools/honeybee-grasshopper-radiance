@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2023, Ladybug Tools.
+# Copyright (c) 2024, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -24,7 +24,7 @@ Create a list of modifiers that can be used to edit or create a ModifierSet obje
 
 ghenv.Component.Name = 'HB Shade Modifier Subset'
 ghenv.Component.NickName = 'ShadeSubset'
-ghenv.Component.Message = '1.7.1'
+ghenv.Component.Message = '1.8.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

@@ -1,64 +1,64 @@
 {
-  "description": "Create a list of interior modifiers that can be used to edit or create a\nModifierSet object.\n-", 
+  "version": "1.8.0", 
+  "nickname": "InteriorSubset", 
   "outputs": [
     [
       {
-        "type": null, 
+        "access": "None", 
         "name": "interior_set", 
         "description": "A list of interior modifiers that can be used to edit\nor create a ModifierSet object.", 
-        "access": "None", 
+        "type": null, 
         "default": null
       }
     ]
   ], 
-  "code": "\ntry:  # import honeybee_radiance dependencies\n    from honeybee_radiance.modifier import Modifier\n    from honeybee_radiance.lib.modifiers import modifier_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\ndef check_mod(mod, input_name):\n    \"\"\"Get an Modifier from the library if it's a string.\"\"\"\n    if isinstance(mod, str):\n        return modifier_by_identifier(mod)\n    else:\n        assert isinstance(mod, Modifier), \\\n            'Expected Modifier for {}. Got {}'.format(input_name, type(mod))\n    return mod\n\n\n# go through each input modifier\nif _interior_wall_ is not None:\n    _interior_wall_ = check_mod(_interior_wall_, '_interior_wall_')\nif _ceiling_ is not None:\n    _ceiling_ = check_mod(_ceiling_, '_ceiling_')\nif _interior_floor_ is not None:\n    _interior_floor_ = check_mod(_interior_floor_, '_interior_floor_')\nif _interior_window_ is not None:\n    _interior_window_ = check_mod(_interior_window_, '_interior_window_')\nif _interior_door_ is not None:\n    _interior_door_ = check_mod(_interior_door_, '_interior_door_')\nif _int_glass_door_ is not None:\n    _int_glass_door_ = check_mod(_int_glass_door_, '_int_glass_door_')\n\n# return the final list from the component\ninterior_set = [_interior_wall_, _ceiling_, _interior_floor_, _interior_window_,\n                _interior_door_, _int_glass_door_]\n", 
-  "name": "HB Interior Modifier Subset", 
-  "version": "1.7.1", 
-  "category": "HB-Radiance", 
-  "subcategory": "1 :: Modifiers", 
-  "nickname": "InteriorSubset", 
   "inputs": [
     {
-      "type": "System.Object", 
+      "access": "item", 
       "name": "_interior_wall_", 
       "description": "A modifier object for interior walls (or text for\nthe identifier of the modifier within the library).", 
-      "access": "item", 
+      "type": "System.Object", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "item", 
       "name": "_ceiling_", 
       "description": "A modifier object for ceilings (or text for the identifier of\nthe modifier within the library).", 
-      "access": "item", 
+      "type": "System.Object", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "item", 
       "name": "_interior_floor_", 
       "description": "A modifier object for interior floors (or text for\nthe identifier of the modifier within the library).", 
-      "access": "item", 
+      "type": "System.Object", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "item", 
       "name": "_interior_window_", 
       "description": "A modifier object for all apertures with a Surface\nboundary condition. This can also be text for the identifier of the\nmodifier within the library.", 
-      "access": "item", 
+      "type": "System.Object", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "item", 
       "name": "_interior_door_", 
       "description": "A modifier object for all opaque doors with a Surface\nboundary condition. This can also be text for the identifier of the\nmodifier within the library.", 
-      "access": "item", 
+      "type": "System.Object", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "item", 
       "name": "_int_glass_door_", 
       "description": "A modifier object for all glass doors with a Surface\nboundary condition. This can also be text for the identifier of the\nmodifier within the library.", 
-      "access": "item", 
+      "type": "System.Object", 
       "default": null
     }
-  ]
+  ], 
+  "subcategory": "1 :: Modifiers", 
+  "code": "\ntry:  # import honeybee_radiance dependencies\n    from honeybee_radiance.modifier import Modifier\n    from honeybee_radiance.lib.modifiers import modifier_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\ndef check_mod(mod, input_name):\n    \"\"\"Get an Modifier from the library if it's a string.\"\"\"\n    if isinstance(mod, str):\n        return modifier_by_identifier(mod)\n    else:\n        assert isinstance(mod, Modifier), \\\n            'Expected Modifier for {}. Got {}'.format(input_name, type(mod))\n    return mod\n\n\n# go through each input modifier\nif _interior_wall_ is not None:\n    _interior_wall_ = check_mod(_interior_wall_, '_interior_wall_')\nif _ceiling_ is not None:\n    _ceiling_ = check_mod(_ceiling_, '_ceiling_')\nif _interior_floor_ is not None:\n    _interior_floor_ = check_mod(_interior_floor_, '_interior_floor_')\nif _interior_window_ is not None:\n    _interior_window_ = check_mod(_interior_window_, '_interior_window_')\nif _interior_door_ is not None:\n    _interior_door_ = check_mod(_interior_door_, '_interior_door_')\nif _int_glass_door_ is not None:\n    _int_glass_door_ = check_mod(_int_glass_door_, '_int_glass_door_')\n\n# return the final list from the component\ninterior_set = [_interior_wall_, _ceiling_, _interior_floor_, _interior_window_,\n                _interior_door_, _int_glass_door_]\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Interior Modifier Subset", 
+  "description": "Create a list of interior modifiers that can be used to edit or create a\nModifierSet object.\n-"
 }

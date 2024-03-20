@@ -1,64 +1,64 @@
 {
-  "description": "Create a ModifierSet object containing all radiance modifiers needed to create\nan radiance model. ModifierSets can be assigned to Honeybee Rooms to specify\nall default modifiers on the Room.\n-", 
+  "version": "1.8.0", 
+  "nickname": "ModifierSet", 
   "outputs": [
     [
       {
-        "type": null, 
+        "access": "None", 
         "name": "mod_set", 
         "description": "A ModifierSet object that can be assigned to Honeybee\nRooms in order to specify all default modifiers on the Room.", 
-        "access": "None", 
+        "type": null, 
         "default": null
       }
     ]
   ], 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_rad_string, clean_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.modifierset import ModifierSet\n    from honeybee_radiance.lib.modifiersets import modifier_set_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# get the base modifier set\nname = clean_and_id_rad_string('ModifierSet') if _name_ is None else \\\n    clean_rad_string(_name_)\nif base_mod_set_ is None:\n    mod_set = ModifierSet(name)\nelse:\n    if isinstance(base_mod_set_, str):\n        base_mod_set_ = modifier_set_by_identifier(base_mod_set_)\n    mod_set = base_mod_set_.duplicate()\n    mod_set.identifier = name\n    if _name_ is not None:\n        mod_set.display_name = _name_\n\n# go through each input modifier subset and assign it to the set\nif len(_exterior_subset_) != 0:\n    assert len(_exterior_subset_) == 3, 'Input _exterior_subset_ is not valid.'\n    if _exterior_subset_[0] is not None:\n        mod_set.wall_set.exterior_modifier = _exterior_subset_[0]\n    if _exterior_subset_[1] is not None:\n        mod_set.roof_ceiling_set.exterior_modifier = _exterior_subset_[1]\n    if _exterior_subset_[2] is not None:\n        mod_set.floor_set.exterior_modifier = _exterior_subset_[2]\n\nif len(_interior_subset_) != 0:\n    assert len(_interior_subset_) == 6, 'Input _interior_subset_ is not valid.'\n    if _interior_subset_[0] is not None:\n        mod_set.wall_set.interior_modifier = _interior_subset_[0]\n    if _interior_subset_[1] is not None:\n        mod_set.roof_ceiling_set.interior_modifier = _interior_subset_[1]\n    if _interior_subset_[2] is not None:\n        mod_set.floor_set.interior_modifier = _interior_subset_[2]\n    if _interior_subset_[3] is not None:\n        mod_set.aperture_set.interior_modifier = _interior_subset_[3]\n    if _interior_subset_[4] is not None:\n        mod_set.door_set.interior_modifier = _interior_subset_[4]\n    if _interior_subset_[5] is not None:\n        mod_set.door_set.interior_glass_modifier = _interior_subset_[5]\n\nif len(_subface_subset_) != 0:\n    assert len(_subface_subset_) == 6, 'Input _subface_subset_ is not valid.'\n    if _subface_subset_[0] is not None:\n        mod_set.aperture_set.window_modifier = _subface_subset_[0]\n    if _subface_subset_[1] is not None:\n        mod_set.aperture_set.skylight_modifier = _subface_subset_[1]\n    if _subface_subset_[2] is not None:\n        mod_set.aperture_set.operable_modifier = _subface_subset_[2]\n    if _subface_subset_[3] is not None:\n        mod_set.door_set.exterior_modifier = _subface_subset_[3]\n    if _subface_subset_[4] is not None:\n        mod_set.door_set.overhead_modifier = _subface_subset_[4]\n    if _subface_subset_[5] is not None:\n        mod_set.door_set.exterior_glass_modifier = _subface_subset_[5]\n\nif len(_shade_subset_) != 0:\n    assert len(_shade_subset_) == 2, 'Input _shade_subset_ is not valid.'\n    if _shade_subset_[0] is not None:\n        mod_set.shade_set.exterior_modifier = _shade_subset_[0]\n    if _shade_subset_[1] is not None:\n        mod_set.shade_set.interior_modifier = _shade_subset_[1]\n", 
-  "name": "HB ModifierSet", 
-  "version": "1.7.1", 
-  "category": "HB-Radiance", 
-  "subcategory": "1 :: Modifiers", 
-  "nickname": "ModifierSet", 
   "inputs": [
     {
-      "type": "string", 
+      "access": "item", 
       "name": "_name_", 
       "description": "Text to set the name for the ModifierSet and to be incorporated\ninto a unique ModifierSet identifier. If None, a random one will\nbe genrated.", 
-      "access": "item", 
+      "type": "string", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "item", 
       "name": "base_mod_set_", 
       "description": "An optional ModifierSet object that will be used\nas the starting point for the new ModifierSet output from this\ncomponent. This can also be text for the name of a ModifierSet\nwithin the library such as that output from the \"HB Search Modifier\nSets\" component. If None, the Honeybee \"Generic Default Modifier\nSet\" will be used as the base.", 
-      "access": "item", 
+      "type": "System.Object", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "list", 
       "name": "_exterior_subset_", 
       "description": "A modifier subset list from the \"HB Exterior Modifier\nSubset\" component. Note that None values in this list correspond to\nno change to the given modifier in the base_mod_set_.", 
-      "access": "list", 
+      "type": "System.Object", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "list", 
       "name": "_interior_subset_", 
       "description": "A modifier subset list from the \"HB Interior Modifier\nSubset\" component. Note that None values in this list correspond to\nno change to the given modifier in the base_mod_set_.", 
-      "access": "list", 
+      "type": "System.Object", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "list", 
       "name": "_subface_subset_", 
       "description": "A modifier subset list from the \"HB Subface Subset\"\ncomponent. Note that None values in this list correspond to no\nchange to the given modifier in the base_mod_set_.", 
-      "access": "list", 
+      "type": "System.Object", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "list", 
       "name": "_shade_subset_", 
       "description": "A modifier subset list from the \"HB Shade Modifier\nSubset\" component. Note that None values in this list correspond to\nno change to the given modifier in the base_mod_set_.", 
-      "access": "list", 
+      "type": "System.Object", 
       "default": null
     }
-  ]
+  ], 
+  "subcategory": "1 :: Modifiers", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_rad_string, clean_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-radiance dependencies\n    from honeybee_radiance.modifierset import ModifierSet\n    from honeybee_radiance.lib.modifiersets import modifier_set_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# get the base modifier set\nname = clean_and_id_rad_string('ModifierSet') if _name_ is None else \\\n    clean_rad_string(_name_)\nif base_mod_set_ is None:\n    mod_set = ModifierSet(name)\nelse:\n    if isinstance(base_mod_set_, str):\n        base_mod_set_ = modifier_set_by_identifier(base_mod_set_)\n    mod_set = base_mod_set_.duplicate()\n    mod_set.identifier = name\n    if _name_ is not None:\n        mod_set.display_name = _name_\n\n# go through each input modifier subset and assign it to the set\nif len(_exterior_subset_) != 0:\n    assert len(_exterior_subset_) == 3, 'Input _exterior_subset_ is not valid.'\n    if _exterior_subset_[0] is not None:\n        mod_set.wall_set.exterior_modifier = _exterior_subset_[0]\n    if _exterior_subset_[1] is not None:\n        mod_set.roof_ceiling_set.exterior_modifier = _exterior_subset_[1]\n    if _exterior_subset_[2] is not None:\n        mod_set.floor_set.exterior_modifier = _exterior_subset_[2]\n\nif len(_interior_subset_) != 0:\n    assert len(_interior_subset_) == 6, 'Input _interior_subset_ is not valid.'\n    if _interior_subset_[0] is not None:\n        mod_set.wall_set.interior_modifier = _interior_subset_[0]\n    if _interior_subset_[1] is not None:\n        mod_set.roof_ceiling_set.interior_modifier = _interior_subset_[1]\n    if _interior_subset_[2] is not None:\n        mod_set.floor_set.interior_modifier = _interior_subset_[2]\n    if _interior_subset_[3] is not None:\n        mod_set.aperture_set.interior_modifier = _interior_subset_[3]\n    if _interior_subset_[4] is not None:\n        mod_set.door_set.interior_modifier = _interior_subset_[4]\n    if _interior_subset_[5] is not None:\n        mod_set.door_set.interior_glass_modifier = _interior_subset_[5]\n\nif len(_subface_subset_) != 0:\n    assert len(_subface_subset_) == 6, 'Input _subface_subset_ is not valid.'\n    if _subface_subset_[0] is not None:\n        mod_set.aperture_set.window_modifier = _subface_subset_[0]\n    if _subface_subset_[1] is not None:\n        mod_set.aperture_set.skylight_modifier = _subface_subset_[1]\n    if _subface_subset_[2] is not None:\n        mod_set.aperture_set.operable_modifier = _subface_subset_[2]\n    if _subface_subset_[3] is not None:\n        mod_set.door_set.exterior_modifier = _subface_subset_[3]\n    if _subface_subset_[4] is not None:\n        mod_set.door_set.overhead_modifier = _subface_subset_[4]\n    if _subface_subset_[5] is not None:\n        mod_set.door_set.exterior_glass_modifier = _subface_subset_[5]\n\nif len(_shade_subset_) != 0:\n    assert len(_shade_subset_) == 2, 'Input _shade_subset_ is not valid.'\n    if _shade_subset_[0] is not None:\n        mod_set.shade_set.exterior_modifier = _shade_subset_[0]\n    if _shade_subset_[1] is not None:\n        mod_set.shade_set.interior_modifier = _shade_subset_[1]\n", 
+  "category": "HB-Radiance", 
+  "name": "HB ModifierSet", 
+  "description": "Create a ModifierSet object containing all radiance modifiers needed to create\nan radiance model. ModifierSets can be assigned to Honeybee Rooms to specify\nall default modifiers on the Room.\n-"
 }
