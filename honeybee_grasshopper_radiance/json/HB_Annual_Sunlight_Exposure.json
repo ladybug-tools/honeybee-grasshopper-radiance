@@ -1,64 +1,64 @@
 {
-  "name": "HB Annual Sunlight Exposure", 
-  "subcategory": "4 :: Results", 
-  "version": "1.7.1", 
-  "description": "Calculate Annual Sunlight Exposure from a results folder.\n_\nNote: This component will only output a LEED compliant ASE if you've run the\nsimulation with all operable shading devices retracted. If you are using\nresults with operable shading devices, then this output is NOT LEED compliant.\n-", 
-  "code": "\nimport os\nimport subprocess\n\ntry:\n    from ladybug.datacollection import BaseCollection\n    from ladybug.futil import write_to_file\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:  # honeybee schedule library is not available\n    schedule_by_identifier = None\n\ntry:\n    from pollination_handlers.outputs.daylight import read_ase_from_folder, \\\n        read_hours_from_folder\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import pollination_handlers:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, list_to_data_tree\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set default values for the thresholds and the grid filter\n    grid_filter_ = '*' if grid_filter_ is None else grid_filter_\n    _direct_threshold_ = _threshold_ if _threshold_ else 1000\n    _occ_hours_ = _target_hrs_ if _target_hrs_ else 250\n\n    # process the schedule\n    if _occ_sch_ is None:\n        schedule = None\n    elif isinstance(_occ_sch_, BaseCollection):\n        schedule = _occ_sch_.values\n    elif isinstance(_occ_sch_, str):\n        if schedule_by_identifier is not None:\n            try:\n                schedule = schedule_by_identifier(_occ_sch_).values()\n            except TypeError:  # it's probably a ScheduleFixedInterval\n                schedule = schedule_by_identifier(_occ_sch_).values\n        else:\n            raise ValueError('honeybee-energy must be installed to reference '\n                             'occupancy schedules by identifier.')\n    else:  # assume that it is a honeybee schedule object\n        try:\n            schedule = _occ_sch_.values()\n        except TypeError:  # it's probably a ScheduleFixedInterval\n            schedule = _occ_sch_.values\n    if schedule is not None:\n        bin_schedule = []\n        for val in schedule:\n            bin_val = 1 if val >= 0.1 else 0\n            bin_schedule.append(bin_val)\n        schedule = bin_schedule\n\n    # compute the annual metrics\n    res_folder = os.path.dirname(_results[0]) if os.path.isfile(_results[0]) \\\n        else _results[0]\n    if os.path.isfile(os.path.join(res_folder, 'grid_states.json')):\n        cmds = [\n            folders.python_exe_path, '-m', 'honeybee_radiance_postprocess',\n            'post-process', 'annual-sunlight-exposure', res_folder, '-sf', 'metrics',\n            '-dt', str(_direct_threshold_), '-oh', str(_occ_hours_)\n        ]\n        if grid_filter_ != '*':\n            cmds.extend(['--grids-filter', grid_filter_])\n        if schedule is not None:\n            sch_str = '\\n'.join(str(h) for h in schedule)\n            sch_file = os.path.join(res_folder, 'schedule.txt')\n            write_to_file(sch_file, sch_str)\n            cmds.extend(['--schedule', sch_file])\n        use_shell = True if os.name == 'nt' else False\n        custom_env = os.environ.copy()\n        custom_env['PYTHONHOME'] = ''\n        process = subprocess.Popen(\n            cmds, cwd=res_folder, shell=use_shell, env=custom_env,\n            stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n        stdout = process.communicate()  # wait for the process to finish\n        if stdout[-1] != '':\n            print(stdout[-1])\n            raise ValueError('Failed to compute annual sunlight exposure.')\n        metric_dir = os.path.join(res_folder, 'metrics')\n        ASE = read_ase_from_folder(os.path.join(metric_dir, 'ase'))\n        hrs_above = list_to_data_tree(read_hours_from_folder(os.path.join(metric_dir, 'hours_above')))\n    else:\n        raise ValueError(\n            'Invalid results folder!\\n'\n            'Make sure an enhanced daylight simulation was run'\n        )\n", 
+  "version": "1.8.0", 
+  "nickname": "ASE", 
   "outputs": [
     [
       {
-        "name": "ASE", 
         "access": "None", 
-        "type": null, 
+        "name": "ASE", 
         "description": "Annual sunlight exposure as a percentage for each sensor grid.", 
+        "type": null, 
         "default": null
       }, 
       {
-        "name": "hrs_above", 
         "access": "None", 
-        "type": null, 
+        "name": "hrs_above", 
         "description": "The number of hours above the threshold for each sensor point.\nThese can be plugged into the \"LB Spatial Heatmap\" component along with\nmeshes of the sensor grids to visualize results.", 
+        "type": null, 
         "default": null
       }
     ]
   ], 
-  "category": "HB-Radiance", 
-  "nickname": "ASE", 
   "inputs": [
     {
-      "name": "_results", 
       "access": "list", 
-      "type": "string", 
+      "name": "_results", 
       "description": "An annual results folder containing direct illuminance results.\nThis can be the output of the \"HB Annual Daylight\" component. This can\nalso be just the path to the results folder.", 
-      "default": null
-    }, 
-    {
-      "name": "_occ_sch_", 
-      "access": "item", 
-      "type": "System.Object", 
-      "description": "An annual occupancy schedule as a Ladybug Data Collection or a HB-Energy\nschedule object. This can also be the identifier of a schedule in\nyour HB-Energy schedule library. Any value in this schedule that is\n0.1 or above will be considered occupied. If None, a schedule from\n9AM to 5PM on weekdays will be used.", 
-      "default": null
-    }, 
-    {
-      "name": "_threshold_", 
-      "access": "item", 
-      "type": "int", 
-      "description": "The threshold (lux) that determines if a sensor is\noverlit (default: 1000).", 
-      "default": null
-    }, 
-    {
-      "name": "_target_hrs_", 
-      "access": "item", 
-      "type": "int", 
-      "description": "The number of occupied hours that cannot receive higher\nilluminance than the direct threshold (default: 250).", 
-      "default": null
-    }, 
-    {
-      "name": "grid_filter_", 
-      "access": "item", 
       "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_occ_sch_", 
+      "description": "An annual occupancy schedule as a Ladybug Data Collection or a HB-Energy\nschedule object. This can also be the identifier of a schedule in\nyour HB-Energy schedule library. Any value in this schedule that is\n0.1 or above will be considered occupied. If None, a schedule from\n9AM to 5PM on weekdays will be used.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_threshold_", 
+      "description": "The threshold (lux) that determines if a sensor is\noverlit (default: 1000).", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_target_hrs_", 
+      "description": "The number of occupied hours that cannot receive higher\nilluminance than the direct threshold (default: 250).", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "grid_filter_", 
       "description": "The name of a grid or a pattern to filter the grids. For instance,\nfirst_floor_* will simulate only the sensor grids that have an\nidentifier that starts with first_floor_. By default all the grids\nwill be processed.", 
+      "type": "string", 
       "default": null
     }
-  ]
+  ], 
+  "subcategory": "4 :: Results", 
+  "code": "\nimport os\nimport subprocess\n\ntry:\n    from ladybug.datacollection import BaseCollection\n    from ladybug.futil import write_to_file\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:  # honeybee schedule library is not available\n    schedule_by_identifier = None\n\ntry:\n    from pollination_handlers.outputs.daylight import read_ase_from_folder, \\\n        read_hours_from_folder\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import pollination_handlers:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, list_to_data_tree\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set default values for the thresholds and the grid filter\n    grid_filter_ = '*' if grid_filter_ is None else grid_filter_\n    _direct_threshold_ = _threshold_ if _threshold_ else 1000\n    _occ_hours_ = _target_hrs_ if _target_hrs_ else 250\n\n    # process the schedule\n    if _occ_sch_ is None:\n        schedule = None\n    elif isinstance(_occ_sch_, BaseCollection):\n        schedule = _occ_sch_.values\n    elif isinstance(_occ_sch_, str):\n        if schedule_by_identifier is not None:\n            try:\n                schedule = schedule_by_identifier(_occ_sch_).values()\n            except TypeError:  # it's probably a ScheduleFixedInterval\n                schedule = schedule_by_identifier(_occ_sch_).values\n        else:\n            raise ValueError('honeybee-energy must be installed to reference '\n                             'occupancy schedules by identifier.')\n    else:  # assume that it is a honeybee schedule object\n        try:\n            schedule = _occ_sch_.values()\n        except TypeError:  # it's probably a ScheduleFixedInterval\n            schedule = _occ_sch_.values\n    if schedule is not None:\n        bin_schedule = []\n        for val in schedule:\n            bin_val = 1 if val >= 0.1 else 0\n            bin_schedule.append(bin_val)\n        schedule = bin_schedule\n\n    # compute the annual metrics\n    res_folder = os.path.dirname(_results[0]) if os.path.isfile(_results[0]) \\\n        else _results[0]\n    if os.path.isfile(os.path.join(res_folder, 'grid_states.json')):\n        cmds = [\n            folders.python_exe_path, '-m', 'honeybee_radiance_postprocess',\n            'post-process', 'annual-sunlight-exposure', res_folder, '-sf', 'metrics',\n            '-dt', str(_direct_threshold_), '-oh', str(_occ_hours_)\n        ]\n        if grid_filter_ != '*':\n            cmds.extend(['--grids-filter', grid_filter_])\n        if schedule is not None:\n            sch_str = '\\n'.join(str(h) for h in schedule)\n            sch_file = os.path.join(res_folder, 'schedule.txt')\n            write_to_file(sch_file, sch_str)\n            cmds.extend(['--schedule', sch_file])\n        use_shell = True if os.name == 'nt' else False\n        custom_env = os.environ.copy()\n        custom_env['PYTHONHOME'] = ''\n        process = subprocess.Popen(\n            cmds, cwd=res_folder, shell=use_shell, env=custom_env,\n            stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n        stdout = process.communicate()  # wait for the process to finish\n        if stdout[-1] != '':\n            print(stdout[-1])\n            raise ValueError('Failed to compute annual sunlight exposure.')\n        metric_dir = os.path.join(res_folder, 'metrics')\n        ASE = read_ase_from_folder(os.path.join(metric_dir, 'ase'))\n        hrs_above = list_to_data_tree(read_hours_from_folder(os.path.join(metric_dir, 'hours_above')))\n    else:\n        raise ValueError(\n            'Invalid results folder!\\n'\n            'Make sure an enhanced daylight simulation was run'\n        )\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Annual Sunlight Exposure", 
+  "description": "Calculate Annual Sunlight Exposure from a results folder.\n_\nNote: This component will only output a LEED compliant ASE if you've run the\nsimulation with all operable shading devices retracted. If you are using\nresults with operable shading devices, then this output is NOT LEED compliant.\n-"
 }
