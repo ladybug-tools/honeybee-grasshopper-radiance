@@ -1,5 +1,5 @@
 {
-  "version": "1.8.0", 
+  "version": "1.8.1", 
   "nickname": "OpaqueMod3", 
   "outputs": [
     [
@@ -31,14 +31,14 @@
       "access": "item", 
       "name": "_g_ref", 
       "description": "A number between 0 and 1 for the absolute diffuse green reflectance.", 
-      "type": "System.Object", 
+      "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_b_ref", 
       "description": "A number between 0 and 1 for the absolute diffuse blue reflectance.", 
-      "type": "System.Object", 
+      "type": "double", 
       "default": null
     }, 
     {
