@@ -1,5 +1,5 @@
 {
-  "version": "1.8.0", 
+  "version": "1.8.1", 
   "nickname": "GlareMetrics", 
   "outputs": [
     [
@@ -37,7 +37,7 @@
     {
       "access": "item", 
       "name": "_occ_sch_", 
-      "description": "An annual occupancy schedule as a Ladybug Data Collection or a HB-Energy\nschedule object. This can also be the identifier of a schedule in\nyour HB-Energy schedule library. Any value in this schedule that is\n0.1 or above will be considered occupied. If None, a schedule from\n9AM to 5PM on weekdays will be used.", 
+      "description": "An annual occupancy schedule as a Ladybug Data Collection or a HB-Energy\nschedule object. This can also be the identifier of a schedule in\nyour HB-Energy schedule library. Any value in this schedule that is\n0.1 or above will be considered occupied. If None, a schedule from\n8AM to 6PM on all days will be used.", 
       "type": "System.Object", 
       "default": null
     }, 

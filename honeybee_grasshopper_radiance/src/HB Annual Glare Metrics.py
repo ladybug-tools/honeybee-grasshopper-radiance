@@ -27,7 +27,7 @@ value is expressed as a percentage of the sensors in the analysis grid.
             schedule object. This can also be the identifier of a schedule in
             your HB-Energy schedule library. Any value in this schedule that is
             0.1 or above will be considered occupied. If None, a schedule from
-            9AM to 5PM on weekdays will be used.
+            8AM to 6PM on all days will be used.
         _glare_thresh_: Threshold for glare autonomy (GA) in DGP (default: 0.4).
         grid_filter_: The name of a grid or a pattern to filter the grids. For instance,
             first_floor_* will simulate only the sensor grids that have an
@@ -58,7 +58,7 @@ value is expressed as a percentage of the sensors in the analysis grid.
 
 ghenv.Component.Name = "HB Annual Glare Metrics"
 ghenv.Component.NickName = 'GlareMetrics'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

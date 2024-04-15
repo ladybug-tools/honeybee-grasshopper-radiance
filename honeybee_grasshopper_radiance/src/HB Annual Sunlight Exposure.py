@@ -23,7 +23,7 @@ results with operable shading devices, then this output is NOT LEED compliant.
             schedule object. This can also be the identifier of a schedule in
             your HB-Energy schedule library. Any value in this schedule that is
             0.1 or above will be considered occupied. If None, a schedule from
-            9AM to 5PM on weekdays will be used.
+            8AM to 6PM on all days will be used.
         _threshold_: The threshold (lux) that determines if a sensor is
             overlit (default: 1000).
         _target_hrs_: The number of occupied hours that cannot receive higher
@@ -43,7 +43,7 @@ results with operable shading devices, then this output is NOT LEED compliant.
 
 ghenv.Component.Name = "HB Annual Sunlight Exposure"
 ghenv.Component.NickName = 'ASE'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
