@@ -1,5 +1,5 @@
 {
-  "version": "1.8.0", 
+  "version": "1.8.1", 
   "nickname": "DaylightSchedule", 
   "outputs": [
     [
@@ -30,7 +30,7 @@
     {
       "access": "item", 
       "name": "_base_schedule_", 
-      "description": "A lighting schedule representing the usage of lights without\nany daylight controls. The values of this schedule will be multiplied\nby the hourly dimming fraction to yield the output lighting schedules.\nThe format of this schedule can be a Ladybug Data Collection, a HB-Energy\nschedule object, or the identifier of a schedule in the HB-Energy\nschedule library. If None, a schedule from 9AM to 5PM on weekdays\nwill be used.", 
+      "description": "A lighting schedule representing the usage of lights without\nany daylight controls. The values of this schedule will be multiplied\nby the hourly dimming fraction to yield the output lighting schedules.\nThe format of this schedule can be a Ladybug Data Collection, a HB-Energy\nschedule object, or the identifier of a schedule in the HB-Energy\nschedule library. If None, a schedule from 8AM to 6PM on all days\nwill be used.", 
       "type": "System.Object", 
       "default": null
     }, 

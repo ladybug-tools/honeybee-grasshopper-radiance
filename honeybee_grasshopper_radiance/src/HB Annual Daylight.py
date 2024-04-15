@@ -54,7 +54,7 @@ _
             path to a CSV file with 8760 rows or the identifier of a schedule in
             the honeybee-energy schedule library. Any value in this schedule
             that is 0.1 or above will be considered occupied. If not provided,
-            a default schedule that runs from 8 AM to 5 PM on weekdays will be used.
+            a default schedule that runs from 8 AM to 6 PM on all days will be used.
         grid_filter_: Text for a grid identifer or a pattern to filter the sensor grids of
             the model that are simulated. For instance, first_floor_* will simulate
             only the sensor grids that have an identifier that starts with
@@ -109,7 +109,7 @@ _
 
 ghenv.Component.Name = 'HB Annual Daylight'
 ghenv.Component.NickName = 'AnnualDaylight'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

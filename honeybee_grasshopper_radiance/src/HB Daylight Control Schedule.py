@@ -41,7 +41,7 @@ illuminance setpoint everywhere in the room.
             by the hourly dimming fraction to yield the output lighting schedules.
             The format of this schedule can be a Ladybug Data Collection, a HB-Energy
             schedule object, or the identifier of a schedule in the HB-Energy
-            schedule library. If None, a schedule from 9AM to 5PM on weekdays
+            schedule library. If None, a schedule from 8AM to 6PM on all days
             will be used.
         _ill_setpoint_: A number for the illuminance setpoint in lux beyond which
             electric lights are dimmed if there is sufficient daylight.
@@ -72,7 +72,7 @@ illuminance setpoint everywhere in the room.
 
 ghenv.Component.Name = 'HB Daylight Control Schedule'
 ghenv.Component.NickName = 'DaylightSchedule'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

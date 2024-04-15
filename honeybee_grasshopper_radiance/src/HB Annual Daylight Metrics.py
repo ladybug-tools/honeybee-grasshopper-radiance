@@ -25,7 +25,7 @@ Calculate Annual Daylight Metrics from a result (.ill) files.
             schedule object. This can also be the identifier of a schedule in
             your HB-Energy schedule library. Any value in this schedule that is
             0.1 or above will be considered occupied. If None, a schedule from
-            9AM to 5PM on weekdays will be used.
+            8AM to 6PM on all days will be used.
         _threshold_: Threshhold for daylight autonomy (DA) in lux (default: 300).
         _min_max_: A list for min, max illuminacne thresholds for useful daylight illuminance
             in lux. (Default: (100, 3000)).
@@ -65,7 +65,7 @@ Calculate Annual Daylight Metrics from a result (.ill) files.
 
 ghenv.Component.Name = "HB Annual Daylight Metrics"
 ghenv.Component.NickName = 'DaylightMetrics'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
