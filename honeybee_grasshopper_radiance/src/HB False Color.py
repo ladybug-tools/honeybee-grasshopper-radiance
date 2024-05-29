@@ -52,7 +52,7 @@ Convert a High Dynamic Range (HDR) image file into a falsecolor version of itsel
 
 ghenv.Component.Name = 'HB False Color'
 ghenv.Component.NickName = 'FalseColor'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -242,5 +242,5 @@ if all_required_inputs(ghenv.Component):
             'go=m*gi(1);' \
             'bo=m*bi(1)'.format(xw, yw)
         pcomb = Pcomb(input=out_img, output=new_image)
-        pcomb.options.e = expression
+        pcomb.options.e = '"{}"'.format(expression)
         pcomb.run(env, cwd=img_dir)
