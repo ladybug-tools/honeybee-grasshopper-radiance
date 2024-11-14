@@ -56,23 +56,13 @@ Model.
 
 ghenv.Component.Name = 'HB Automatic Aperture Group'
 ghenv.Component.NickName = 'AutoGroup'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
-import os
-import json
-
-try:  # import honeybee_radiance dependencies
-    from ladybug.futil import write_to_file_by_name
-except ImportError as e:
-    raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
-
 try:
     from honeybee.model import Model
-    from honeybee.boundarycondition import Outdoors
-    from honeybee.config import folders
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -82,11 +72,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance_command:\n\t{}'.format(e))
 
 try:
-    from honeybee_radiance.config import folders as rad_folders
-    from honeybee_radiance.dynamic.multiphase import aperture_view_factor, \
-        aperture_view_factor_postprocess, cluster_view_factor, \
-        cluster_orientation, cluster_output
-    from honeybee_radiance.lightsource.sky.skydome import SkyDome
+    from honeybee_radiance.dynamic.multiphase import automatic_aperture_grouping
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
 
@@ -108,111 +94,7 @@ if all_required_inputs(ghenv.Component) and _run:
     size = 0.2 if _size_ is None else _size_
     vertical_tolerance = None if vert_tolerance_ is None else vert_tolerance_
 
-    # create directory
-    folder_dir = os.path.join(folders.default_simulation_folder, 'aperture_groups')
-    if not os.path.isdir(folder_dir):
-        os.makedirs(folder_dir)
-
-    apertures = []
-    room_apertures = {}
-    # get all room-based apertures with Outdoors boundary condition
-    for room in model.rooms:
-        for face in room.faces:
-            for ap in face.apertures:
-                if isinstance(ap.boundary_condition, Outdoors):
-                    apertures.append(ap)
-                    if not room.identifier in room_apertures:
-                        room_apertures[room.identifier] = {}
-                    if not 'apertures' in room_apertures[room.identifier]:
-                        room_apertures[room.identifier]['apertures'] = \
-                            [ap]
-                    else:
-                        room_apertures[room.identifier]['apertures'].append(ap)
-                    if not 'display_name' in room_apertures[room.identifier]:
-                        room_apertures[room.identifier]['display_name'] = \
-                            room.display_name
-    assert len(apertures) != 0, \
-        'Found no apertures. There should at least be one aperture ' \
-        'in your model.'
-
-    if view_factor:
-        # write octree
-        model_content, modifier_content = model.to.rad(model, minimal=True)
-        scene_file, mat_file = 'scene.rad', 'scene.mat'
-        write_to_file_by_name(folder_dir, scene_file, model_content)
-        write_to_file_by_name(folder_dir, mat_file, modifier_content)
-        
-        octree = 'scene.oct'
-        oconv = Oconv(inputs=[mat_file, scene_file], output=octree)
-        oconv.options.f = True
-        
-        # run Oconv command
-        env = None
-        if rad_folders.env != {}:
-            env = rad_folders.env
-        env = dict(os.environ, **env) if env else None
-        oconv.run(env, cwd=folder_dir)
-        
-        rflux_sky = SkyDome()
-        rflux_sky = rflux_sky.to_file(folder_dir, name='rflux_sky.sky')
-        
-        # calculate view factor
-        mtx_file, ap_dict = aperture_view_factor(
-            folder_dir, apertures, size=size, ambient_division=1000,
-            receiver=rflux_sky, octree=octree, calc_folder=folder_dir
-        )
-        rmse = aperture_view_factor_postprocess(
-            mtx_file, ap_dict, room_apertures, room_based
-        )
-
-    # cluster apertures into groups
-    if view_factor:
-        ap_groups = cluster_view_factor(
-            rmse, room_apertures, apertures, 0.001, room_based, vertical_tolerance)
-    else:
-        ap_groups = cluster_orientation(
-            room_apertures, apertures, room_based, vertical_tolerance
-        )
-
-    # process clusters
-    group_names, group_dict = \
-        cluster_output(ap_groups, room_apertures, room_based)
-
-    # write aperture groups to JSON file
-    dyn_gr = os.path.join(folder_dir, 'aperture_groups.json')
-    with open(dyn_gr, 'w') as fp:
-        json.dump(group_names, fp, indent=2)
-
-    # write dynamic group identifiers to JSON file
-    dyn_gr_ids = os.path.join(folder_dir, 'dynamic_group_identifiers.json')
-    with open(dyn_gr_ids, 'w') as fp:
-        json.dump(group_dict, fp, indent=2)
-
-    # assign dynamic group identifiers for each aperture
-    group_ap_dict = {}
-    for room in model.rooms:
-        for face in room.faces:
-            for ap in face.apertures:
-                if isinstance(ap.boundary_condition, Outdoors):
-                    dyn_group_id = group_dict[ap.identifier]
-                    ap.properties.radiance.dynamic_group_identifier = \
-                        dyn_group_id
-                    try:
-                        group_ap_dict[dyn_group_id].append(ap)
-                    except KeyError:
-                        group_ap_dict[dyn_group_id] = [ap]
-
-    # assign any states if they are connected
-    if len(states_) != 0:
-        for group_aps in group_ap_dict.values():
-            # assign states (including shades) to the first aperture
-            group_aps[0].properties.radiance.states = [state.duplicate() for state in states_]
-            # remove shades from following apertures to ensure they aren't double-counted
-            states_wo_shades = []
-            for state in states_:
-                new_state = state.duplicate()
-                new_state.remove_shades()
-                states_wo_shades.append(new_state)
-            for ap in group_aps[1:]:
-                ap.properties.radiance.states = \
-                    [state.duplicate() for state in states_wo_shades]
+    # automatically assign groups
+    automatic_aperture_grouping(
+        model, size=size, room_based=room_based, view_factor_or_orientation=view_factor,
+        vertical_tolerance=vertical_tolerance, states=states_)
