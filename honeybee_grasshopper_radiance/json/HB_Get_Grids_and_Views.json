@@ -1,5 +1,5 @@
 {
-  "version": "1.8.0", 
+  "version": "1.8.1", 
   "nickname": "GetGridsViews", 
   "outputs": [
     [
@@ -40,10 +40,24 @@
       "description": "A Honeybee Model for which grids and views will be output.", 
       "type": "System.Object", 
       "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "view_filter_", 
+      "description": "Text for a view identifer or a pattern to filter the views of the\nmodel that are output. For instance, `first_floor_*` will simulate\nonly the views that have an identifier that starts with `first_floor_`.\nBy default, all views in the model will be output.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "grid_filter_", 
+      "description": "Text for a grid identifer or a pattern to filter the sensor grids of\nthe model that are output. For instance, first_floor_* will simulate\nonly the sensor grids that have an identifier that starts with\nfirst_floor_. By default, all grids in the model will be output.", 
+      "type": "string", 
+      "default": null
     }
   ], 
   "subcategory": "0 :: Basic Properties", 
-  "code": "\ntry:  # import core ladybug_geometry dependencies\n    from ladybug_geometry.geometry3d.pointvector import Point3D\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_geometry:\\n\\t{}'.format(e))\n\ntry:  # import core honeybee dependencies\n    from honeybee.model import Model\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.fromgeometry import from_point3d, from_mesh3d\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, list_to_data_tree\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    assert isinstance(_model, Model), \\\n        'Expected Honeybee Model. Got {}.'.format(type(_model))\n    # get the honeybee-radiance objects\n    views = _model.properties.radiance.views\n    grids = _model.properties.radiance.sensor_grids\n\n    # get the visualizable attributes\n    points = [[from_point3d(Point3D.from_array(s.pos)) for s in sg] for sg in grids]\n    points = list_to_data_tree(points)\n    meshes = []\n    for grid in grids:\n        if grid.mesh is not None:\n            meshes.append(from_mesh3d(grid.mesh))\n", 
+  "code": "\ntry:  # import core ladybug_geometry dependencies\n    from ladybug_geometry.geometry3d.pointvector import Point3D\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_geometry:\\n\\t{}'.format(e))\n\ntry:  # import core honeybee dependencies\n    from honeybee.model import Model\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import honeybee_radiance dependencies\n    from honeybee_radiance.writer import _filter_by_pattern\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.fromgeometry import from_point3d, from_mesh3d\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, list_to_data_tree\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    assert isinstance(_model, Model), \\\n        'Expected Honeybee Model. Got {}.'.format(type(_model))\n    # get the honeybee-radiance objects\n    views = _model.properties.radiance.views\n    if view_filter_ is not None:\n        views = _filter_by_pattern(views, view_filter_)\n    grids = _model.properties.radiance.sensor_grids\n    if grid_filter_ is not None:\n        grids = _filter_by_pattern(grids, grid_filter_)\n\n    # get the visualizable attributes\n    points = [[from_point3d(Point3D.from_array(s.pos)) for s in sg] for sg in grids]\n    points = list_to_data_tree(points)\n    meshes = []\n    for grid in grids:\n        if grid.mesh is not None:\n            meshes.append(from_mesh3d(grid.mesh))\n", 
   "category": "HB-Radiance", 
   "name": "HB Get Grids and Views", 
   "description": "Get Radiance Sensor Grids and/or Views from a Honeybee Model and visualize them\nin the Rhino scene.\n-"
