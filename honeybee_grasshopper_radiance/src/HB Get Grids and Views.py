@@ -14,6 +14,14 @@ in the Rhino scene.
 
     Args:
         _model: A Honeybee Model for which grids and views will be output.
+        view_filter_: Text for a view identifer or a pattern to filter the views of the
+            model that are output. For instance, `first_floor_*` will simulate
+            only the views that have an identifier that starts with `first_floor_`.
+            By default, all views in the model will be output.
+        grid_filter_: Text for a grid identifer or a pattern to filter the sensor grids of
+            the model that are output. For instance, first_floor_* will simulate
+            only the sensor grids that have an identifier that starts with
+            first_floor_. By default, all grids in the model will be output.
 
     Returns:
         views: A list of Honeybee-Radiance Views that are assigned to the
@@ -27,7 +35,7 @@ in the Rhino scene.
 
 ghenv.Component.Name = 'HB Get Grids and Views'
 ghenv.Component.NickName = 'GetGridsViews'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'
@@ -42,6 +50,11 @@ try:  # import core honeybee dependencies
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
+try:  # import honeybee_radiance dependencies
+    from honeybee_radiance.writer import _filter_by_pattern
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
+
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.fromgeometry import from_point3d, from_mesh3d
     from ladybug_rhino.grasshopper import all_required_inputs, list_to_data_tree
@@ -54,7 +67,11 @@ if all_required_inputs(ghenv.Component):
         'Expected Honeybee Model. Got {}.'.format(type(_model))
     # get the honeybee-radiance objects
     views = _model.properties.radiance.views
+    if view_filter_ is not None:
+        views = _filter_by_pattern(views, view_filter_)
     grids = _model.properties.radiance.sensor_grids
+    if grid_filter_ is not None:
+        grids = _filter_by_pattern(grids, grid_filter_)
 
     # get the visualizable attributes
     points = [[from_point3d(Point3D.from_array(s.pos)) for s in sg] for sg in grids]
