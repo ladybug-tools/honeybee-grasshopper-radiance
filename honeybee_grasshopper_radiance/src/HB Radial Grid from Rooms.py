@@ -32,6 +32,10 @@ The names of the grids will be the same as the rooms that they came from.
             XY plane to generate the resulting directions. (Default: (0, -1, 0)).
         wall_offset_: A number for the distance at which sensors close to walls
             should be removed.
+        by_zone_: Set to "True" to have the component generate one sensor grid per zone
+            across the input rooms rather than one sensor grid per room. This
+            option is useful for getting a more consolidated set of Radiance
+            results by zone. (Default: False).
 
     Returns:
         grid: A SensorGrid object that can be used in a grid-based recipe.
@@ -46,21 +50,27 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Radial Grid from Rooms'
 ghenv.Component.NickName = 'RadialGridRooms'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 try:  # import the ladybug_geometry dependencies
-    from ladybug_geometry.geometry3d.pointvector import Vector3D, Point3D
+    from ladybug_geometry.geometry3d import Vector3D, Point3D, Mesh3D
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_geometry:\n\t{}'.format(e))
 
 try:  # import the core honeybee dependencies
     from honeybee.model import Model
     from honeybee.room import Room
+    from honeybee.typing import clean_rad_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
+
+try:
+    from honeybee_radiance.sensorgrid import SensorGrid
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
 
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.config import conversion_to_meters
@@ -91,26 +101,57 @@ if all_required_inputs(ghenv.Component):
         else:
             raise TypeError('Expected Honeybee Room or Model. Got {}.'.format(type(obj)))
 
+    # group the rooms by zone if requested
+    if by_zone_:
+        room_groups = {}
+        for room in rooms:
+            try:
+                room_groups[room.zone].append(room)
+            except KeyError:  # first room to be found in the zone
+                room_groups[room.zone] = [room]
+    else:
+        room_groups = {room.identifier: [room] for room in rooms}
+
     # create lists to be filled with content
     grid, points, vecs, mesh = [], [], [], []
-    # loop through the rooms and create the grids
-    for room in rooms:
-        s_grid = room.properties.radiance.generate_sensor_grid_radial(
-            _grid_size, offset=_dist_floor_, remove_out=True, wall_offset=wall_offset,
-            dir_count=dir_count, start_vector=st_vec)
 
-        if s_grid is not None:
-            grid.append(s_grid)
-            sensors = s_grid.sensors
-            base_points = [from_point3d(Point3D(*sen.pos)) for sen in sensors]
-            base_vecs = [from_vector3d(Vector3D(*sen.dir)) for sen in sensors]
-            points.append(base_points)
-            vecs.append(base_vecs)
-            lb_mesh = s_grid.mesh
-            if lb_mesh is not None:
-                mesh.append(from_mesh3d(lb_mesh))
-            else:
-                mesh.append(None)
+    # loop through the rooms and create the grids
+    for zone_id, room_group in room_groups.items():
+        # get the base meshs
+        floor_meshes = []
+        for room in room_group:
+            floor_mesh = room.properties.radiance._base_sensor_mesh(
+                _grid_size, _grid_size, offset=_dist_floor_, remove_out=True,
+                wall_offset=wall_offset)
+            if floor_mesh is not None:
+                floor_meshes.append(floor_mesh)
+        if len(floor_meshes) == 0:
+            continue
+        floor_grid = Mesh3D.join_meshes(floor_meshes) \
+            if len(floor_meshes) != 1 else floor_meshes[0]
+
+        # create the sensor grid from the mesh
+        mesh_radius = _grid_size * 0.45
+        sg_name = room.display_name if not by_zone_ else zone_id
+        grid_name = '{}_Radial'.format(clean_rad_string(sg_name))
+        s_grid = SensorGrid.from_mesh3d_radial(
+            grid_name, floor_grid, dir_count=dir_count, start_vector=st_vec,
+            mesh_radius=mesh_radius)
+        s_grid.room_identifier = room_group[0].identifier
+        s_grid.display_name = sg_name
+
+        # add the relevant items to the outputs
+        grid.append(s_grid)
+        sensors = s_grid.sensors
+        base_points = [from_point3d(Point3D(*sen.pos)) for sen in sensors]
+        base_vecs = [from_vector3d(Vector3D(*sen.dir)) for sen in sensors]
+        points.append(base_points)
+        vecs.append(base_vecs)
+        lb_mesh = s_grid.mesh
+        if lb_mesh is not None:
+            mesh.append(from_mesh3d(lb_mesh))
+        else:
+            mesh.append(None)
 
     # convert the lists of points to data trees
     points = list_to_data_tree(points)

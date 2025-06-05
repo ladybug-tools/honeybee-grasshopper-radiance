@@ -37,6 +37,10 @@ The names of the grids will be the same as the rooms that they came from.
             and all floors are horizontal (Default: False).
         wall_offset_: A number for the distance at which sensors close to walls
             should be removed.
+        by_zone_: Set to "True" to have the component generate one sensor grid per zone
+            across the input rooms rather than one sensor grid per room. This
+            option is useful for getting a more consolidated set of Radiance
+            results by zone. (Default: False).
 
     Returns:
         grid: A SensorGrid object that can be used in a grid-based recipe.
@@ -46,7 +50,7 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -103,9 +107,22 @@ if all_required_inputs(ghenv.Component):
         else:
             raise TypeError('Expected Honeybee Room or Model. Got {}.'.format(type(obj)))
 
-    for room in rooms:
-        # get all of the floor faces of the room as Breps
-        lb_floors = [face.geometry.flip() for face in room.faces if isinstance(face.type, Floor)]
+    # group the rooms by zone if requested
+    if by_zone_:
+        room_groups = {}
+        for room in rooms:
+            try:
+                room_groups[room.zone].append(room)
+            except KeyError:  # first room to be found in the zone
+                room_groups[room.zone] = [room]
+    else:
+        room_groups = {room.identifier: [room] for room in rooms}
+
+    for zone_id, room_group in room_groups.items():
+        # get all of the floor faces of the room
+        lb_floors = []
+        for room in room_group:
+            lb_floors.extend([floor.geometry.flip() for floor in room.floors])
 
         if len(lb_floors) != 0:
             # create the gridded ladybug Mesh3D
@@ -130,8 +147,14 @@ if all_required_inputs(ghenv.Component):
 
             # remove points outside of the room volume if requested
             if remove_out_ and lb_mesh is not None:
-                pattern = [room.geometry.is_point_inside(pt)
-                           for pt in lb_mesh.face_centroids]
+                pattern = []
+                for pt in lb_mesh.face_centroids:
+                    for room in room_group:
+                        if room.geometry.is_point_inside(pt):
+                            pattern.append(True)
+                            break
+                    else:
+                        pattern.append(False)
                 try:
                     lb_mesh, vertex_pattern = lb_mesh.remove_faces(pattern)
                 except AssertionError:  # the grid lies completely outside of the room
@@ -139,7 +162,9 @@ if all_required_inputs(ghenv.Component):
 
             # remove any sensors within a certain distance of the walls, if requested
             if wall_offset_ is not None and lb_mesh is not None:
-                wall_geos = [f.geometry for f in room.faces if isinstance(f.type, Wall)]
+                wall_geos = []
+                for room in room_group:
+                    wall_geos.extend([wall.geometry for wall in room.walls])
                 pattern = []
                 for pt in lb_mesh.face_centroids:
                     for wg in wall_geos:
@@ -166,10 +191,11 @@ if all_required_inputs(ghenv.Component):
                 base_dirs = [(vec.x, vec.y, vec.z) for vec in lb_mesh.face_normals]
 
                 # create the sensor grid
+                grid_name = room.display_name if not by_zone_ else zone_id
                 s_grid = SensorGrid.from_position_and_direction(
-                    clean_rad_string(room.display_name), base_poss, base_dirs)
-                s_grid.display_name = room.display_name
-                s_grid.room_identifier = room.identifier
+                    clean_rad_string(grid_name), base_poss, base_dirs)
+                s_grid.display_name = grid_name
+                s_grid.room_identifier = room_group[0].identifier
                 s_grid.mesh = lb_mesh
                 s_grid.base_geometry = \
                     tuple(f.move(f.normal * _dist_floor_) for f in lb_floors)
