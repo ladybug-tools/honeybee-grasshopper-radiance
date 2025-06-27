@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2024, Ladybug Tools.
+# Copyright (c) 2025, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -25,7 +25,7 @@ Create an mirror radiance modifier from a single reflectance.
 
 ghenv.Component.Name = 'HB Mirror Modifier 3'
 ghenv.Component.NickName = 'MirrorMod3'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.9.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = "1 :: Modifiers"
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
