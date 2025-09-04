@@ -50,12 +50,13 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 import math
+from collections import OrderedDict
 
 try:  # import the ladybug_geometry dependencies
     from ladybug_geometry.geometry3d.plane import Plane
@@ -109,14 +110,14 @@ if all_required_inputs(ghenv.Component):
 
     # group the rooms by zone if requested
     if by_zone_:
-        room_groups = {}
+        room_groups = OrderedDict()
         for room in rooms:
             try:
                 room_groups[room.zone].append(room)
             except KeyError:  # first room to be found in the zone
                 room_groups[room.zone] = [room]
     else:
-        room_groups = {room.identifier: [room] for room in rooms}
+        room_groups = OrderedDict([(room.identifier, [room]) for room in rooms])
 
     for zone_id, room_group in room_groups.items():
         # get all of the floor faces of the room
