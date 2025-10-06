@@ -47,7 +47,7 @@ compliant.
 
 ghenv.Component.Name = 'HB Spatial Daylight Autonomy'
 ghenv.Component.NickName = 'sDA'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -75,12 +75,12 @@ if all_required_inputs(ghenv.Component):
 
     # compute spatial daylight autonomy from the pass/fail results
     if len(lb_meshes) == 0:  # all sensors represent the same area
-        sDA = [sum(pf_list) / len(pf_list) for pf_list in pass_fail]
+        sDA = [round(sum(pf_list) / len(pf_list) * 100, 2) for pf_list in pass_fail]
     else:  # weight the sensors based on the area of mesh faces
         sDA = []
         for i, mesh in enumerate(lb_meshes):
             m_area = mesh.area
             weights = [fa / m_area for fa in mesh.face_areas]
-            sDA.append(sum(v * w for v, w in zip(pass_fail[i], weights)))
+            sDA.append(round(sum(v * w for v, w in zip(pass_fail[i], weights)) * 100, 2))
 
     pass_fail = list_to_data_tree(pass_fail)  # convert matrix to data tree
