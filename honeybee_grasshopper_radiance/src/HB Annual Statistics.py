@@ -8,7 +8,10 @@
 # @license AGPL-3.0-or-later <https://spdx.org/licenses/AGPL-3.0-or-later>
 
 """
-Calculate Annual Summary from a result (.ill) files.
+Calculate typical statistics (Average, median, minimum, maximum, sum) for an
+annual daylight or irradiance simulation.
+
+Statistics can either be computed per sensor or per timestep.
 
 -
     Args:
@@ -29,25 +32,30 @@ Calculate Annual Summary from a result (.ill) files.
             first_floor_* will simulate only the sensor grids that have an
             identifier that starts with first_floor_. By default all the grids
             will be processed.
-        axis_: Set to False to calcuate summary per timestep instead of per sensor.
-            (Default: True)
+        per_timestep_: Set to True to calculate statistics per-timestep instead of per-sensor.
+            (Default: False)
 
     Returns:
         report: Reports, errors, warnings, etc.
         average: Average illuminance or irradiance values for each sensor or timestep
-            in lux or W/m2. This is either a list of values or a list of data collections.
+            in lux or W/m2. This is either a list of values or a list of data collections
+            if per_timestep_ is True.
         median: Median illuminance or irradiance values for each sensor or timestep
-            in lux or W/m2. This is either a list of values or a list of data collections.
+            in lux or W/m2. This is either a list of values or a list of data collections
+            if per_timestep_ is True.
         minimum: Minimum illuminance or irradiance values for each sensor or timestep
-            in lux or W/m2. This is either a list of values or a list of data collections.
+            in lux or W/m2. This is either a list of values or a list of data collections
+            if per_timestep_ is True.
         maximum: Maximum illuminance or irradiance values for each sensor or timestep
-            in lux or W/m2. This is either a list of values or a list of data collections.
+            in lux or W/m2. This is either a list of values or a list of data collections
+            if per_timestep_ is True.
         cumulative: Cumulative illuminance or irradiance values for each sensor or timestep
-            in lux or W/m2. This is either a list of values or a list of data collections.
+            in lux or W/m2. This is either a list of values or a list of data collections
+            if per_timestep_ is True.
 """
 
-ghenv.Component.Name = "HB Annual Summary"
-ghenv.Component.NickName = 'AnnualSummary'
+ghenv.Component.Name = "HB Annual Statistics"
+ghenv.Component.NickName = 'AnnualStatistics'
 ghenv.Component.Message = '1.9.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
@@ -89,14 +97,14 @@ if all_required_inputs(ghenv.Component):
     # compute the annual summary
     grid_filter_ = '*' if grid_filter_ is None else grid_filter_
     res_folder = _results
-    axis = True if axis_ is None else axis_
+    per_timestep = False if per_timestep_ is None else per_timestep_
     
     # check to see if results use the newer numpy arrays
     if os.path.isdir(os.path.join(res_folder, '__static_apertures__')) or \
         os.path.isfile(os.path.join(res_folder, 'grid_states.json')):
         cmds = [folders.python_exe_path, '-m', 'honeybee_radiance_postprocess',
-                'post-process', 'annual-summary', res_folder, '-sf',
-                'summary']
+                'post-process', 'annual-statistics', res_folder, '-sf',
+                'statistics']
         if len(_hoys_) != 0:
             hoys_str = '\n'.join(str(h) for h in _hoys_)
             hoys_file = os.path.join(res_folder, 'hoys.txt')
@@ -115,8 +123,10 @@ if all_required_inputs(ghenv.Component):
                     'The input dynamic schedules will be ignored.'
                 print(msg)
                 give_warning(ghenv.Component, msg)
-        if axis is False:
+        
+        if per_timestep:
             cmds.extend(['--timestep'])
+        
         use_shell = True if os.name == 'nt' else False
         custom_env = os.environ.copy()
         custom_env['PYTHONHOME'] = ''
@@ -128,14 +138,14 @@ if all_required_inputs(ghenv.Component):
             print(stdout[-1])
             raise ValueError('Failed to compute {} values.'.format(res_type))
         
-        res_dir = os.path.join(res_folder, 'summary')
+        res_dir = os.path.join(res_folder, 'statistics')
         average_values_dir = os.path.join(res_dir, 'average_values')
         median_values_dir = os.path.join(res_dir, 'median_values')
         minimum_values_dir = os.path.join(res_dir, 'minimum_values')
         maximum_values_dir = os.path.join(res_dir, 'maximum_values')
         cumulative_values_dir = os.path.join(res_dir, 'cumulative_values')
         
-        if axis is True:
+        if per_timestep is False:
             average = list_to_data_tree(read_sensor_grid_result(average_values_dir, 'average', 'full_id', False))
             median = list_to_data_tree(read_sensor_grid_result(median_values_dir, 'median', 'full_id', False))
             minimum = list_to_data_tree(read_sensor_grid_result(minimum_values_dir, 'minimum', 'full_id', False))
