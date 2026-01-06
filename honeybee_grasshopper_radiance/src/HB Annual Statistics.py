@@ -56,7 +56,7 @@ Statistics can either be computed per sensor or per timestep.
 
 ghenv.Component.Name = "HB Annual Statistics"
 ghenv.Component.NickName = 'AnnualStatistics'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -133,10 +133,10 @@ if all_required_inputs(ghenv.Component):
         process = subprocess.Popen(
             cmds, cwd=res_folder, shell=use_shell, env=custom_env,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout = process.communicate()  # wait for the process to finish
-        if stdout[-1] != '':
-            print(stdout[-1])
-            raise ValueError('Failed to compute {} values.'.format(res_type))
+        stdout, stderr = process.communicate()  # wait for the process to finish
+        if process.returncode != 0:
+            print(stderr)
+            raise ValueError('Failed to compute annual statistics values.')
         
         res_dir = os.path.join(res_folder, 'statistics')
         average_values_dir = os.path.join(res_dir, 'average_values')
@@ -181,7 +181,7 @@ if all_required_inputs(ghenv.Component):
             maximum = list_to_data_tree(maximum)
             cumulative = list_to_data_tree(cumulative)
     else:
-        msg = 'Summary is only only supported for Annual Daylight and Annual Irradiance ' \
+        msg = 'Annual Statistics is only supported for Annual Daylight and Annual Irradiance ' \
             'simulations with NumPy arrays.'
         print(msg)
         give_warning(ghenv.Component, msg)
