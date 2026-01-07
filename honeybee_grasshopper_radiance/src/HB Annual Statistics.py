@@ -56,7 +56,7 @@ Statistics can either be computed per sensor or per timestep.
 
 ghenv.Component.Name = "HB Annual Statistics"
 ghenv.Component.NickName = 'AnnualStatistics'
-ghenv.Component.Message = '1.9.1'
+ghenv.Component.Message = '1.9.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -134,8 +134,8 @@ if all_required_inputs(ghenv.Component):
             cmds, cwd=res_folder, shell=use_shell, env=custom_env,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()  # wait for the process to finish
+        print(stderr)
         if process.returncode != 0:
-            print(stderr)
             raise ValueError('Failed to compute annual statistics values.')
         
         res_dir = os.path.join(res_folder, 'statistics')

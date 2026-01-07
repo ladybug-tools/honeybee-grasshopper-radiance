@@ -65,7 +65,7 @@ Calculate Annual Daylight Metrics from a result (.ill) files.
 
 ghenv.Component.Name = "HB Annual Daylight Metrics"
 ghenv.Component.NickName = 'DaylightMetrics'
-ghenv.Component.Message = '1.9.1'
+ghenv.Component.Message = '1.9.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -185,8 +185,8 @@ if all_required_inputs(ghenv.Component):
             cmds, cwd=res_folder, shell=use_shell, env=custom_env,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()  # wait for the process to finish
+        print(stderr)
         if process.returncode != 0:
-            print(stderr)
             raise ValueError('Failed to compute annual daylight metrics.')
         metric_dir = os.path.join(res_folder, 'metrics')
         DA = list_to_data_tree(read_da_from_folder(os.path.join(metric_dir, 'da')))
