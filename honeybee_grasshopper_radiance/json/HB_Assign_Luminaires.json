@@ -1,0 +1,36 @@
+{
+  "version": "1.9.0", 
+  "nickname": "AssignLuminaires", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "model", 
+        "description": "The input Honeybee Model with the luminaires assigned to it.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "A Honeybee Model to which the input _luminaires will be assigned.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_luminaires", 
+      "description": "A list of Honeybee-Radiance Luminaires, which will be assigned to\nthe input _model.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import core honeybee dependencies\n    from honeybee.model import Model\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    assert isinstance(_model, Model), \\\n        'Expected Honeybee Model. Got {}.'.format(type(_model))\n    model = _model.duplicate()  # duplicate to avoid editing the input\n    model.properties.radiance.add_luminaires(_luminaires)\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Assign Luminaires", 
+  "description": "Add Radiance Luminaires to a Honeybee Model.\n_\nThis assignment is necessary for any Radiance study, though whether a grid or a\nview is required for a particular type of study is depenednet upon the recipe\nused.\n_\nMultiple copies of this component can be used in series and each will add the\nluminaires to any that already exist.\n-"
+}
