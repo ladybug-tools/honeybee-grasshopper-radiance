@@ -1,0 +1,64 @@
+{
+  "version": "1.9.0", 
+  "nickname": "CustomLamp", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "custom_lamp", 
+        "description": "A CustomLamp that can be plugged into a Luminaire.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name", 
+      "description": "Set the name of the custom lamp. If the name is among the predefined\nlist of lamp names, the lamp name will override any values in the other\ninputs.\n_\nThe following lamp names are predefined. The values in parenthesis are the x, y 1931 chromaticity coordinates and lumen depreciation values:\nclear metal halide    (0.396, 0.39, 0.8)\ncool white            (0.376, 0.368, 0.85)\ncool white deluxe     (0.376, 0.368, 0.85)\ndeluxe cool white     (0.376, 0.368, 0.85)\ndeluxe warm white     (0.44, 0.403, 0.85)\nfluorescent           (0.376, 0.368, 0.85)\nhalogen               (0.4234, 0.399, 1)\nincandescent          (0.453, 0.405, 0.95)\nmercury               (0.373, 0.415, 0.8)\nmetal halide          (0.396, 0.39, 0.8)\nquartz                (0.424, 0.399, 1)\nsodium                (0.569, 0.421, 0.93)\nwarm white            (0.44, 0.403, 0.85)\nwarm white deluxe     (0.44, 0.403, 0.85)\nxenon                 (0.324, 0.324, 1)", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "color_temp_", 
+      "description": "Set the color temperature in Kelvin for the lamp. This is used to calculate\nthe chromaticity coordinates on the CIE 1931 xy diagram. Valid color\ntemperature values are from 1000 to 25000.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "xy_cor_", 
+      "description": "Chromaticity coordinates for the lamp. This input must be a list\nof two values [x, y].", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_color_space_", 
+      "description": "Color space for the chromaticity coordinates. The values and\ntheir corresponding color spaces are\n0 - CIE 1931 Color Space (default)\n1 - CIE 1960 Color Space\n2 - CIE 1976 Color Space", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "rgb_color_", 
+      "description": "Specifiy the RGB color for the lamp. This can be a color from the\n\"Colour Swatch\" component or a text panel. Any alpha value of the color\nwill be multiplied with the depreciation factor.", 
+      "type": "System.Drawing.Color", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_depr_fac_", 
+      "description": "A scalar multiplier applied to account for lamp lumen\ndepreciation. Must be greater than 0. Default: 1.", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "2 :: Light Sources", 
+  "code": "\ntry:\n    from honeybee_radiance.luminaire import Luminaire, LuminaireZone, CustomLamp, LAMPNAMES\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set defaults\n    color_temp = color_temp_ or None\n    x_cor, y_cor = xy_cor_ or (None, None)\n    color_space = 0 if _color_space_ is None else _color_space_\n    rgb_color = rgb_color_ or None\n    depr_factor = 1 if _depr_fac_ is None else _depr_fac_\n    \n    # record inputs set by user; used for printing message\n    inputs = {'_color_temp_': color_temp_, '_xy_cor_': xy_cor_, '_color_space_': _color_space_, '_rgb_color_': rgb_color_, '_depr_fac_': _depr_fac_}\n    user_inputs = {k for k in inputs if inputs[k]}\n    \n    if _name in LAMPNAMES:\n        custom_lamp = CustomLamp.from_lamp_name(_name, depreciation_factor=depr_factor)\n        print('Custom lamp is a predefined lamp named \"{}\" with x, y chromaticity coordianes and depreciation factor: {}.'.format(_name, LAMPNAMES[_name]))\n        if user_inputs:\n            print('The input for _name will override the following inputs: {}.'.format(', '.join(user_inputs)))\n    elif color_temp:\n        custom_lamp = CustomLamp.from_color_temperature(_name, color_temp, depreciation_factor=depr_factor)\n        print('Custom lamp will be defined as per the color temperature of: {}.'.format(color_temp))\n        user_inputs.remove('_color_temp_')\n        user_inputs.remove('_depr_fac_') if '_depr_fac_' in user_inputs else None\n        if user_inputs:\n            print('The input for _color_temp_ will override the following inputs: {}.'.format(', '.join(user_inputs)))\n    elif x_cor and y_cor:\n        custom_lamp = CustomLamp.from_xy_coordinates(_name, x_cor, y_cor, depreciation_factor=depr_factor, color_space=color_space)\n        x, y, year = 'x', 'y', 1931\n        if color_space == 1:\n            x, y, year = 'u', 'v', 1960\n        elif color_space == 2:\n            x, y, year = \"u'\", \"v'\", 1976\n        print('Custom lamp will be defined as per the following chromaticity coordinates : ({}, {}) = ({}, {}) for the {} CIE Color Space.'.format(x, y, x_cor, y_cor , year))\n        user_inputs.remove('_xy_cor_')\n        user_inputs.remove('_color_space_') if '_color_space_' in user_inputs else None\n        user_inputs.remove('_depr_fac_') if '_depr_fac_' in user_inputs else None\n        if user_inputs:\n            print('The input for _xy_cor_ will override the following inputs: {}.'.format(', '.join(user_inputs)))\n    elif rgb_color:\n        custom_lamp = CustomLamp.from_rgb_colors(_name, rgb_color, depreciation_factor=depr_factor)\n        print('Custom lamp will be defined as per the RGB color: {}.'.format(rgb_color))\n        user_inputs.remove('_rgb_color_')\n        user_inputs.remove('_depr_fac_') if '_depr_fac_' in user_inputs else None\n        if user_inputs:\n            print('The input for _rgb_color_ will override the following inputs: {}.'.format(', '.join(user_inputs)))\n    else:\n        custom_lamp = CustomLamp.from_default_white(_name, depreciation_factor=depr_factor)\n        print('Custom lamp is a default lamp with color temperature of 3200K.')\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Custom Lamp", 
+  "description": "Create a Honeybee CustomLamp.\n_\nThe CustomLamp can be used to set custom chromaticity, color or color temperature.\nIf only the _name is set a default CustomLamp of 3200K is created, unless the name\nis a predefined lamp name.\n-\nThe priority of input is from the top. This means that if, e.g., both color_temp_\nand xy_cor_ are set by the user, the color temperature have priority and the CustomLamp\nwill be created from the color temperature.\n-"
+}

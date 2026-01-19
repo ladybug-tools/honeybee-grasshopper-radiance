@@ -1,0 +1,57 @@
+{
+  "version": "1.9.0", 
+  "nickname": "LuminaireZone", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "luminaire_zone", 
+        "description": "A LuminaireZone that can be plugged into a Luminaire.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_points", 
+      "description": "A point or list of points that will be used to position the luminaires.", 
+      "type": "Point3d", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_spin_", 
+      "description": "Rotation about the local vertical axis (degrees), This axis is\nalso called the G0 axis. Default: 0.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_tilt_", 
+      "description": "Tilt angle around the Y axis (degrees). Default: 0.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_rotation_", 
+      "description": "Rotation angle around the Z axis (degrees). Default: 0.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "aiming_point_", 
+      "description": "Script input aiming_point_.", 
+      "type": "Point3d", 
+      "default": null
+    }
+  ], 
+  "subcategory": "2 :: Light Sources", 
+  "code": "\ntry:\n    from ladybug_{{cad}}.togeometry import to_point3d\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance.luminaire import LuminaireZone, LuminaireInstance\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set defaults\n    points = [to_point3d(pt) for pt in _points]\n    _spin = [0]*len(points) if not _spin_ else _spin_\n    _tilt = [0]*len(points) if not _tilt_ else _tilt_\n    _rotation = [0]*len(points) if not _rotation_ else _rotation_\n    _aiming_point = aiming_point_ or None\n\n    if _aiming_point:\n        if len(_aiming_point) == 1:  # all instances point to same aiming point\n            _aiming_point = _aiming_point * len(points)\n\n    lum_instances = []\n    for idx, point in enumerate(points):\n        spin = _spin[idx]\n        tilt = _tilt[idx]\n        rotation = _rotation[idx]\n    \n        if _aiming_point:\n            aiming_point = _aiming_point[idx]\n            lum_instance = LuminaireInstance.from_aiming_point(point, aiming_point, spin=spin, tilt=tilt, rotation=rotation)\n        else:\n            lum_instance = LuminaireInstance(point, spin, tilt, rotation)\n    \n        lum_instances.append(lum_instance)\n    \n    luminaire_zone = LuminaireZone(lum_instances)\n", 
+  "category": "HB-Radiance", 
+  "name": "HB Luminaire Zone", 
+  "description": "Create a Honeybee LuminaireZone of LuminaireInstances.\n_\nIt is recommended to apply the rotation in the following order: spin, tilt, rotation.\nIf an aiming point is added it will override any spin, tilt, and rotation values.\n-"
+}
