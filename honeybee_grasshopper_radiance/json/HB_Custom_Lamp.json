@@ -16,21 +16,21 @@
     {
       "access": "item", 
       "name": "_name", 
-      "description": "Set the name of the custom lamp. If the name is among the predefined\nlist of lamp names, the lamp name will override any values in the other\ninputs.\n_\nThe following lamp names are predefined. The values in parenthesis are the x, y 1931 chromaticity coordinates and lumen depreciation values:\nclear metal halide    (0.396, 0.39, 0.8)\ncool white            (0.376, 0.368, 0.85)\ncool white deluxe     (0.376, 0.368, 0.85)\ndeluxe cool white     (0.376, 0.368, 0.85)\ndeluxe warm white     (0.44, 0.403, 0.85)\nfluorescent           (0.376, 0.368, 0.85)\nhalogen               (0.4234, 0.399, 1)\nincandescent          (0.453, 0.405, 0.95)\nmercury               (0.373, 0.415, 0.8)\nmetal halide          (0.396, 0.39, 0.8)\nquartz                (0.424, 0.399, 1)\nsodium                (0.569, 0.421, 0.93)\nwarm white            (0.44, 0.403, 0.85)\nwarm white deluxe     (0.44, 0.403, 0.85)\nxenon                 (0.324, 0.324, 1)", 
+      "description": "Set the name of the custom lamp. If the name is among the predefined\nlist of lamp names, the lamp name will override any values in the other\ninputs.\n_\nThe following lamp names are predefined. The values in parenthesis are\nthe x, y 1931 chromaticity coordinates and lumen depreciation values:\nclear metal halide    (0.396, 0.39, 0.8)\ncool white            (0.376, 0.368, 0.85)\ncool white deluxe     (0.376, 0.368, 0.85)\ndeluxe cool white     (0.376, 0.368, 0.85)\ndeluxe warm white     (0.44, 0.403, 0.85)\nfluorescent           (0.376, 0.368, 0.85)\nhalogen               (0.4234, 0.399, 1)\nincandescent          (0.453, 0.405, 0.95)\nmercury               (0.373, 0.415, 0.8)\nmetal halide          (0.396, 0.39, 0.8)\nquartz                (0.424, 0.399, 1)\nsodium                (0.569, 0.421, 0.93)\nwarm white            (0.44, 0.403, 0.85)\nwarm white deluxe     (0.44, 0.403, 0.85)\nxenon                 (0.324, 0.324, 1)", 
       "type": "string", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "color_temp_", 
-      "description": "Set the color temperature in Kelvin for the lamp. This is used to calculate\nthe chromaticity coordinates on the CIE 1931 xy diagram. Valid color\ntemperature values are from 1000 to 25000.", 
+      "description": "Set the color temperature in Kelvin for the lamp. This is used to\ncalculate the chromaticity coordinates on the CIE 1931 xy diagram. Valid\ncolor temperature values are from 1000 to 25000. Will be ignored if the\nlamp name matches a predefined value.", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "list", 
       "name": "xy_cor_", 
-      "description": "Chromaticity coordinates for the lamp. This input must be a list\nof two values [x, y].", 
+      "description": "Chromaticity coordinates for the lamp. This input must be a list\nof two values [x, y]. Will be ignored if color_temp_ is supplied. Or if\nthe lamp name matches a predefined value.", 
       "type": "double", 
       "default": null
     }, 
@@ -44,7 +44,7 @@
     {
       "access": "item", 
       "name": "rgb_color_", 
-      "description": "Specifiy the RGB color for the lamp. This can be a color from the\n\"Colour Swatch\" component or a text panel. Any alpha value of the color\nwill be multiplied with the depreciation factor.", 
+      "description": "Specifiy the RGB color for the lamp. This can be a color from the\n\"Colour Swatch\" component or a text panel. Any alpha value of the color\nwill be multiplied with the depreciation factor. Will be ignored if\ncolor_temp_ or xy_cor_ are supplied. Or if the lamp name matches a\npredefined value.", 
       "type": "System.Drawing.Color", 
       "default": null
     }, 

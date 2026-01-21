@@ -16,7 +16,7 @@
     {
       "access": "item", 
       "name": "_ies", 
-      "description": "Path to an IES LM-63 photometric file.", 
+      "description": "Path to an IES LM-63 photometric file or a string of the file contents.", 
       "type": "string", 
       "default": null
     }, 

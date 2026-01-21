@@ -24,7 +24,8 @@ will be created from the color temperature.
             list of lamp names, the lamp name will override any values in the other
             inputs.
             _
-            The following lamp names are predefined. The values in parenthesis are the x, y 1931 chromaticity coordinates and lumen depreciation values:
+            The following lamp names are predefined. The values in parenthesis are
+            the x, y 1931 chromaticity coordinates and lumen depreciation values:
                 clear metal halide    (0.396, 0.39, 0.8)
                 cool white            (0.376, 0.368, 0.85)
                 cool white deluxe     (0.376, 0.368, 0.85)
@@ -40,11 +41,13 @@ will be created from the color temperature.
                 warm white            (0.44, 0.403, 0.85)
                 warm white deluxe     (0.44, 0.403, 0.85)
                 xenon                 (0.324, 0.324, 1)
-        color_temp_: Set the color temperature in Kelvin for the lamp. This is used to calculate
-            the chromaticity coordinates on the CIE 1931 xy diagram. Valid color
-            temperature values are from 1000 to 25000.
+        color_temp_: Set the color temperature in Kelvin for the lamp. This is used to
+            calculate the chromaticity coordinates on the CIE 1931 xy diagram. Valid
+            color temperature values are from 1000 to 25000. Will be ignored if the
+            lamp name matches a predefined value.
         xy_cor_: Chromaticity coordinates for the lamp. This input must be a list
-            of two values [x, y].
+            of two values [x, y]. Will be ignored if color_temp_ is supplied. Or if
+            the lamp name matches a predefined value.
         _color_space_: Color space for the chromaticity coordinates. The values and
             their corresponding color spaces are
              0 - CIE 1931 Color Space (default)
@@ -52,7 +55,9 @@ will be created from the color temperature.
              2 - CIE 1976 Color Space
         rgb_color_: Specifiy the RGB color for the lamp. This can be a color from the
             "Colour Swatch" component or a text panel. Any alpha value of the color
-            will be multiplied with the depreciation factor.
+            will be multiplied with the depreciation factor. Will be ignored if
+            color_temp_ or xy_cor_ are supplied. Or if the lamp name matches a
+            predefined value.
         _depr_fac_: A scalar multiplier applied to account for lamp lumen
             depreciation. Must be greater than 0. Default: 1.
 

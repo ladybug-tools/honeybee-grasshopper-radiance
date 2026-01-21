@@ -21,7 +21,7 @@ The Luminaire must be added to the Honeybee Model. The translation through ies2r
 happens in the recipe.
 -
     Args:
-        _ies: Path to an IES LM-63 photometric file.
+        _ies: Path to an IES LM-63 photometric file or a string of the file contents.
         _name_: Optional name of the luminaire. If None the IES file is used as
             the luminaire name. If the Honeybee Model includes multiple luminaires,
             each luminaire must have an unique name.
