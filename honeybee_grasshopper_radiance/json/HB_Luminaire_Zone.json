@@ -1,5 +1,5 @@
 {
-  "version": "1.9.0", 
+  "version": "1.9.1", 
   "nickname": "LuminaireZone", 
   "outputs": [
     [
@@ -44,7 +44,7 @@
     {
       "access": "list", 
       "name": "aiming_point_", 
-      "description": "Script input aiming_point_.", 
+      "description": "A point representing the location at which the photometric\naxis of the luminaires should be aimed. This can also be a list of\npoints that matches the length of _points.", 
       "type": "Point3d", 
       "default": null
     }
