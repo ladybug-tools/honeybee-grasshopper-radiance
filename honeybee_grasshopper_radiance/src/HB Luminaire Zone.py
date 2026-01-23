@@ -19,7 +19,7 @@ If an aiming point is added it will override any spin, tilt, and rotation values
             also called the G0 axis. Default: 0.
         _tilt_: Tilt angle around the Y axis (degrees). Default: 0.
         _rotation_: Rotation angle around the Z axis (degrees). Default: 0.
-        aiming_point: A point representing the location at which the photometric
+        aiming_point_: A point representing the location at which the photometric
             axis of the luminaires should be aimed. This can also be a list of
             points that matches the length of _points.
 
@@ -30,7 +30,7 @@ If an aiming point is added it will override any spin, tilt, and rotation values
 
 ghenv.Component.Name = 'HB Luminaire Zone'
 ghenv.Component.NickName = 'LuminaireZone'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
