@@ -42,10 +42,15 @@ happens in the recipe.
 
 ghenv.Component.Name = 'HB Luminaire'
 ghenv.Component.NickName = 'Luminaire'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '2 :: Light Sources'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
+
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_rad_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
     from honeybee_radiance.luminaire import Luminaire, LuminaireZone
@@ -60,12 +65,15 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component):
     # set defaults
-    name = _name_ or None
+    display_name = None if _name_ is None else _name_
+    identifier = None if _name_ is None else clean_rad_string(display_name)
     light_loss_factor = 1 if _loss_fac_ is None else _loss_fac_
     candela_multiplier = 1 if _cand_mult_ is None else _cand_mult_
     custom_lamp = custom_lamp_ or None
 
     # create luminaire
     luminaire = Luminaire(
-        _ies, identifier=name, luminaire_zone=_luminaire_zone, custom_lamp=custom_lamp,
+        _ies, identifier=identifier, luminaire_zone=_luminaire_zone, custom_lamp=custom_lamp,
         light_loss_factor=light_loss_factor,candela_multiplier=candela_multiplier)
+    if display_name is not None:
+        luminaire.display_name = display_name
