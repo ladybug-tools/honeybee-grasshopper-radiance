@@ -1,5 +1,5 @@
 {
-  "version": "1.9.0", 
+  "version": "1.9.1", 
   "nickname": "Luminaire", 
   "outputs": [
     [
@@ -57,7 +57,7 @@
     }
   ], 
   "subcategory": "2 :: Light Sources", 
-  "code": "\ntry:\n    from honeybee_radiance.luminaire import Luminaire, LuminaireZone\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set defaults\n    name = _name_ or None\n    light_loss_factor = 1 if _loss_fac_ is None else _loss_fac_\n    candela_multiplier = 1 if _cand_mult_ is None else _cand_mult_\n    custom_lamp = custom_lamp_ or None\n\n    # create luminaire\n    luminaire = Luminaire(\n        _ies, identifier=name, luminaire_zone=_luminaire_zone, custom_lamp=custom_lamp,\n        light_loss_factor=light_loss_factor,candela_multiplier=candela_multiplier)\n", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_rad_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_radiance.luminaire import Luminaire, LuminaireZone\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_radiance:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set defaults\n    display_name = None if _name_ is None else _name_\n    identifier = None if _name_ is None else clean_rad_string(display_name)\n    light_loss_factor = 1 if _loss_fac_ is None else _loss_fac_\n    candela_multiplier = 1 if _cand_mult_ is None else _cand_mult_\n    custom_lamp = custom_lamp_ or None\n\n    # create luminaire\n    luminaire = Luminaire(\n        _ies, identifier=identifier, luminaire_zone=_luminaire_zone, custom_lamp=custom_lamp,\n        light_loss_factor=light_loss_factor,candela_multiplier=candela_multiplier)\n    if display_name is not None:\n        luminaire.display_name = display_name\n", 
   "category": "HB-Radiance", 
   "name": "HB Luminaire", 
   "description": "Create a Honeybee Luminaire.\n_\nThe Luminaire object stores the photometric data of a light fixture and\nprovides methods to:\n    - Parse IES LM-63 photometric data\n    - Generate Radiance geometry via ies2rad\n    - Generate photometric web geometry\n    - Place and orient luminaire instances in space via a LuminaireZone\n_\nThe Luminaire must be added to the Honeybee Model. The translation through ies2rad\nhappens in the recipe.\n-"
