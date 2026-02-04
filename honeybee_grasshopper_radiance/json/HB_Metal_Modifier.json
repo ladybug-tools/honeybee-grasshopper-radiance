@@ -1,5 +1,5 @@
 {
-  "version": "1.9.0", 
+  "version": "1.9.1", 
   "nickname": "MetalMod", 
   "outputs": [
     [
@@ -23,8 +23,8 @@
     {
       "access": "item", 
       "name": "_diff_", 
-      "description": "Script variable MetalMod", 
-      "type": "System.Object", 
+      "description": "A number between 0 and 1 for the absolute diffuse metal reflectance.\nThis reflectance will be the same for the red, green and blue\nchannels. (Default: 0)", 
+      "type": "double", 
       "default": null
     }, 
     {
