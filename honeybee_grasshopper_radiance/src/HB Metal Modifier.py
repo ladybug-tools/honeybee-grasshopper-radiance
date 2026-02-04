@@ -14,7 +14,7 @@ Create a metal radiance modifier from a single reflectance.
     Args:
         _name_: Text to set the name for the modifier and to be incorporated into
             a unique modifier identifier.
-        _diff: A number between 0 and 1 for the absolute diffuse metal reflectance.
+        _diff_: A number between 0 and 1 for the absolute diffuse metal reflectance.
             This reflectance will be the same for the red, green and blue
             channels. (Default: 0)
         _spec_: A number between 0 and 1 for the absolute specular reflectance of the modifier.
@@ -32,7 +32,7 @@ Create a metal radiance modifier from a single reflectance.
 
 ghenv.Component.Name = 'HB Metal Modifier'
 ghenv.Component.NickName = 'MetalMod'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '1 :: Modifiers'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
