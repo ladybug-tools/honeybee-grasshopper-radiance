@@ -50,7 +50,7 @@ The names of the grids will be the same as the rooms that they came from.
 
 ghenv.Component.Name = 'HB Sensor Grid from Rooms'
 ghenv.Component.NickName = 'GridRooms'
-ghenv.Component.Message = '1.9.1'
+ghenv.Component.Message = '1.9.2'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -79,7 +79,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
 
 try:  # import ladybug_rhino dependencies
-    from ladybug_rhino.config import conversion_to_meters, tolerance
+    from ladybug_rhino.config import conversion_to_meters
     from ladybug_rhino.togeometry import to_joined_gridded_mesh3d, to_vector3d
     from ladybug_rhino.fromgeometry import from_mesh3d, from_point3d, from_face3d
     from ladybug_rhino.grasshopper import all_required_inputs, list_to_data_tree
