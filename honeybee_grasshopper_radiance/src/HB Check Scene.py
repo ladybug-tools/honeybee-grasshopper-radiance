@@ -60,7 +60,7 @@ of view-based simulations, the "HB Point-in-time View-based" recipe should be us
 
 ghenv.Component.Name = 'HB Check Scene'
 ghenv.Component.NickName = 'CheckScene'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '6'
@@ -98,7 +98,7 @@ except ImportError as e:
 try:
     from ladybug_rhino.grasshopper import all_required_inputs
     from ladybug_rhino.viewport import viewport_by_name, viewport_properties
-    from ladybug_rhino.config import tolerance, angle_tolerance, units_system
+    from ladybug_rhino.config import current_tolerance, angle_tolerance, units_system
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -152,7 +152,8 @@ if all_required_inputs(ghenv.Component) and _run:
     # process the _hb_objs into a Model and then a Radiance string
     models = [obj for obj in _hb_objs if isinstance(obj, Model)]
     other_objs = [obj for obj in _hb_objs if not isinstance(obj, Model)]
-    model = Model.from_objects('scene', other_objs, units_system(), tolerance, angle_tolerance)
+    model = Model.from_objects('scene', other_objs,
+                               units_system(), current_tolerance(), angle_tolerance)
     for m in models:
         model.add_model(m)
     model_content, modifier_content = model.to.rad(model, minimal=True)

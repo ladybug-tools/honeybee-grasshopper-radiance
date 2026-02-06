@@ -45,7 +45,7 @@ deconstructed for detailed analysis with native Grasshopper math components.
 
 ghenv.Component.Name = 'HB Annual Results to Data'
 ghenv.Component.NickName = 'AnnualToData'
-ghenv.Component.Message = '1.9.2'
+ghenv.Component.Message = '1.9.3'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -82,12 +82,13 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_radiance:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.config import tolerance
+    from ladybug_rhino.config import current_tolerance
     from ladybug_rhino.togeometry import to_point3d, to_vector3d
     from ladybug_rhino.grasshopper import all_required_inputs, list_to_data_tree, \
         data_tree_to_list, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+tolerance = current_tolerance()
 
 
 def file_to_data(ill_file, point_filter, su_pattern, header, timestep, grid_id):
