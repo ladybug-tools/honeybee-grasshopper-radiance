@@ -1,6 +1,6 @@
 # This file is part of Honeybee.
 #
-# Copyright (c) 2025, Ladybug Tools.
+# Copyright (c) 2026, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -31,7 +31,7 @@ be seen by a human eye and adding an optional text label to the image.
 
 ghenv.Component.Name = 'HB Adjust HDR'
 ghenv.Component.NickName = 'AdjustHDR'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.10.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
