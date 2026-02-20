@@ -27,7 +27,7 @@ state using the "HB Dynamic State" component.
 
 ghenv.Component.Name = 'HB Dynamic State Geometry'
 ghenv.Component.NickName = 'StateGeo'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.10.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
