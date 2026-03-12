@@ -43,7 +43,7 @@ results with operable shading devices, then this output is NOT LEED compliant.
 
 ghenv.Component.Name = "HB Annual Sunlight Exposure"
 ghenv.Component.NickName = 'ASE'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -135,7 +135,8 @@ if all_required_inputs(ghenv.Component):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()  # wait for the process to finish
         print(stderr)
-        if process.returncode != 0:
+        returncode = process.wait()
+        if returncode != 0:
             raise ValueError('Failed to compute annual sunlight exposure.')
         metric_dir = os.path.join(res_folder, 'metrics')
         ASE = read_ase_from_folder(os.path.join(metric_dir, 'ase'))
