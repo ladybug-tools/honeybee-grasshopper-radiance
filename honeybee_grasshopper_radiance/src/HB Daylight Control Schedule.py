@@ -72,7 +72,7 @@ illuminance setpoint everywhere in the room.
 
 ghenv.Component.Name = 'HB Daylight Control Schedule'
 ghenv.Component.NickName = 'DaylightSchedule'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -188,8 +188,9 @@ if all_required_inputs(ghenv.Component):
             cmds, cwd=res_folder, shell=use_shell, env=custom_env,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()  # wait for the process to finish
-        if process.returncode != 0:
-            print(stderr)
+        print(stderr)
+        returncode = process.wait()
+        if returncode != 0:
             raise ValueError('Failed to compute control schedule.')
         cntrl_dir = os.path.join(res_folder, 'schedules', 'control_schedules')
         if os.path.isdir(cntrl_dir):

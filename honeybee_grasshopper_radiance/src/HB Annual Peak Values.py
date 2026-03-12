@@ -50,7 +50,7 @@ hour/timestep of the simulation.
 
 ghenv.Component.Name = 'HB Annual Peak Values'
 ghenv.Component.NickName = 'PeakValues'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -175,7 +175,8 @@ if all_required_inputs(ghenv.Component):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()  # wait for the process to finish
         print(stderr)
-        if process.returncode != 0:
+        returncode = process.wait()
+        if returncode != 0:
             raise ValueError('Failed to compute peak values.')
         avg_dir = os.path.join(res_folder, 'metrics', 'peak_values')
         if os.path.isdir(avg_dir):

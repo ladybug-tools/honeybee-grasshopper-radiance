@@ -46,7 +46,7 @@ hour/timestep of the simulation.
 
 ghenv.Component.Name = 'HB Annual Average Values'
 ghenv.Component.NickName = 'AvgValues'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '4 :: Results'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -162,7 +162,9 @@ if all_required_inputs(ghenv.Component):
             cmds, cwd=res_folder, shell=use_shell, env=custom_env,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()  # wait for the process to finish
-        if process.returncode != 0:
+        print(stderr)
+        returncode = process.wait()
+        if returncode != 0:
             print(stderr)
             raise ValueError('Failed to compute {} values.'.format(res_type))
         res_dir = os.path.join(res_folder, 'metrics', '{}_values'.format(res_type))
