@@ -1,0 +1,85 @@
+{
+  "version": "1.10.0", 
+  "nickname": "BREEAM4b", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "results", 
+        "description": "Raw result files (.ill) that contain illuminance matrices for each sensor\nat each hour of the simulation. These can be postprocessed using\nvarious components under the 4::Results sub-tab.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "summary", 
+        "description": "A summary containing the number of BREEAM credits achieved \nand a summary of the total area meeting the baseline criteria.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "program_summary", 
+        "description": "A detailed breakdown of compliance percentages organized\nby specific building space and program types.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "A Honeybee Model for which BREEAM analysis will be simulated.\nNote that this model must have sensor grids assigned to it.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_wea", 
+      "description": "A Typical Meteorological Year (TMY) .wea or .epw file. The file must \nbe annual with a timestep of 1 for a non-leap year.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "north_", 
+      "description": "A number between -360 and 360 for the counterclockwise difference\nbetween the North and the positive Y-axis in degrees. This can\nalso be Vector for the direction to North. (Default: 0).", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "grid_filter_", 
+      "description": "Text for a grid identifer or a pattern to filter the sensor grids of\nthe model that are simulated. For instance, first_floor_* will simulate\nonly the sensor grids that have an identifier that starts with\nfirst_floor_. By default, all grids in the model will be simulated.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "radiance_par_", 
+      "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 2 -ad 5000 -lw 2e-05).", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "run_settings_", 
+      "description": "Settings from the \"HB Recipe Settings\" component that specify\nhow the recipe should be run. This can also be a text string of\nrecipe settings.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_run", 
+      "description": "Set to True to run the recipe and get results. This input can also be\nthe integer \"2\" to run the recipe silently.", 
+      "type": "int", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Recipes", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    \n    # create the recipe and set the input arguments\n    recipe = Recipe('breeam-daylight-4b')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        summary = recipe_result(recipe.output_value_by_name('summary', project_folder))\n        program_summary = recipe_result(recipe.output_value_by_name('program-summary', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))", 
+  "category": "HB-Radiance", 
+  "name": "HB BREEAM Daylight 4b", 
+  "description": "Run a BREEAM Hea 01 (Path 4b) daylighting compliance study for a Honeybee model.\n_\nThis recipe executes a climate-based annual simulation using a 2-phase daylight \ncoefficient method to assess compliance against BREEAM daylighting criteria. \n_\nPROGRAM-SPECIFIC EVALUATION:\nThe recipe evaluates annual illuminance metrics over sensor grids and tracks\ncompliance summaries. Because BREEAM maps distinct daylight targets (such as\nspecific average and minimum lux levels) depending on room function, this component\noutputs a program breakdown parsing compliance performance by individual space\ntype/occupancy program categories.\n-"
+}

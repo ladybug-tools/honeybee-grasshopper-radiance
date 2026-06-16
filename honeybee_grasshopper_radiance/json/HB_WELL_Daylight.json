@@ -1,0 +1,106 @@
+{
+  "version": "1.10.0", 
+  "nickname": "WELLDaylight", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "results", 
+        "description": "Raw result files (.ill) that contain illuminance matrices for each sensor\nat each hour of the simulation. These can be postprocessed using\nvarious components under the 4::Results sub-tab.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "l01_compliance", 
+        "description": "A summary detailing the compliance thresholds met and total points \nachieved under WELL L01.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "l06_compliance", 
+        "description": "A summary tracking performance metrics and grading outputs tied to \nWELL L06.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "dynamic_schedule", 
+        "description": "Dynamic shading schedules of each aperture group.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "A Honeybee Model for which WELL Daylight 4b will be simulated.\nNote that this model must have grids assigned to it.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_epw", 
+      "description": "An EPW weather file containing meteorological data.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "north_", 
+      "description": "A number between -360 and 360 for the counterclockwise difference\nbetween the North and the positive Y-axis in degrees. This can\nalso be a Vector for the direction to North. (Default: 0).", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "grid_filter_", 
+      "description": "Text for a grid identifier or a pattern to filter the sensor grids of\nthe model that are simulated. For instance, first_floor_* will simulate\nonly the sensor grids that have an identifier that starts with\nfirst_floor_. By default, all grids in the model will be simulated.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "radiance_par_", 
+      "description": "Text specifying the radiance parameters for ray tracing. ", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_diff_trans_", 
+      "description": "Diffuse visible transmission of the aperture group blinds when \ndeployed. (Default: 0.05 / 5%).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_spec_trans_", 
+      "description": "Specular visible transmission of the aperture group blinds when \ndeployed. (Default: 0.0001 / 0%).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "run_settings_", 
+      "description": "Settings from the \"HB Recipe Settings\" component that specify\nhow the recipe should be run. This can also be a text string of\nrecipe settings.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_run", 
+      "description": "Set to True to run the recipe and get results. This input can also be\nthe integer \"2\" to run the recipe silently.", 
+      "type": "int", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Recipes", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    \n    # create the recipe and set the input arguments\n    recipe = Recipe('well-daylight')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('epw', _epw)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n    recipe.input_value_by_name('diffuse-transmission', _diff_trans_)\n    recipe.input_value_by_name('specular-transmission', _spec_trans_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        l01_compliance = recipe_result(recipe.output_value_by_name('l01-summary', project_folder))\n        l06_compliance = recipe_result(recipe.output_value_by_name('l06-summary', project_folder))\n        dynamic_schedule = recipe_result(recipe.output_value_by_name('dynamic-schedule', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))", 
+  "category": "HB-Radiance", 
+  "name": "HB WELL Daylight", 
+  "description": "Run a WELL v2 Daylight compliance study (Features L01 and L06) for a Honeybee model.\n_\nThis recipe executes an annual climate-based simulation using the 2-phase daylight \ncoefficient method. It automates the extraction of localized daylight hours directly \nfrom an EPW file and processes automated aperture group blinds to verify both spatial \ndaylight access and dynamic glare control metrics.\n_\nThe component evaluates criteria for two primary features:\n* WELL Feature L01: Measures points for spatial Daylight Autonomy (sDA) to guarantee \n    ample daylight reach.\n* WELL Feature L06: Evaluates automated shading behavior (via IES LM-83 methodology) \n    to ensure visual comfort and reduce glaring conditions for occupants.\n-"
+}

@@ -1,0 +1,120 @@
+{
+  "version": "1.10.0", 
+  "nickname": "LEEDOptII", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "credit_summary", 
+        "description": "A summary containing the number of LEED credits achieved and \na summary of the percentage of the sensor grid area that meets the criteria.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "space_summary", 
+        "description": "A room-by-room breakdown containing the percentage of the sensor\ngrid area in each space that meets the compliance criteria.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "combined_compliance", 
+        "description": "A folder containing pass/fail results for the combined \nsimulation as binary (1/0) values. Points must pass at BOTH 9 AM and 3 PM.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "illuminance_9am", 
+        "description": "A folder containing the raw illuminance results for the 9:00 AM \nsimulation in lux.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "illuminance_3pm", 
+        "description": "A folder containing the raw illuminance results for the 3:00 PM \nsimulation in lux.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "compliance_9am", 
+        "description": "A folder containing binary (1/0) pass/fail evaluation results \nfor the 9:00 AM simulation state.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "compliance_3pm", 
+        "description": "A folder containing binary (1/0) pass/fail evaluation results \nfor the 3:00 PM simulation state.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "A Honeybee model in HBJSON file format (.json or .hbjson). \nNote that this model must have sensor grids assigned to it.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_wea", 
+      "description": "A Typical Meteorological Year (TMY) .wea or .epw file. The file must \nbe annual with a timestep of 1 for a non-leap year.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "north_", 
+      "description": "A number between 0 and 360 for rotation from North in degrees. ", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "grid_filter_", 
+      "description": "Text for a grid identifier or a pattern to filter the sensor grids of\nthe model that are simulated. For instance, first_floor_* will simulate\nonly the sensor grids that have an identifier that starts with\nfirst_floor_. By default, all grids in the model will be simulated.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "radiance_par_", 
+      "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 5 -aa 0.1 -ad 2048 -ar 64).", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_glr_ctrl_", 
+      "description": "Set to True to specify that the model has view-preserving automatic \n(with manual override) glare-control devices. (Default: True).", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "run_settings_", 
+      "description": "Settings from the \"HB Recipe Settings\" component that specify\nhow the recipe should be run. This can also be a text string of\nrecipe settings.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_run", 
+      "description": "Set to True to run the recipe and get results. This input can also be\nthe integer \"2\" to run the recipe silently.", 
+      "type": "int", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Recipes", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    glare_control = 'glare-control' if _glr_ctrl_ is True else 'no-glare-control'\n    \n    # create the recipe and set the input arguments\n    recipe = Recipe('leed-daylight-option-two')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n    recipe.input_value_by_name('glare-control-devices', glare_control)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        credit_summary = recipe_result(recipe.output_value_by_name('credit-summary', project_folder))\n        space_summary = recipe_result(recipe.output_value_by_name('space-summary', project_folder))\n        combined_compliance = recipe_result(recipe.output_value_by_name('pass-fail-combined', project_folder))\n        illuminance_9am = recipe_result(recipe.output_value_by_name('illuminance-9am', project_folder))\n        illuminance_3pm = recipe_result(recipe.output_value_by_name('illuminance-3pm', project_folder))\n        compliance_9am = recipe_result(recipe.output_value_by_name('pass-fail-9am', project_folder))\n        compliance_3pm = recipe_result(recipe.output_value_by_name('pass-fail-3pm', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))", 
+  "category": "HB-Radiance", 
+  "name": "HB LEED Option II", 
+  "description": "Run a LEED v4.1 Daylight Option 2 point-in-time study for a Honeybee model.\n_\nThis recipe calculates illuminance for two specific times on a clear sky day \nnear the equinox: 9:00 AM and 3:00 PM. It determines compliance based on whether \nsensor points fall within the target luxury range.\n_\nGLARE CONTROL LOGIC:\n* If '_glr_ctrl_' is set to True, the space is assumed to possess view-preserving\n    automatic glare-control devices. Consequently, sensor points only need to\n    achieve an illuminance level above 300 lux to pass.\n* If '_glr_ctrl_' is set to False, sensor points must fall strictly between 300\n    lux and 3,000 lux to be considered compliant.\n-"
+}
