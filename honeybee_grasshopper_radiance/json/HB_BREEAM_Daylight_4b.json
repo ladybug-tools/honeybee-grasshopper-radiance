@@ -13,14 +13,14 @@
       {
         "access": "None", 
         "name": "summary", 
-        "description": "A summary containing the number of BREEAM credits achieved \nand a summary of the total area meeting the baseline criteria.", 
+        "description": "A summary containing the number of BREEAM credits achieved \nand a summary of the total area meeting the baseline criteria. This\nsummary is organized per building type.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "program_summary", 
-        "description": "A detailed breakdown of compliance percentages organized\nby specific building space and program types.", 
+        "description": "A detailed breakdown of compliance percentages organized\nby specific space and program types.", 
         "type": null, 
         "default": null
       }
@@ -30,14 +30,14 @@
     {
       "access": "item", 
       "name": "_model", 
-      "description": "A Honeybee Model for which BREEAM analysis will be simulated.\nNote that this model must have sensor grids assigned to it.", 
+      "description": "A Honeybee Model for which BREEAM 4b will be simulated.\nNote that this model must have grids assigned to it. It is also required\nthat the model consists of rooms and have HB-Energy programs assigned\nto them.", 
       "type": "System.Object", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_wea", 
-      "description": "A Typical Meteorological Year (TMY) .wea or .epw file. The file must \nbe annual with a timestep of 1 for a non-leap year.", 
+      "description": "A Wea object produced from the Wea components that are under the Light\nSources tab. This can also be the path to a .wea or a .epw file.\nNote that the Wea must have a timestep of 1 to be used with this\nrecipe.", 
       "type": "System.Object", 
       "default": null
     }, 
@@ -81,5 +81,5 @@
   "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    \n    # create the recipe and set the input arguments\n    recipe = Recipe('breeam-daylight-4b')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        summary = recipe_result(recipe.output_value_by_name('summary', project_folder))\n        program_summary = recipe_result(recipe.output_value_by_name('program-summary', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))", 
   "category": "HB-Radiance", 
   "name": "HB BREEAM Daylight 4b", 
-  "description": "Run a BREEAM Hea 01 (Path 4b) daylighting compliance study for a Honeybee model.\n_\nThis recipe executes a climate-based annual simulation using a 2-phase daylight \ncoefficient method to assess compliance against BREEAM daylighting criteria. \n_\nPROGRAM-SPECIFIC EVALUATION:\nThe recipe evaluates annual illuminance metrics over sensor grids and tracks\ncompliance summaries. Because BREEAM maps distinct daylight targets (such as\nspecific average and minimum lux levels) depending on room function, this component\noutputs a program breakdown parsing compliance performance by individual space\ntype/occupancy program categories.\n-"
+  "description": "Run a BREEAM Hea 01 (Path 4b) daylighting compliance study for a Honeybee model.\n_\nThis recipe executes a climate-based annual simulation using a 2-phase daylight \ncoefficient method to assess compliance against BREEAM daylighting criteria. \n_\nSIMULATION REQUIREMENTS:\n* ROOMS: The model must consist of Honeybee Rooms.\n* PROGRAMS: The rooms must have Honeybee Energy programs assigned. Because BREEAM\n    maps distinct daylight targets depending on room function, this component outputs a program\n    breakdown by individual space type or program categories. The program is only used\n    to categorize the room type, and as such only the program name is important.\n    List of valid program names:\n    - BREEAM::Education_buildings::Preschools\n    - BREEAM::Education_buildings::Higher_education\n    - BREEAM::Healthcare_buildings::Staff_and_public_areas\n    - BREEAM::Healthcare_buildings::Patients_areas_and_consulting_rooms\n    - BREEAM::Multi_residential_buildings::Kitchen\n    - BREEAM::Multi_residential_buildings::Living_rooms_dining_rooms_studies\n    - BREEAM::Multi_residential_buildings::Non_residential_or_communal_spaces\n    - BREEAM::Retail_buildings::Sales_areas\n    - BREEAM::Retail_buildings::Other_occupied_areas\n    - BREEAM::Prison_buildings::Cells_and_custody_cells\n    - BREEAM::Prison_buildings::Internal_association_or_atrium\n    - BREEAM::Prison_buildings::Patient_care_spaces\n    - BREEAM::Prison_buildings::Teaching_lecture_and_seminar_spaces\n    - BREEAM::Office_buildings::Occupied_spaces\n    - BREEAM::Creche_buildings::Occupied_spaces\n    - BREEAM::Other_buildings::Occupied_spaces\n_\nNOTE: If a room has no program assigned, BREEAM::Office_buildings::Occupied_spaces\nwill be used as the default program.\n-"
 }

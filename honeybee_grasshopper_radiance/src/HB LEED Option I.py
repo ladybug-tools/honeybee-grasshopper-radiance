@@ -14,19 +14,25 @@ This recipe computes Spatial Daylight Autonomy (sDA) and Annual Sun Exposure (AS
 in accordance with the IES LM-83-12 methodology required for LEED certification.
 It automates the multi-phase simulation required to model dynamic blinds/shades, 
 evaluating whether 2% or more of the room's sensors experience direct sunlight
-(>=1000 lux) for each hour of the year. 
+(>=1000 lux) for each hour of the year. The post-processing is using a 8AM-6PM
+occupancy schedule.
 _
-IMPORTANT SIMULATION REQUIREMENTS:
-* APERTURE GROUPING: For dynamic shading to work, you MUST assign a aperture groups 
+SIMULATION REQUIREMENTS:
+* ROOMS: The model must consist of Honeybee Rooms.
+* APERTURE GROUPS: For dynamic shading to work, you must assign aperture groups 
     to your Honeybee Apertures through "HB Automatic Aperture Group" (room_based must
     be True) or "HB Dynamic Aperture Group" for more control of the grouping.
 
 -
     Args:
         _model: A Honeybee Model for which LEED Option 1 will be simulated.
-            Note that this model must have grids assigned to it.
-        _wea: A Typical Meteorological Year (TMY) .wea or .epw file. The file must 
-            be annual with a timestep of 1 for a non-leap year.
+            Note that this model must have grids assigned to it. It is also required
+            that the model consists of rooms and that aperture groups be assigned
+            to exterior apertures.
+        _wea: A Wea object produced from the Wea components that are under the Light
+            Sources tab. This can also be the path to a .wea or a .epw file.
+            Note that the Wea must have a timestep of 1 to be used with this
+            recipe.
         north_: A number between -360 and 360 for the counterclockwise difference
             between the North and the positive Y-axis in degrees. This can
             also be Vector for the direction to North. (Default: 0).
@@ -52,17 +58,22 @@ IMPORTANT SIMULATION REQUIREMENTS:
             at each hour of the simulation. These can be postprocessed using
             various components under the 4::Results sub-tab. Note that these results
             are without dynamic shading.
-        credit_summary: A summary detailing the total LEED points earned and overall
-            model compliance statistics for sDA and ASE.
-        space_summary: A room-by-room breakdown showing sDA, ASE, and floor area
-            compliance for each individual space.
-        dynamic_schedule: Dynamic shading schedules of each aperture group.
+        credit_summary: A summary detailing the total LEED points and overall
+            model compliance statistics for sDA and ASE for the entire model.
+        space_summary: A detailed room-by-room breakdown showing sDA, ASE, and
+            floor area compliance for each individual space.
+        dynamic_schedule: A list of Ladybug Data Collection, where each collection
+            represents the dynamic schedule for an aperture group. The schedules
+            can be visualized with the 'Hourly Plot' component.
         DA: Daylight Autonomy (DA) results in percent (0 to 100) for each sensor
-            under the calculated optimal dynamic blind schedules.
+            under the calculated dynamic blind schedules.
         direct_sun_hours: The number of occupied hours where each sensor receives
             direct solar illuminance above 1000 lux (used to compute ASE).
-        hourly_pct_above: The percentage of occupied hours that each individual
-            sensor receives direct sunlight above the 1000 lux threshold.
+        hourly_pct_above: A list of Ladybug Data Collections, where each collection
+            corresponds to a single sensor grid. The hourly values represent the
+            percentage (%) of the grid's total floor area receiving direct sunlight
+            illuminance above 1000 lux. The Data Collections can be visualized
+            with the 'Hourly Plot' component.
 """
 
 ghenv.Component.Name = 'HB LEED Option I'
@@ -70,7 +81,7 @@ ghenv.Component.NickName = 'LEEDOptI'
 ghenv.Component.Message = '1.10.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
-ghenv.Component.AdditionalHelpFromDocStrings = '4'
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 try:
     from lbt_recipes.recipe import Recipe
@@ -104,7 +115,7 @@ if all_required_inputs(ghenv.Component) and _run:
         credit_summary = recipe_result(recipe.output_value_by_name('credit-summary', project_folder))
         space_summary = recipe_result(recipe.output_value_by_name('space-summary', project_folder))
         dynamic_schedule = recipe_result(recipe.output_value_by_name('dynamic-schedule', project_folder))
-        daylight_autonomy = recipe_result(recipe.output_value_by_name('daylight-autonomy', project_folder))
+        DA = recipe_result(recipe.output_value_by_name('daylight-autonomy', project_folder))
         direct_sun_hours = recipe_result(recipe.output_value_by_name('ase-hours-above', project_folder))
         hourly_pct_above = recipe_result(recipe.output_value_by_name('hourly-percentage-above', project_folder))
     except Exception:

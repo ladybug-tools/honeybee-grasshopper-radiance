@@ -23,18 +23,21 @@ GLARE CONTROL LOGIC:
 
 -
     Args:
-        _model: A Honeybee model in HBJSON file format (.json or .hbjson). 
-            Note that this model must have sensor grids assigned to it.
-        _wea: A Typical Meteorological Year (TMY) .wea or .epw file. The file must 
-            be annual with a timestep of 1 for a non-leap year.
-        north_: A number between 0 and 360 for rotation from North in degrees. 
-            (Default: 0).
-        grid_filter_: Text for a grid identifier or a pattern to filter the sensor grids of
+        _model: A Honeybee Model for which LEED Option II will be simulated.
+            Note that this model must have grids assigned to it.
+        _wea: A Wea object produced from the Wea components that are under the Light
+            Sources tab. This can also be the path to a .wea or a .epw file.
+            Note that the Wea must have a timestep of 1 to be used with this
+            recipe.
+        north_: A number between -360 and 360 for the counterclockwise difference
+            between the North and the positive Y-axis in degrees. This can
+            also be Vector for the direction to North. (Default: 0).
+        grid_filter_: Text for a grid identifer or a pattern to filter the sensor grids of
             the model that are simulated. For instance, first_floor_* will simulate
             only the sensor grids that have an identifier that starts with
             first_floor_. By default, all grids in the model will be simulated.
         radiance_par_: Text for the radiance parameters to be used for ray
-            tracing. (Default: -ab 5 -aa 0.1 -ad 2048 -ar 64).
+            tracing. (Default: -ab 2 -ad 5000 -lw 2e-05).
         _glr_ctrl_: Set to True to specify that the model has view-preserving automatic 
             (with manual override) glare-control devices. (Default: True).
         run_settings_: Settings from the "HB Recipe Settings" component that specify
@@ -46,19 +49,17 @@ GLARE CONTROL LOGIC:
     Returns:
         report: Reports, errors, warnings, etc.
         credit_summary: A summary containing the number of LEED credits achieved and 
-            a summary of the percentage of the sensor grid area that meets the criteria.
-        space_summary: A room-by-room breakdown containing the percentage of the sensor
-            grid area in each space that meets the compliance criteria.
-        combined_compliance: A folder containing pass/fail results for the combined 
-            simulation as binary (1/0) values. Points must pass at BOTH 9 AM and 3 PM.
-        illuminance_9am: A folder containing the raw illuminance results for the 9:00 AM 
-            simulation in lux.
-        illuminance_3pm: A folder containing the raw illuminance results for the 3:00 PM 
-            simulation in lux.
-        compliance_9am: A folder containing binary (1/0) pass/fail evaluation results 
-            for the 9:00 AM simulation state.
-        compliance_3pm: A folder containing binary (1/0) pass/fail evaluation results 
-            for the 3:00 PM simulation state.
+            the percentage of the floor area that meets the criteria.
+        space_summary: A detailed summary for each grid containing the percentage
+            floor area each space that meets the compliance criteria.
+        combined_compliance: Binary (1/0) for pass/fail evaluation results for
+            both 9 AM and 3 PM. Points must pass at BOTH 9 AM and 3 PM.
+        illuminance_9am: Illuminance (lux) values for the 9:00 AM simulation.
+        illuminance_3pm: Illuminance (lux) values for the 3:00 PM simulation.
+        compliance_9am: Binary (1/0) pass/fail evaluation results for the 9:00 AM
+            simulation state.
+        compliance_3pm: Binary (1/0) pass/fail evaluation results for the 3:00 PM
+            simulation state.
 """
 
 ghenv.Component.Name = 'HB LEED Option II'
@@ -66,7 +67,7 @@ ghenv.Component.NickName = 'LEEDOptII'
 ghenv.Component.Message = '1.10.0'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
-ghenv.Component.AdditionalHelpFromDocStrings = '4'
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 try:
     from lbt_recipes.recipe import Recipe

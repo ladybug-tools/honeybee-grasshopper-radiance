@@ -16,16 +16,28 @@ from an EPW file and processes automated aperture group blinds to verify both sp
 daylight access and dynamic glare control metrics.
 _
 The component evaluates criteria for two primary features:
-* WELL Feature L01: Measures points for spatial Daylight Autonomy (sDA) to guarantee 
-    ample daylight reach.
-* WELL Feature L06: Evaluates automated shading behavior (via IES LM-83 methodology) 
-    to ensure visual comfort and reduce glaring conditions for occupants.
+* WELL Feature L01: Evaluates annual daylight via the IES LM-83 and EN 17037 methodology.
+* WELL Feature L06: Evaluates annual daylight via the IES LM-83 and EN 17037 methodology.
+_
+SIMULATION REQUIREMENTS:
+* ROOMS: The model must consist of Honeybee Rooms.
+* APERTURE GROUPS: For dynamic shading to work, you must assign aperture groups 
+    to your Honeybee Apertures through "HB Automatic Aperture Group" (room_based must
+    be True) or "HB Dynamic Aperture Group" for more control of the grouping.
 
 -
     Args:
         _model: A Honeybee Model for which WELL Daylight 4b will be simulated.
-            Note that this model must have grids assigned to it.
-        _epw: An EPW weather file containing meteorological data.
+            Note that this model must have grids assigned to it. It is also required
+            that the model consists of rooms and that aperture groups be assigned
+            to exterior apertures.
+        _epw: An EPW or Wea object produced from the Wea components that are under
+            the Light Sources tab. This can also be the path to a .wea or a .epw file.
+            Note that the EPW and Wea must have a timestep of 1 to be used with this
+            recipe. This input is used to create the "daylight hours" schedule; the
+            daylight hours schedule is only used for the EN 17037 method. If an EPW
+            is used, the schedule is based on global horizontal illuminance; if a
+            Wea is used, it is based on global horizontal irradiance.
         north_: A number between -360 and 360 for the counterclockwise difference
             between the North and the positive Y-axis in degrees. This can
             also be a Vector for the direction to North. (Default: 0).
@@ -47,14 +59,13 @@ The component evaluates criteria for two primary features:
 
     Returns:
         report: Reports, errors, warnings, execution logs, etc.
-        results: Raw result files (.ill) that contain illuminance matrices for each sensor
-            at each hour of the simulation. These can be postprocessed using
-            various components under the 4::Results sub-tab.
-        l01_compliance: A summary detailing the compliance thresholds met and total points 
-            achieved under WELL L01.
-        l06_compliance: A summary tracking performance metrics and grading outputs tied to 
-            WELL L06.
-        dynamic_schedule: Dynamic shading schedules of each aperture group.
+        results: A folder path containing the raw hourly illuminance matrix data tables 
+            (`.ill`) generated for every sensor grid.
+        l01_compliance: A summary of L01 compliance for both IES LM-83 and EN 17037.
+        l06_compliance: A summary of L06 compliance for both IES LM-83 and EN 17037.
+        dynamic_schedule: A list of Ladybug Data Collection, where each collection
+            represents the dynamic schedule for an aperture group. The schedules
+            can be visualized with the 'Hourly Plot' component.
 """
 
 ghenv.Component.Name = 'HB WELL Daylight'

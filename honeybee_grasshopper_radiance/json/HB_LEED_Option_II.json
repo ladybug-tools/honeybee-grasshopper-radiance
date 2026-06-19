@@ -6,49 +6,49 @@
       {
         "access": "None", 
         "name": "credit_summary", 
-        "description": "A summary containing the number of LEED credits achieved and \na summary of the percentage of the sensor grid area that meets the criteria.", 
+        "description": "A summary containing the number of LEED credits achieved and \nthe percentage of the floor area that meets the criteria.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "space_summary", 
-        "description": "A room-by-room breakdown containing the percentage of the sensor\ngrid area in each space that meets the compliance criteria.", 
+        "description": "A detailed summary for each grid containing the percentage\nfloor area each space that meets the compliance criteria.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "combined_compliance", 
-        "description": "A folder containing pass/fail results for the combined \nsimulation as binary (1/0) values. Points must pass at BOTH 9 AM and 3 PM.", 
+        "description": "Binary (1/0) for pass/fail evaluation results for\nboth 9 AM and 3 PM. Points must pass at BOTH 9 AM and 3 PM.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "illuminance_9am", 
-        "description": "A folder containing the raw illuminance results for the 9:00 AM \nsimulation in lux.", 
+        "description": "Illuminance (lux) values for the 9:00 AM simulation.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "illuminance_3pm", 
-        "description": "A folder containing the raw illuminance results for the 3:00 PM \nsimulation in lux.", 
+        "description": "Illuminance (lux) values for the 3:00 PM simulation.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "compliance_9am", 
-        "description": "A folder containing binary (1/0) pass/fail evaluation results \nfor the 9:00 AM simulation state.", 
+        "description": "Binary (1/0) pass/fail evaluation results for the 9:00 AM\nsimulation state.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "compliance_3pm", 
-        "description": "A folder containing binary (1/0) pass/fail evaluation results \nfor the 3:00 PM simulation state.", 
+        "description": "Binary (1/0) pass/fail evaluation results for the 3:00 PM\nsimulation state.", 
         "type": null, 
         "default": null
       }
@@ -58,35 +58,35 @@
     {
       "access": "item", 
       "name": "_model", 
-      "description": "A Honeybee model in HBJSON file format (.json or .hbjson). \nNote that this model must have sensor grids assigned to it.", 
+      "description": "A Honeybee Model for which LEED Option II will be simulated.\nNote that this model must have grids assigned to it.", 
       "type": "System.Object", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_wea", 
-      "description": "A Typical Meteorological Year (TMY) .wea or .epw file. The file must \nbe annual with a timestep of 1 for a non-leap year.", 
+      "description": "A Wea object produced from the Wea components that are under the Light\nSources tab. This can also be the path to a .wea or a .epw file.\nNote that the Wea must have a timestep of 1 to be used with this\nrecipe.", 
       "type": "System.Object", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "north_", 
-      "description": "A number between 0 and 360 for rotation from North in degrees. ", 
+      "description": "A number between -360 and 360 for the counterclockwise difference\nbetween the North and the positive Y-axis in degrees. This can\nalso be Vector for the direction to North. (Default: 0).", 
       "type": "System.Object", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "grid_filter_", 
-      "description": "Text for a grid identifier or a pattern to filter the sensor grids of\nthe model that are simulated. For instance, first_floor_* will simulate\nonly the sensor grids that have an identifier that starts with\nfirst_floor_. By default, all grids in the model will be simulated.", 
+      "description": "Text for a grid identifer or a pattern to filter the sensor grids of\nthe model that are simulated. For instance, first_floor_* will simulate\nonly the sensor grids that have an identifier that starts with\nfirst_floor_. By default, all grids in the model will be simulated.", 
       "type": "string", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "radiance_par_", 
-      "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 5 -aa 0.1 -ad 2048 -ar 64).", 
+      "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 2 -ad 5000 -lw 2e-05).", 
       "type": "string", 
       "default": null
     }, 

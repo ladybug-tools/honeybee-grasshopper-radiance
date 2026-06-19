@@ -13,14 +13,14 @@
       {
         "access": "None", 
         "name": "summary", 
-        "description": "A comma-separated summary report profiling compiled scorecards \nacross all analyzed sensor grids.", 
+        "description": "A summary report of each sensor grid consisting of the sDA for\n\"minimum illuminance\" and \"target illuminance\".", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "daylight_hours", 
-        "description": "Occupancy schedule used in the post-processing. This schedule\nconsists of the half of the year with the largest quantity of daylight.", 
+        "description": "Occupancy schedule used in the post-processing. This schedule\nconsists of the half of the year with the largest quantity of daylight.\nThe schedule can be visualized with the 'Hourly Plot' component, or\nused in various components under the 4::Results sub-tab.", 
         "type": null, 
         "default": null
       }
@@ -37,7 +37,7 @@
     {
       "access": "item", 
       "name": "_epw", 
-      "description": "An EPW weather file containing meteorological data used to compute\ndaylight hours for the post-processing schedule.", 
+      "description": "An EPW or Wea object produced from the Wea components that are under\nthe Light Sources tab. This can also be the path to a .wea or a .epw file.\nNote that the EPW and Wea must have a timestep of 1 to be used with this\nrecipe. This input is used to create the \"daylight hours\" schedule. If\nan EPW is used, the schedule is based on global horizontal illuminance;\nif a Wea is used, it is based on global horizontal irradiance.", 
       "type": "System.Object", 
       "default": null
     }, 
@@ -81,5 +81,5 @@
   "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    \n    # create the recipe and set the input arguments\n    recipe = Recipe('annual-daylight-en17037')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('epw', _epw)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        summary = recipe_result(recipe.output_value_by_name('summary', project_folder))\n        daylight_hours = recipe_result(recipe.output_value_by_name('daylight-hours', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))", 
   "category": "HB-Radiance", 
   "name": "HB Annual Daylight EN17037", 
-  "description": "Run an annual daylight compliance study according to European Standard EN 17037.\n_\nThis recipe executes a climate-based annual simulation using a 2-phase daylight \ncoefficient method. It automatically parses the input EPW file to isolate the evaluation \nto unique, location-specific daylight hours (discarding night intervals). \n_\nCOMPLIANCE METRICS EVALUATED:\n* EN 17037 Metrics: Specifically gauges target illuminance thresholds across a \n    set percentage of the space for at least half of the daylight hours of the year.\n-"
+  "description": "Run an annual daylight compliance study according to European Standard EN 17037.\n_\nThis recipe executes a climate-based annual simulation using a 2-phase daylight \ncoefficient method. It automatically parses the input EPW or Wea to isolate the\nevaluation to unique, location-specific daylight hours. \n_\nCOMPLIANCE METRICS EVALUATED:\n* EN 17037 Metrics: Specifically gauges target illuminance thresholds across a \n    set percentage of the space for at least half of the daylight hours of the year.\n-"
 }

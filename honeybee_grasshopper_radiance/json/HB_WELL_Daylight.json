@@ -6,28 +6,28 @@
       {
         "access": "None", 
         "name": "results", 
-        "description": "Raw result files (.ill) that contain illuminance matrices for each sensor\nat each hour of the simulation. These can be postprocessed using\nvarious components under the 4::Results sub-tab.", 
+        "description": "A folder path containing the raw hourly illuminance matrix data tables \n(`.ill`) generated for every sensor grid.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "l01_compliance", 
-        "description": "A summary detailing the compliance thresholds met and total points \nachieved under WELL L01.", 
+        "description": "A summary of L01 compliance for both IES LM-83 and EN 17037.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "l06_compliance", 
-        "description": "A summary tracking performance metrics and grading outputs tied to \nWELL L06.", 
+        "description": "A summary of L06 compliance for both IES LM-83 and EN 17037.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "dynamic_schedule", 
-        "description": "Dynamic shading schedules of each aperture group.", 
+        "description": "A list of Ladybug Data Collection, where each collection\nrepresents the dynamic schedule for an aperture group. The schedules\ncan be visualized with the 'Hourly Plot' component.", 
         "type": null, 
         "default": null
       }
@@ -37,14 +37,14 @@
     {
       "access": "item", 
       "name": "_model", 
-      "description": "A Honeybee Model for which WELL Daylight 4b will be simulated.\nNote that this model must have grids assigned to it.", 
+      "description": "A Honeybee Model for which WELL Daylight 4b will be simulated.\nNote that this model must have grids assigned to it. It is also required\nthat the model consists of rooms and that aperture groups be assigned\nto exterior apertures.", 
       "type": "System.Object", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_epw", 
-      "description": "An EPW weather file containing meteorological data.", 
+      "description": "An EPW or Wea object produced from the Wea components that are under\nthe Light Sources tab. This can also be the path to a .wea or a .epw file.\nNote that the EPW and Wea must have a timestep of 1 to be used with this\nrecipe. This input is used to create the \"daylight hours\" schedule; the\ndaylight hours schedule is only used for the EN 17037 method. If an EPW\nis used, the schedule is based on global horizontal illuminance; if a\nWea is used, it is based on global horizontal irradiance.", 
       "type": "System.Object", 
       "default": null
     }, 
@@ -102,5 +102,5 @@
   "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    \n    # create the recipe and set the input arguments\n    recipe = Recipe('well-daylight')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('epw', _epw)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n    recipe.input_value_by_name('diffuse-transmission', _diff_trans_)\n    recipe.input_value_by_name('specular-transmission', _spec_trans_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        l01_compliance = recipe_result(recipe.output_value_by_name('l01-summary', project_folder))\n        l06_compliance = recipe_result(recipe.output_value_by_name('l06-summary', project_folder))\n        dynamic_schedule = recipe_result(recipe.output_value_by_name('dynamic-schedule', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))", 
   "category": "HB-Radiance", 
   "name": "HB WELL Daylight", 
-  "description": "Run a WELL v2 Daylight compliance study (Features L01 and L06) for a Honeybee model.\n_\nThis recipe executes an annual climate-based simulation using the 2-phase daylight \ncoefficient method. It automates the extraction of localized daylight hours directly \nfrom an EPW file and processes automated aperture group blinds to verify both spatial \ndaylight access and dynamic glare control metrics.\n_\nThe component evaluates criteria for two primary features:\n* WELL Feature L01: Measures points for spatial Daylight Autonomy (sDA) to guarantee \n    ample daylight reach.\n* WELL Feature L06: Evaluates automated shading behavior (via IES LM-83 methodology) \n    to ensure visual comfort and reduce glaring conditions for occupants.\n-"
+  "description": "Run a WELL v2 Daylight compliance study (Features L01 and L06) for a Honeybee model.\n_\nThis recipe executes an annual climate-based simulation using the 2-phase daylight \ncoefficient method. It automates the extraction of localized daylight hours directly \nfrom an EPW file and processes automated aperture group blinds to verify both spatial \ndaylight access and dynamic glare control metrics.\n_\nThe component evaluates criteria for two primary features:\n* WELL Feature L01: Evaluates annual daylight via the IES LM-83 and EN 17037 methodology.\n* WELL Feature L06: Evaluates annual daylight via the IES LM-83 and EN 17037 methodology.\n_\nSIMULATION REQUIREMENTS:\n* ROOMS: The model must consist of Honeybee Rooms.\n* APERTURE GROUPS: For dynamic shading to work, you must assign aperture groups \n    to your Honeybee Apertures through \"HB Automatic Aperture Group\" (room_based must\n    be True) or \"HB Dynamic Aperture Group\" for more control of the grouping.\n-"
 }

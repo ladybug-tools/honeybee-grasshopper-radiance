@@ -11,8 +11,8 @@
 Run an annual daylight compliance study according to European Standard EN 17037.
 _
 This recipe executes a climate-based annual simulation using a 2-phase daylight 
-coefficient method. It automatically parses the input EPW file to isolate the evaluation 
-to unique, location-specific daylight hours (discarding night intervals). 
+coefficient method. It automatically parses the input EPW or Wea to isolate the
+evaluation to unique, location-specific daylight hours. 
 _
 COMPLIANCE METRICS EVALUATED:
 * EN 17037 Metrics: Specifically gauges target illuminance thresholds across a 
@@ -22,8 +22,12 @@ COMPLIANCE METRICS EVALUATED:
     Args:
         _model: A Honeybee Model for which Annual Daylight EN17037 will be simulated.
             Note that this model must have grids assigned to it.
-        _epw: An EPW weather file containing meteorological data used to compute
-            daylight hours for the post-processing schedule.
+        _epw: An EPW or Wea object produced from the Wea components that are under
+            the Light Sources tab. This can also be the path to a .wea or a .epw file.
+            Note that the EPW and Wea must have a timestep of 1 to be used with this
+            recipe. This input is used to create the "daylight hours" schedule. If
+            an EPW is used, the schedule is based on global horizontal illuminance;
+            if a Wea is used, it is based on global horizontal irradiance.
         north_: A number between -360 and 360 for the counterclockwise difference
             between the North and the positive Y-axis in degrees. This can
             also be Vector for the direction to North. (Default: 0).
@@ -44,10 +48,12 @@ COMPLIANCE METRICS EVALUATED:
         results: Raw result files (.ill) that contain illuminance matrices for each sensor
             at each hour of the simulation. These can be postprocessed using
             various components under the 4::Results sub-tab.
-        summary: A comma-separated summary report profiling compiled scorecards 
-            across all analyzed sensor grids.
+        summary: A summary report of each sensor grid consisting of the sDA for
+            "minimum illuminance" and "target illuminance".
         daylight_hours: Occupancy schedule used in the post-processing. This schedule
             consists of the half of the year with the largest quantity of daylight.
+            The schedule can be visualized with the 'Hourly Plot' component, or
+            used in various components under the 4::Results sub-tab.
 """
 
 ghenv.Component.Name = 'HB Annual Daylight EN17037'

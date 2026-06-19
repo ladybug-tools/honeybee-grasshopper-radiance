@@ -13,28 +13,28 @@
       {
         "access": "None", 
         "name": "credit_summary", 
-        "description": "A summary detailing the total LEED points earned and overall\nmodel compliance statistics for sDA and ASE.", 
+        "description": "A summary detailing the total LEED points and overall\nmodel compliance statistics for sDA and ASE for the entire model.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "space_summary", 
-        "description": "A room-by-room breakdown showing sDA, ASE, and floor area\ncompliance for each individual space.", 
+        "description": "A detailed room-by-room breakdown showing sDA, ASE, and\nfloor area compliance for each individual space.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "dynamic_schedule", 
-        "description": "Dynamic shading schedules of each aperture group.", 
+        "description": "A list of Ladybug Data Collection, where each collection\nrepresents the dynamic schedule for an aperture group. The schedules\ncan be visualized with the 'Hourly Plot' component.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "DA", 
-        "description": "Daylight Autonomy (DA) results in percent (0 to 100) for each sensor\nunder the calculated optimal dynamic blind schedules.", 
+        "description": "Daylight Autonomy (DA) results in percent (0 to 100) for each sensor\nunder the calculated dynamic blind schedules.", 
         "type": null, 
         "default": null
       }, 
@@ -48,7 +48,7 @@
       {
         "access": "None", 
         "name": "hourly_pct_above", 
-        "description": "The percentage of occupied hours that each individual\nsensor receives direct sunlight above the 1000 lux threshold.", 
+        "description": "A list of Ladybug Data Collections, where each collection\ncorresponds to a single sensor grid. The hourly values represent the\npercentage (%) of the grid's total floor area receiving direct sunlight\nilluminance above 1000 lux. The Data Collections can be visualized\nwith the 'Hourly Plot' component.", 
         "type": null, 
         "default": null
       }
@@ -58,14 +58,14 @@
     {
       "access": "item", 
       "name": "_model", 
-      "description": "A Honeybee Model for which LEED Option 1 will be simulated.\nNote that this model must have grids assigned to it.", 
+      "description": "A Honeybee Model for which LEED Option 1 will be simulated.\nNote that this model must have grids assigned to it. It is also required\nthat the model consists of rooms and that aperture groups be assigned\nto exterior apertures.", 
       "type": "System.Object", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_wea", 
-      "description": "A Typical Meteorological Year (TMY) .wea or .epw file. The file must \nbe annual with a timestep of 1 for a non-leap year.", 
+      "description": "A Wea object produced from the Wea components that are under the Light\nSources tab. This can also be the path to a .wea or a .epw file.\nNote that the Wea must have a timestep of 1 to be used with this\nrecipe.", 
       "type": "System.Object", 
       "default": null
     }, 
@@ -120,8 +120,8 @@
     }
   ], 
   "subcategory": "3 :: Recipes", 
-  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('leed-daylight-option-one')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n    recipe.input_value_by_name('diffuse-transmission', _diff_trans_)\n    recipe.input_value_by_name('specular-transmission', _spec_trans_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        credit_summary = recipe_result(recipe.output_value_by_name('credit-summary', project_folder))\n        space_summary = recipe_result(recipe.output_value_by_name('space-summary', project_folder))\n        dynamic_schedule = recipe_result(recipe.output_value_by_name('dynamic-schedule', project_folder))\n        daylight_autonomy = recipe_result(recipe.output_value_by_name('daylight-autonomy', project_folder))\n        direct_sun_hours = recipe_result(recipe.output_value_by_name('ase-hours-above', project_folder))\n        hourly_pct_above = recipe_result(recipe.output_value_by_name('hourly-percentage-above', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('leed-daylight-option-one')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('wea', _wea)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n    recipe.input_value_by_name('diffuse-transmission', _diff_trans_)\n    recipe.input_value_by_name('specular-transmission', _spec_trans_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        credit_summary = recipe_result(recipe.output_value_by_name('credit-summary', project_folder))\n        space_summary = recipe_result(recipe.output_value_by_name('space-summary', project_folder))\n        dynamic_schedule = recipe_result(recipe.output_value_by_name('dynamic-schedule', project_folder))\n        DA = recipe_result(recipe.output_value_by_name('daylight-autonomy', project_folder))\n        direct_sun_hours = recipe_result(recipe.output_value_by_name('ase-hours-above', project_folder))\n        hourly_pct_above = recipe_result(recipe.output_value_by_name('hourly-percentage-above', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
   "category": "HB-Radiance", 
   "name": "HB LEED Option I", 
-  "description": "Run a LEED v4.1 Daylight Option 1 daylight study for a Honeybee model.\n_\nThis recipe computes Spatial Daylight Autonomy (sDA) and Annual Sun Exposure (ASE) \nin accordance with the IES LM-83-12 methodology required for LEED certification.\nIt automates the multi-phase simulation required to model dynamic blinds/shades, \nevaluating whether 2% or more of the room's sensors experience direct sunlight\n(>=1000 lux) for each hour of the year. \n_\nIMPORTANT SIMULATION REQUIREMENTS:\n* APERTURE GROUPING: For dynamic shading to work, you MUST assign a aperture groups \n    to your Honeybee Apertures through \"HB Automatic Aperture Group\" (room_based must\n    be True) or \"HB Dynamic Aperture Group\" for more control of the grouping.\n-"
+  "description": "Run a LEED v4.1 Daylight Option 1 daylight study for a Honeybee model.\n_\nThis recipe computes Spatial Daylight Autonomy (sDA) and Annual Sun Exposure (ASE) \nin accordance with the IES LM-83-12 methodology required for LEED certification.\nIt automates the multi-phase simulation required to model dynamic blinds/shades, \nevaluating whether 2% or more of the room's sensors experience direct sunlight\n(>=1000 lux) for each hour of the year. The post-processing is using a 8AM-6PM\noccupancy schedule.\n_\nSIMULATION REQUIREMENTS:\n* ROOMS: The model must consist of Honeybee Rooms.\n* APERTURE GROUPS: For dynamic shading to work, you must assign aperture groups \n    to your Honeybee Apertures through \"HB Automatic Aperture Group\" (room_based must\n    be True) or \"HB Dynamic Aperture Group\" for more control of the grouping.\n-"
 }
