@@ -45,8 +45,8 @@ SIMULATION REQUIREMENTS:
             the model that are simulated. For instance, first_floor_* will simulate
             only the sensor grids that have an identifier that starts with
             first_floor_. By default, all grids in the model will be simulated.
-        radiance_par_: Text specifying the radiance parameters for ray tracing. 
-            (Default: -ab 2 -ad 5000 -lw 2e-05 -dr 0).
+        radiance_par_: Text for the radiance parameters to be used for ray
+            tracing. (Default: -ab 2 -ad 5000 -lw 2e-05).
         _diff_trans_: Diffuse visible transmission of the aperture group blinds when 
             deployed. (Default: 0.05 / 5%).
         _spec_trans_: Specular visible transmission of the aperture group blinds when 
@@ -66,11 +66,15 @@ SIMULATION REQUIREMENTS:
         dynamic_schedule: A list of Ladybug Data Collection, where each collection
             represents the dynamic schedule for an aperture group. The schedules
             can be visualized with the 'Hourly Plot' component.
+        daylight_hours: Occupancy schedule used in the post-processing (for EN 17037).
+            This schedule consists of the half of the year with the largest quantity
+            of daylight. The schedule can be visualized with the 'Hourly Plot'
+            component, or used in various components under the 4::Results sub-tab.
 """
 
 ghenv.Component.Name = 'HB WELL Daylight'
 ghenv.Component.NickName = 'WELLDaylight'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -108,5 +112,6 @@ if all_required_inputs(ghenv.Component) and _run:
         l01_compliance = recipe_result(recipe.output_value_by_name('l01-summary', project_folder))
         l06_compliance = recipe_result(recipe.output_value_by_name('l06-summary', project_folder))
         dynamic_schedule = recipe_result(recipe.output_value_by_name('dynamic-schedule', project_folder))
+        daylight_hours = recipe_result(recipe.output_value_by_name('daylight-hours', project_folder))
     except Exception:
         raise Exception(recipe.failure_message(project_folder))

@@ -1,5 +1,5 @@
 {
-  "version": "1.10.0", 
+  "version": "1.10.1", 
   "nickname": "WELLDaylight", 
   "outputs": [
     [
@@ -28,6 +28,13 @@
         "access": "None", 
         "name": "dynamic_schedule", 
         "description": "A list of Ladybug Data Collection, where each collection\nrepresents the dynamic schedule for an aperture group. The schedules\ncan be visualized with the 'Hourly Plot' component.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "daylight_hours", 
+        "description": "Occupancy schedule used in the post-processing (for EN 17037).\nThis schedule consists of the half of the year with the largest quantity\nof daylight. The schedule can be visualized with the 'Hourly Plot'\ncomponent, or used in various components under the 4::Results sub-tab.", 
         "type": null, 
         "default": null
       }
@@ -65,7 +72,7 @@
     {
       "access": "item", 
       "name": "radiance_par_", 
-      "description": "Text specifying the radiance parameters for ray tracing. ", 
+      "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 2 -ad 5000 -lw 2e-05).", 
       "type": "string", 
       "default": null
     }, 
@@ -99,7 +106,7 @@
     }
   ], 
   "subcategory": "3 :: Recipes", 
-  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    \n    # create the recipe and set the input arguments\n    recipe = Recipe('well-daylight')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('epw', _epw)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n    recipe.input_value_by_name('diffuse-transmission', _diff_trans_)\n    recipe.input_value_by_name('specular-transmission', _spec_trans_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        l01_compliance = recipe_result(recipe.output_value_by_name('l01-summary', project_folder))\n        l06_compliance = recipe_result(recipe.output_value_by_name('l06-summary', project_folder))\n        dynamic_schedule = recipe_result(recipe.output_value_by_name('dynamic-schedule', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))", 
+  "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    \n    # create the recipe and set the input arguments\n    recipe = Recipe('well-daylight')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('epw', _epw)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n    recipe.input_value_by_name('diffuse-transmission', _diff_trans_)\n    recipe.input_value_by_name('specular-transmission', _spec_trans_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n        l01_compliance = recipe_result(recipe.output_value_by_name('l01-summary', project_folder))\n        l06_compliance = recipe_result(recipe.output_value_by_name('l06-summary', project_folder))\n        dynamic_schedule = recipe_result(recipe.output_value_by_name('dynamic-schedule', project_folder))\n        daylight_hours = recipe_result(recipe.output_value_by_name('daylight-hours', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))", 
   "category": "HB-Radiance", 
   "name": "HB WELL Daylight", 
   "description": "Run a WELL v2 Daylight compliance study (Features L01 and L06) for a Honeybee model.\n_\nThis recipe executes an annual climate-based simulation using the 2-phase daylight \ncoefficient method. It automates the extraction of localized daylight hours directly \nfrom an EPW file and processes automated aperture group blinds to verify both spatial \ndaylight access and dynamic glare control metrics.\n_\nThe component evaluates criteria for two primary features:\n* WELL Feature L01: Evaluates annual daylight via the IES LM-83 and EN 17037 methodology.\n* WELL Feature L06: Evaluates annual daylight via the IES LM-83 and EN 17037 methodology.\n_\nSIMULATION REQUIREMENTS:\n* ROOMS: The model must consist of Honeybee Rooms.\n* APERTURE GROUPS: For dynamic shading to work, you must assign aperture groups \n    to your Honeybee Apertures through \"HB Automatic Aperture Group\" (room_based must\n    be True) or \"HB Dynamic Aperture Group\" for more control of the grouping.\n-"
