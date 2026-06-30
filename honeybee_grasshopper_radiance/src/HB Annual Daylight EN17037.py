@@ -48,7 +48,9 @@ COMPLIANCE METRICS EVALUATED:
         results: Raw result files (.ill) that contain illuminance matrices for each sensor
             at each hour of the simulation. These can be postprocessed using
             various components under the 4::Results sub-tab.
-        summary: A summary report of each sensor grid consisting of the sDA for
+        summary: A summary report of the whole model consisting of the sDA for
+            "minimum illuminance" and "target illuminance".
+        summary_grid: A summary report of each sensor grid consisting of the sDA for
             "minimum illuminance" and "target illuminance".
         daylight_hours: Occupancy schedule used in the post-processing. This schedule
             consists of the half of the year with the largest quantity of daylight.
@@ -58,7 +60,7 @@ COMPLIANCE METRICS EVALUATED:
 
 ghenv.Component.Name = 'HB Annual Daylight EN17037'
 ghenv.Component.NickName = 'EN17037Daylight'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -92,6 +94,7 @@ if all_required_inputs(ghenv.Component) and _run:
     try:
         results = recipe_result(recipe.output_value_by_name('results', project_folder))
         summary = recipe_result(recipe.output_value_by_name('summary', project_folder))
+        summary_grid = recipe_result(recipe.output_value_by_name('summary-grid', project_folder))
         daylight_hours = recipe_result(recipe.output_value_by_name('daylight-hours', project_folder))
     except Exception:
         raise Exception(recipe.failure_message(project_folder))
