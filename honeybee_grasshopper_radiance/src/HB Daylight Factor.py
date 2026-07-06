@@ -48,10 +48,10 @@ calculation time than Daylight Factor.
 
 ghenv.Component.Name = 'HB Daylight Factor'
 ghenv.Component.NickName = 'DaylightFactor'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
-ghenv.Component.AdditionalHelpFromDocStrings = '3'
+ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 try:
     from lbt_recipes.recipe import Recipe

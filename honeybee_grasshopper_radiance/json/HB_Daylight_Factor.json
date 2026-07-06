@@ -1,57 +1,57 @@
 {
-  "version": "1.10.0", 
-  "nickname": "DaylightFactor", 
+  "inputs": [
+    {
+      "default": null, 
+      "description": "A Honeybee Model for which Daylight Factor will be simulated.\nNote that this model should have grids assigned to it in order\nto produce meaningfule results.", 
+      "type": "System.Object", 
+      "access": "item", 
+      "name": "_model"
+    }, 
+    {
+      "default": null, 
+      "description": "Text for a grid identifer or a pattern to filter the sensor grids of\nthe model that are simulated. For instance, `first_floor_*` will simulate\nonly the sensor grids that have an identifier that starts with\n`first_floor_`. By default, all grids in the model will be simulated.", 
+      "type": "string", 
+      "access": "item", 
+      "name": "grid_filter_"
+    }, 
+    {
+      "default": null, 
+      "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 2 -aa 0.1 -ad 2048 -ar 64).", 
+      "type": "string", 
+      "access": "item", 
+      "name": "radiance_par_"
+    }, 
+    {
+      "default": null, 
+      "description": "Settings from the \"HB Recipe Settings\" component that specify\nhow the recipe should be run. This can also be a text string of\nrecipe settings.", 
+      "type": "System.Object", 
+      "access": "item", 
+      "name": "run_settings_"
+    }, 
+    {
+      "default": null, 
+      "description": "Set to True to run the recipe and get results. This input can also be\nthe integer \"2\" to run the recipe silently.", 
+      "type": "int", 
+      "access": "item", 
+      "name": "_run"
+    }
+  ], 
   "outputs": [
     [
       {
-        "access": "None", 
-        "name": "results", 
+        "default": null, 
         "description": "The daylight factor values from the simulation in percent. Each\nvalue is for a different sensor of the grid. These can be plugged\ninto the \"LB Spatial Heatmap\" component along with meshes of the\nsensor grids to visualize results.", 
         "type": null, 
-        "default": null
+        "access": "None", 
+        "name": "results"
       }
     ]
   ], 
-  "inputs": [
-    {
-      "access": "item", 
-      "name": "_model", 
-      "description": "A Honeybee Model for which Daylight Factor will be simulated.\nNote that this model should have grids assigned to it in order\nto produce meaningfule results.", 
-      "type": "System.Object", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
-      "name": "grid_filter_", 
-      "description": "Text for a grid identifer or a pattern to filter the sensor grids of\nthe model that are simulated. For instance, `first_floor_*` will simulate\nonly the sensor grids that have an identifier that starts with\n`first_floor_`. By default, all grids in the model will be simulated.", 
-      "type": "string", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
-      "name": "radiance_par_", 
-      "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 2 -aa 0.1 -ad 2048 -ar 64).", 
-      "type": "string", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
-      "name": "run_settings_", 
-      "description": "Settings from the \"HB Recipe Settings\" component that specify\nhow the recipe should be run. This can also be a text string of\nrecipe settings.", 
-      "type": "System.Object", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
-      "name": "_run", 
-      "description": "Set to True to run the recipe and get results. This input can also be\nthe integer \"2\" to run the recipe silently.", 
-      "type": "int", 
-      "default": null
-    }
-  ], 
-  "subcategory": "3 :: Recipes", 
   "code": "\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('daylight-factor')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('grid-filter', grid_filter_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # run the recipe\n    silent = True if _run > 1 else False\n    project_folder = recipe.run(run_settings_, radiance_check=True, silent=silent)\n\n    # load the results\n    try:\n        results = recipe_result(recipe.output_value_by_name('results', project_folder))\n    except Exception:\n        raise Exception(recipe.failure_message(project_folder))\n", 
+  "description": "Run a daylight factor study for a Honeybee model.\n_\nDaylight Factor (DF) is defined as the ratio of the indoor daylight illuminance\nto outdoor illuminance under an unobstructed overcast sky. It is expressed as a\npercentage between 0 and 100.\n_\nBecause daylight factor is computed using an overcast sky, it does not change\nwith [North, East, South, West] orientation. As such, it is more suited to\nassessing daylight in climates where cloudy conditions are common. The \"HB\nAnnual Daylight\" recipe yields a much more accurate assessment of daylight\nand is suitable for all climates, though it requires a significantly longer\ncalculation time than Daylight Factor.\n-", 
+  "subcategory": "3 :: Recipes", 
+  "nickname": "DaylightFactor", 
   "category": "HB-Radiance", 
   "name": "HB Daylight Factor", 
-  "description": "Run a daylight factor study for a Honeybee model.\n_\nDaylight Factor (DF) is defined as the ratio of the indoor daylight illuminance\nto outdoor illuminance under an unobstructed overcast sky. It is expressed as a\npercentage between 0 and 100.\n_\nBecause daylight factor is computed using an overcast sky, it does not change\nwith [North, East, South, West] orientation. As such, it is more suited to\nassessing daylight in climates where cloudy conditions are common. The \"HB\nAnnual Daylight\" recipe yields a much more accurate assessment of daylight\nand is suitable for all climates, though it requires a significantly longer\ncalculation time than Daylight Factor.\n-"
+  "version": "1.10.1"
 }
