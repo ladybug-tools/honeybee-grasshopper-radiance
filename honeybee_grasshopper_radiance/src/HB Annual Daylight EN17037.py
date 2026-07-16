@@ -26,8 +26,8 @@ COMPLIANCE METRICS EVALUATED:
             the Light Sources tab. This can also be the path to a .wea or a .epw file.
             Note that the EPW and Wea must have a timestep of 1 to be used with this
             recipe. This input is used to create the "daylight hours" schedule. If
-            an EPW is used, the schedule is based on global horizontal illuminance;
-            if a Wea is used, it is based on global horizontal irradiance.
+            an EPW is used, the schedule is based on diffuse horizontal illuminance;
+            if a Wea is used, it is based on diffuse horizontal irradiance.
         north_: A number between -360 and 360 for the counterclockwise difference
             between the North and the positive Y-axis in degrees. This can
             also be Vector for the direction to North. (Default: 0).

@@ -44,7 +44,7 @@
     {
       "access": "item", 
       "name": "_epw", 
-      "description": "An EPW or Wea object produced from the Wea components that are under\nthe Light Sources tab. This can also be the path to a .wea or a .epw file.\nNote that the EPW and Wea must have a timestep of 1 to be used with this\nrecipe. This input is used to create the \"daylight hours\" schedule. If\nan EPW is used, the schedule is based on global horizontal illuminance;\nif a Wea is used, it is based on global horizontal irradiance.", 
+      "description": "An EPW or Wea object produced from the Wea components that are under\nthe Light Sources tab. This can also be the path to a .wea or a .epw file.\nNote that the EPW and Wea must have a timestep of 1 to be used with this\nrecipe. This input is used to create the \"daylight hours\" schedule. If\nan EPW is used, the schedule is based on diffuse horizontal illuminance;\nif a Wea is used, it is based on diffuse horizontal irradiance.", 
       "type": "System.Object", 
       "default": null
     }, 
