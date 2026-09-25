@@ -60,7 +60,7 @@ of view-based simulations, the "HB Point-in-time View-based" recipe should be us
 
 ghenv.Component.Name = 'HB Check Scene'
 ghenv.Component.NickName = 'CheckScene'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Radiance'
 ghenv.Component.SubCategory = '3 :: Recipes'
 ghenv.Component.AdditionalHelpFromDocStrings = '6'
@@ -132,6 +132,9 @@ if all_required_inputs(ghenv.Component) and _run:
     if _view_ is None:
         viewp = viewport_by_name(None)
         v_props = viewport_properties(viewp, 0)
+        if v_props['h_angle'] == 0 and v_props['v_angle'] == 0:
+            msg = 'The view must be a perspective and not a parallel view.'
+            raise ValueError(msg)
         VIEW_TYPES = ('v', 'h', 'l', 'c', 'a')
         _view_ = View(
             'current_viewport', v_props['position'], v_props['direction'],
